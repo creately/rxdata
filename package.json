@@ -1,0 +1,62 @@
+{
+  "name": "rxdata",
+  "version": "1.0.0",
+  "description": "A reactive document database for web browsers",
+  "engineStrict": true,
+  "engines": {
+    "node": ">= 6.9.0"
+  },
+  "devDependencies": {
+    "@types/jest": "~18.1.0",
+    "jest": "~18.1.0",
+    "rimraf": "~2.5.4",
+    "style-guide-typescript": "github:cinergix/style-guide-typescript",
+    "tslint": "~4.4.2",
+    "tslint-eslint-rules": "github:cinergix/tslint-eslint-rules#dev",
+    "tslint-microsoft-contrib": "~4.0.0",
+    "typescript": "~2.1.5"
+  },
+  "scripts": {
+    "clean": "rimraf coverage build tmp",
+    "build": "tsc -p tsconfig.release.json",
+    "watch": "tsc -w -p tsconfig.release.json",
+    "lint": "tslint -t stylish 'src/**/*.ts'",
+    "pretest": "npm run lint",
+    "test": "npm run test-only",
+    "test-only": "jest --coverage",
+    "test:watch": "jest --watch",
+    "prepublish": "npm run build"
+  },
+  "author": "Thanish <thanish@cinergix.com> (http://cinergix.com/)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cinergix/rxdata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cinergix/rxdata/issues"
+  },
+  "homepage": "https://github.com/cinergix/rxdata#readme",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      ".ts": "<rootDir>/.scripts/preprocessor.js"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testRegex": "<rootDir>(src/).*\\.spec\\.ts$",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.{ts,js}",
+      "!src/**/*.d.ts"
+    ]
+  },
+  "dependencies": {
+    "localforage": "^1.4.3",
+    "mingo": "^0.9.0",
+    "rxjs": "^5.1.0",
+    "tslib": "~1.5.0"
+  }
+}

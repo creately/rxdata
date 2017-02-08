@@ -1,0 +1,8 @@
+node_modules
+.scripts
+
+.editorconfig
+.travis.yml
+tsconfig.json
+tsconfig.release.json
+tslint.json
