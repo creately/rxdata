@@ -18,8 +18,8 @@
   },
   "scripts": {
     "clean": "rimraf coverage build tmp",
-    "build": "tsc -p tsconfig.release.json",
-    "watch": "tsc -w -p tsconfig.release.json",
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -w -p tsconfig.json",
     "lint": "tslint -t stylish 'src/**/*.ts'",
     "pretest": "npm run lint",
     "test": "npm run test-only",
