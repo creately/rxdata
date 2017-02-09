@@ -6,6 +6,8 @@
   "engines": {
     "node": ">= 6.9.0"
   },
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "devDependencies": {
     "@types/jest": "~18.1.0",
     "jest": "~18.1.0",
@@ -17,7 +19,7 @@
     "typescript": "~2.1.5"
   },
   "scripts": {
-    "clean": "rimraf coverage build tmp",
+    "clean": "rimraf coverage lib tmp",
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -w -p tsconfig.json",
     "lint": "tslint -t stylish 'src/**/*.ts'",
