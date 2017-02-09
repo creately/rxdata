@@ -1,6 +1,6 @@
 {
   "name": "rxdata",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A reactive document database for web browsers",
   "engineStrict": true,
   "engines": {
