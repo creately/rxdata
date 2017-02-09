@@ -1,5 +1,5 @@
 import LocalForage from 'localforage';
-import { IPersistor } from './';
+import { IPersistor } from './persistor';
 
 /**
  * DefaultPersistorFactory

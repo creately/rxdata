@@ -1,6 +1,6 @@
 import { Collection } from './collection';
 import { IPersistor, IPersistorFactory } from './persistor';
-import { DefaultPersistorFactory } from './persistor/default_persistor';
+import { DefaultPersistorFactory } from './persistor_default';
 
 /**
  * DatabaseOptions
