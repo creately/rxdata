@@ -37,7 +37,7 @@ export class Collection {
         const query = new Query( filter, () => this._removeQuery( query ));
         this._insertQuery( query );
         this._updateQuery( query );
-        return query.value;
+        return query.value();
     }
 
     /**

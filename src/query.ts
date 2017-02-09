@@ -24,10 +24,10 @@ export class Query {
     }
 
     /**
-     * get value
+     * value
      * ...
      */
-    public get value(): Observable<any> {
+    public value(): Observable<any> {
         return this._valueObservable;
     }
 
@@ -36,15 +36,18 @@ export class Query {
      * ...
      */
     public update( documents: any[]) {
-        const result = this._filterDocuments( this.filter, documents );
+        const result = this._filterDocuments( documents );
         this._updateValueObservers( result );
     }
 
     /**
      * _filterDocuments
+     * ...
+     *
+     * @todo Store and reuse the Mingo query if it's faster.
      */
-    protected _filterDocuments( filter: any, documents: any[]): any[] {
-        const query = this._createMingoQuery( filter );
+    protected _filterDocuments( documents: any[]): any[] {
+        const query = this._createMingoQuery();
         return query.find( documents ).all();
     }
 
@@ -52,8 +55,8 @@ export class Query {
      * _createMingoQuery
      * ...
      */
-    protected _createMingoQuery( filter: any ): any {
-        return new Mingo.Query( filter );
+    protected _createMingoQuery(): any {
+        return new Mingo.Query( this.filter );
     }
 
     /**
