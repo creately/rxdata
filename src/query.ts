@@ -13,7 +13,7 @@ export class Query {
      * ...
      */
     private _resultObservable: Observable<any>;
-    
+
     /**
      * _filterMingoQuery
      * ...
@@ -50,7 +50,7 @@ export class Query {
      * update
      * ...
      */
-    public update( documents: any[] ) {
+    public update( documents: any[]) {
         const result = this._filterMingoQuery.find( documents ).all();
         this._updateResultObservers( result );
     }
@@ -67,8 +67,8 @@ export class Query {
      * _updateResultObservers
      * ...
      */
-    protected _updateResultObservers( result: any[] ) {
-        this._resultObservers.forEach( observer => observer.next(result) );
+    protected _updateResultObservers( result: any[]) {
+        this._resultObservers.forEach( observer => observer.next( result ));
     }
 
     /**

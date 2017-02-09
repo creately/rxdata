@@ -1,6 +1,6 @@
 import Mingo from 'mingo';
 import { Observable } from 'rxjs';
-import { Persistor } from './persistor';
+import { IPersistor } from './persistor';
 import { Query } from './query';
 
 /**
@@ -13,7 +13,7 @@ export class Collection {
      * ...
      */
     private _queries: Set<Query>;
-    
+
     /**
      * _documents
      * ...
@@ -24,7 +24,7 @@ export class Collection {
      * constructor
      * ...
      */
-    constructor( private persistor: Persistor ) {
+    constructor( private persistor: IPersistor ) {
         this._queries = new Set<Query>();
         this._documents = [];
     }
@@ -50,7 +50,7 @@ export class Collection {
                 this._removeDocument( doc );
                 this._documents.push( doc );
                 return this.persistor.store([ doc ])
-                    .then(() => doc);
+                    .then(() => doc );
             });
         return Observable.fromPromise( promise );
     }
@@ -65,7 +65,7 @@ export class Collection {
                 const matches = this._filterDocuments( filter );
                 matches.forEach( doc => this._updateDocument( doc, changes ));
                 return this.persistor.store( matches )
-                    .then(() => matches);
+                    .then(() => matches );
             });
         return Observable.fromPromise( promise );
     }
@@ -80,7 +80,7 @@ export class Collection {
                 const matches = this._filterDocuments( filter );
                 matches.forEach( doc => this._removeDocument( doc ));
                 return this.persistor.remove( matches )
-                    .then(() => matches);
+                    .then(() => matches );
             });
         return Observable.fromPromise( promise );
     }
@@ -143,6 +143,6 @@ export class Collection {
      * ...
      */
     protected _updateQuery( query: Query ) {
-        query.update( this._documents )
+        query.update( this._documents );
     }
 }

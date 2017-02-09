@@ -1,9 +1,9 @@
 import { Collection } from './collection';
-import { Persistor, PersistorFactory } from './persistor';
+import { IPersistor, IPersistorFactory } from './persistor';
 
 export type DatabaseOptions = {
-    persistorFactory: PersistorFactory,
-}
+    persistorFactory: IPersistorFactory,
+};
 
 /**
  * Database
@@ -29,7 +29,7 @@ export class Database {
      * ...
      */
     public collection( collectionName ): Collection {
-        if ( this._collections.has( collectionName ) ) {
+        if ( this._collections.has( collectionName )) {
             return this._collections.get( collectionName );
         }
         const collection = this._createNewCollection( collectionName );
@@ -51,7 +51,7 @@ export class Database {
      * _createNewPersistor
      * ...
      */
-    protected _createNewPersistor( collectionName: string ): Persistor {
+    protected _createNewPersistor( collectionName: string ): IPersistor {
         const factory = this._options.persistorFactory;
         return factory.create( collectionName );
     }

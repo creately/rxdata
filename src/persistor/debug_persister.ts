@@ -1,4 +1,12 @@
-import { Persistor } from './';
+import { IPersistor } from './';
+
+/**
+ * log
+ * ...
+ */
+const log = ( ...args ) => {
+    console.log.apply( null, args );
+};
 
 /**
  * DebugPersistorFactory
@@ -9,8 +17,8 @@ export class DebugPersistorFactory {
      * create
      * ...
      */
-    public create( collectionName: string ): Persistor {
-        console.info('DebugPersistorFactory.create:', collectionName);
+    public create( collectionName: string ): IPersistor {
+        log( 'DebugPersistorFactory.create:', collectionName );
         return new DebugPersistor();
     }
 }
@@ -25,7 +33,7 @@ export class DebugPersistor {
      * ...
      */
     public load(): Promise<any[]> {
-        console.info('DebugPersistor.load:');
+        log( 'DebugPersistor.load:' );
         return Promise.resolve([]);
     }
 
@@ -33,8 +41,8 @@ export class DebugPersistor {
      * store
      * ...
      */
-    public store( docs: any[] ): Promise<any> {
-        console.info('DebugPersistor.store:', docs);
+    public store( docs: any[]): Promise<any> {
+        log( 'DebugPersistor.store:', docs );
         return Promise.resolve( null );
     }
 
@@ -42,8 +50,8 @@ export class DebugPersistor {
      * remove
      * ...
      */
-    public remove( docs: any[] ): Promise<any> {
-        console.info('DebugPersistor.remove:', docs);
+    public remove( docs: any[]): Promise<any> {
+        log( 'DebugPersistor.remove:', docs );
         return Promise.resolve( null );
     }
 }

@@ -1,5 +1,5 @@
-import localForage from "localforage";
-import { Persistor } from './';
+import localForage from 'localforage';
+import { IPersistor } from './';
 
 /**
  * DefaultPersistorFactory
@@ -18,7 +18,7 @@ export class DefaultPersistorFactory {
      * create
      * ...
      */
-    public create( collectionName: string ): Persistor {
+    public create( collectionName: string ): IPersistor {
         const name = this._createFullName( collectionName );
         const localforage = localForage.createInstance({ name });
         return new DefaultPersistor( localforage );
@@ -49,18 +49,18 @@ export class DefaultPersistor {
     public load(): Promise<any[]> {
         const documents = [];
         return this.localforage
-            .iterate(( value ) => {
+            .iterate( value  => {
                 documents.push( value );
                 return undefined;
             })
-            .then(() => documents )
+            .then(() => documents );
     }
 
     /**
      * store
      * ...
      */
-    public store( docs: any[] ): Promise<any> {
+    public store( docs: any[]): Promise<any> {
         const promises = docs.map( doc => this.localforage.setItem( doc.id, doc ));
         return Promise.all( promises );
     }
@@ -69,7 +69,7 @@ export class DefaultPersistor {
      * remove
      * ...
      */
-    public remove( docs: any[] ): Promise<any> {
+    public remove( docs: any[]): Promise<any> {
         const promises = docs.map( doc => this.localforage.removeItem( doc.id ));
         return Promise.all( promises );
     }
