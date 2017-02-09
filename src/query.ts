@@ -6,36 +6,21 @@ export class Query {
      * _resultObservers
      * ...
      */
-    private _resultObservers: Set<any>;
+    protected _valueObservers: Set<any>;
 
     /**
      * _resultObservable
      * ...
      */
-    private _resultObservable: Observable<any>;
-
-    /**
-     * _filterMingoQuery
-     * ...
-     */
-    private _filterMingoQuery: Mingo.Query;
+    protected _valueObservable: Observable<any>;
 
     /**
      * constructor
      * ...
      */
-    constructor( public filter: any, private expire: Function ) {
-        this._resultObservers = new Set<any>();
-        this._resultObservable = this._createObservableWithSet( this._resultObservers );
-        this._filterMingoQuery = new Mingo.Query( this.filter );
-    }
-
-    /**
-     * get id
-     * ...
-     */
-    public get id(): string {
-        return '';
+    constructor( public filter: any, protected expire: Function ) {
+        this._valueObservers = new Set<any>();
+        this._valueObservable = this._createObservableWithSet( this._valueObservers );
     }
 
     /**
@@ -43,7 +28,7 @@ export class Query {
      * ...
      */
     public get value(): Observable<any> {
-        return this._resultObservable;
+        return this._valueObservable;
     }
 
     /**
@@ -51,24 +36,40 @@ export class Query {
      * ...
      */
     public update( documents: any[]) {
-        const result = this._filterMingoQuery.find( documents ).all();
-        this._updateResultObservers( result );
+        const result = this._filterDocuments( this.filter, documents );
+        this._updateValueObservers( result );
+    }
+
+    /**
+     * _filterDocuments
+     */
+    protected _filterDocuments( filter: any, documents: any[]): any[] {
+        const query = this._createMingoQuery( filter );
+        return query.find( documents ).all();
+    }
+
+    /**
+     * _createMingoQuery
+     * ...
+     */
+    protected _createMingoQuery( filter: any ): any {
+        return new Mingo.Query( filter );
     }
 
     /**
      * _getTotalObservers
      * ...
      */
-    private _getTotalObservers(): number {
-        return this._resultObservers.size;
+    protected _getTotalObservers(): number {
+        return this._valueObservers.size;
     }
 
     /**
      * _updateResultObservers
      * ...
      */
-    protected _updateResultObservers( result: any[]) {
-        this._resultObservers.forEach( observer => observer.next( result ));
+    protected _updateValueObservers( result: any[]) {
+        this._valueObservers.forEach( observer => observer.next( result ));
     }
 
     /**

@@ -12,19 +12,19 @@ export class Collection {
      * _queries
      * ...
      */
-    private _queries: Set<Query>;
+    protected _queries: Set<Query>;
 
     /**
      * _documents
      * ...
      */
-    private _documents: any[];
+    protected _documents: any[];
 
     /**
      * constructor
      * ...
      */
-    constructor( private persistor: IPersistor ) {
+    constructor( protected persistor: IPersistor ) {
         this._queries = new Set<Query>();
         this._documents = [];
     }
@@ -87,10 +87,19 @@ export class Collection {
 
     /**
      * _filterDocuments
+     * ...
      */
     protected _filterDocuments( filter: any ): any[] {
-        const query = new Mingo.Query( filter );
+        const query = this._createMingoQuery( filter );
         return query.find( this._documents ).all();
+    }
+
+    /**
+     * _createMingoQuery
+     * ...
+     */
+    protected _createMingoQuery( filter: any ): any {
+        return new Mingo.Query( filter );
     }
 
     /**

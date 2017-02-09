@@ -1,8 +1,21 @@
 import { Collection } from './collection';
 import { IPersistor, IPersistorFactory } from './persistor';
+import { DefaultPersistorFactory } from './persistor/default_persistor';
 
+/**
+ * DatabaseOptions
+ * ...
+ */
 export type DatabaseOptions = {
     persistorFactory: IPersistorFactory,
+};
+
+/**
+ * DEFAULT_OPTIONS
+ * ...
+ */
+export const DEFAULT_OPTIONS = {
+    persistorFactory: new DefaultPersistorFactory( 'rxdata' ),
 };
 
 /**
@@ -14,13 +27,13 @@ export class Database {
      * _collections
      * ...
      */
-    private _collections: Map<string, Collection>;
+    protected _collections: Map<string, Collection>;
 
     /**
      * constructor
      * ...
      */
-    constructor( private _options: DatabaseOptions ) {
+    constructor( protected _options: DatabaseOptions = DEFAULT_OPTIONS ) {
         this._collections = new Map<string, Collection>();
     }
 
