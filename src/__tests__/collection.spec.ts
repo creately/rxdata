@@ -65,6 +65,10 @@ describe( 'Collection', () => {
         it( 'should remove the query from active queries set' );
     });
 
+    describe( '_updateQueries', () => {
+        it( 'should update active queries query with current documents' );
+    });
+
     describe( '_updateQuery', () => {
         it( 'should update the query with current documents' );
     });

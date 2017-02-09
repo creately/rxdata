@@ -49,6 +49,7 @@ export class Collection {
             .then(() => {
                 this._removeDocument( doc );
                 this._documents.push( doc );
+                this._updateQueries();
                 return this.persistor.store([ doc ])
                     .then(() => doc );
             });
@@ -64,6 +65,7 @@ export class Collection {
             .then(() => {
                 const matches = this._filterDocuments( filter );
                 matches.forEach( doc => this._updateDocument( doc, changes ));
+                this._updateQueries();
                 return this.persistor.store( matches )
                     .then(() => matches );
             });
@@ -79,6 +81,7 @@ export class Collection {
             .then(() => {
                 const matches = this._filterDocuments( filter );
                 matches.forEach( doc => this._removeDocument( doc ));
+                this._updateQueries();
                 return this.persistor.remove( matches )
                     .then(() => matches );
             });
@@ -145,6 +148,14 @@ export class Collection {
      */
     protected _removeQuery( query: Query ) {
         this._queries.delete( query );
+    }
+
+    /**
+     * _updateQueries
+     * ...
+     */
+    protected _updateQueries( ) {
+        this._queries.forEach( query => this._updateQuery( query ));
     }
 
     /**
