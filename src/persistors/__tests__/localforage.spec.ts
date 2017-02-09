@@ -1,4 +1,4 @@
-describe( 'DefaultPersistorFactory', () => {
+describe( 'LocalForagePersistorFactory', () => {
     describe( '_createLocalForage', () => {
         it( 'should ' );
     });
@@ -7,7 +7,7 @@ describe( 'DefaultPersistorFactory', () => {
     });
 });
 
-describe( 'DefaultPersistor', () => {
+describe( 'LocalForagePersistor', () => {
     describe( 'load', () => {
         it( 'should ' );
     });

@@ -1,7 +1,7 @@
-import { spyOn } from '../__test_utils';
-import { DefaultPersistorFactory, DefaultPersistor } from '../persistor_default';
+import { spyOn } from '../../__test_utils';
+import { LocalForagePersistorFactory, LocalForagePersistor } from '../localforage';
 
-export class MockDefaultPersistorFactory extends DefaultPersistorFactory {
+export class MockLocalForagePersistorFactory extends LocalForagePersistorFactory {
     spyOnCreate(): jest.Mock<any> {
         return spyOn( this, 'create' );
     }
@@ -15,7 +15,7 @@ export class MockDefaultPersistorFactory extends DefaultPersistorFactory {
     }
 }
 
-export class MockDefaultPersistor extends DefaultPersistor {
+export class MockLocalForagePersistor extends LocalForagePersistor {
     spyOnLoad(): jest.Mock<any> {
         return spyOn( this, 'load' );
     }

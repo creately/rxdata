@@ -1,6 +1,6 @@
 import { Collection } from './collection';
-import { IPersistor, IPersistorFactory } from './persistor';
-import { DefaultPersistorFactory } from './persistor_default';
+import { IPersistor, IPersistorFactory } from './';
+import { LocalForagePersistorFactory } from './persistors/localforage';
 
 /**
  * DatabaseOptions
@@ -15,7 +15,7 @@ export type DatabaseOptions = {
  * ...
  */
 export const DEFAULT_OPTIONS = {
-    persistorFactory: new DefaultPersistorFactory( 'rxdata' ),
+    persistorFactory: new LocalForagePersistorFactory( 'rxdata' ),
 };
 
 /**

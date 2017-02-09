@@ -1,11 +1,11 @@
 import LocalForage from 'localforage';
-import { IPersistor } from './persistor';
+import { IPersistor } from '../';
 
 /**
  * DefaultPersistorFactory
  * ...
  */
-export class DefaultPersistorFactory {
+export class LocalForagePersistorFactory {
     /**
      * constructor
      * ...
@@ -21,7 +21,7 @@ export class DefaultPersistorFactory {
     public create( collectionName: string ): IPersistor {
         const name = this._createFullName( collectionName );
         const localforage = this._createLocalForage( name );
-        return new DefaultPersistor( localforage );
+        return new LocalForagePersistor( localforage );
     }
 
     /**
@@ -45,7 +45,7 @@ export class DefaultPersistorFactory {
  * DefaultPersistor
  * ...
  */
-export class DefaultPersistor {
+export class LocalForagePersistor {
     constructor( protected localforage: any ) {
         // ...
     }

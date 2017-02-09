@@ -1,6 +1,6 @@
 import Mingo from 'mingo';
 import { Observable } from 'rxjs';
-import { IPersistor } from './persistor';
+import { IPersistor } from './';
 import { Query } from './query';
 
 /**
