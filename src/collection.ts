@@ -1,6 +1,6 @@
 import Mingo from 'mingo';
-import { Observable } from 'rxjs';
-import { IPersistor } from './';
+import { Observable, Subject } from 'rxjs';
+import { IPersistor, ChangeEvent } from './';
 import { Query } from './query';
 
 /**
@@ -9,35 +9,36 @@ import { Query } from './query';
  */
 export class Collection {
     /**
-     * _queries
-     * ...
-     */
-    protected _queries: Set<Query>;
-
-    /**
      * _documents
      * ...
      */
     protected _documents: any[];
 
     /**
+     * _changes
+     * ...
+     */
+    protected _changes: Subject<ChangeEvent>;
+
+    /**
      * constructor
      * ...
      */
     constructor( protected persistor: IPersistor ) {
-        this._queries = new Set<Query>();
         this._documents = [];
+        this._changes = new Subject();
     }
 
     /**
      * find
      * ...
      */
-    public find( filter: any ): Observable<any[]> {
-        const query = new Query( filter, () => this._removeQuery( query ));
-        this._insertQuery( query );
-        this._updateQuery( query );
-        return query.value();
+    public find( filter: any ): Query {
+        return new Query({
+            filter: filter,
+            documents: this._documents,
+            changes: this._changes,
+        });
     }
 
     /**
@@ -45,10 +46,10 @@ export class Collection {
      * ...
      */
     public insert( doc: any ): Observable<any> {
-        const promise = this._initCollection()
+        const promise = this._init()
             .then(() => {
                 this._removeDocument( doc );
-                this._documents.push( doc );
+                this._insertDocument( doc );
                 this._updateQueries();
                 return this.persistor.store([ doc ])
                     .then(() => doc );
@@ -61,10 +62,10 @@ export class Collection {
      * ...
      */
     public update( filter: any, changes: any ): Observable<any[]> {
-        const promise = this._initCollection()
+        const promise = this._init()
             .then(() => {
                 const matches = this._filterDocuments( filter );
-                matches.forEach( doc => this._updateDocument( doc, changes ));
+                this._updateDocuments( matches, changes );
                 this._updateQueries();
                 return this.persistor.store( matches )
                     .then(() => matches );
@@ -77,10 +78,10 @@ export class Collection {
      * ...
      */
     public remove( filter: any ): Observable<any[]> {
-        const promise = this._initCollection()
+        const promise = this._init()
             .then(() => {
                 const matches = this._filterDocuments( filter );
-                matches.forEach( doc => this._removeDocument( doc ));
+                this._removeDocuments( matches );
                 this._updateQueries();
                 return this.persistor.remove( matches )
                     .then(() => matches );
@@ -89,29 +90,37 @@ export class Collection {
     }
 
     /**
+     * _init
+     * ...
+     */
+    protected _init(): Promise<any> {
+        return this.persistor.load()
+            .then( docs => this._documents = docs );
+    }
+
+    /**
      * _filterDocuments
      * ...
      */
     protected _filterDocuments( filter: any ): any[] {
-        const query = this._createMingoQuery( filter );
+        const query = new Mingo.Query( filter );
         return query.find( this._documents ).all();
     }
 
     /**
-     * _createMingoQuery
+     * _insertDocument
      * ...
      */
-    protected _createMingoQuery( filter: any ): any {
-        return new Mingo.Query( filter );
+    protected _insertDocument( doc: any ) {
+        this._documents.push( doc );
     }
 
     /**
-     * _initCollection
+     * _removeDocuments
      * ...
      */
-    protected _initCollection(): Promise<any> {
-        return this.persistor.load()
-            .then( docs => this._documents = docs );
+    protected _removeDocuments( docs: any[]) {
+        docs.forEach( doc => this._removeDocument( doc ));
     }
 
     /**
@@ -126,28 +135,21 @@ export class Collection {
     }
 
     /**
+     * _updateDocuments
+     * ...
+     */
+    protected _updateDocuments( docs: any[], changes: any ) {
+        docs.forEach( doc => this._updateDocument( doc, changes ));
+    }
+
+    /**
      * _updateDocument
      * ...
+     *
+     * @todo also apply changes in nested fields
      */
     protected _updateDocument( doc: any, changes: any ) {
-        // TODO also apply changes in nested fields
         Object.assign( doc, changes );
-    }
-
-    /**
-     * _insertQuery
-     * ...
-     */
-    protected _insertQuery( query: Query ) {
-        this._queries.add( query );
-    }
-
-    /**
-     * _removeQuery
-     * ...
-     */
-    protected _removeQuery( query: Query ) {
-        this._queries.delete( query );
     }
 
     /**
@@ -155,14 +157,7 @@ export class Collection {
      * ...
      */
     protected _updateQueries( ) {
-        this._queries.forEach( query => this._updateQuery( query ));
-    }
-
-    /**
-     * _updateQuery
-     * ...
-     */
-    protected _updateQuery( query: Query ) {
-        query.update( this._documents );
+        const change: ChangeEvent = { type: 'value', data: this._documents };
+        this._changes.next( change );
     }
 }

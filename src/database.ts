@@ -1,5 +1,5 @@
 import { Collection } from './collection';
-import { IPersistor, IPersistorFactory } from './';
+import { IPersistorFactory } from './';
 import { LocalForagePersistorFactory } from './persistors/localforage';
 
 /**
@@ -41,31 +41,21 @@ export class Database {
      * collection
      * ...
      */
-    public collection( collectionName ): Collection {
-        if ( this._collections.has( collectionName )) {
-            return this._collections.get( collectionName );
+    public collection( name ): Collection {
+        if ( this._collections.has( name )) {
+            return this._collections.get( name );
         }
-        const collection = this._createNewCollection( collectionName );
-        this._collections.set( collectionName,  collection );
+        const collection = this._createCollection( name );
+        this._collections.set( name,  collection );
         return collection;
     }
 
     /**
-     * _createNewCollection
+     * _createCollection
      * ...
      */
-    protected _createNewCollection( collectionName: string ): Collection {
-        const persistor = this._createNewPersistor( collectionName );
-        const collection = new Collection( persistor );
-        return collection;
-    }
-
-    /**
-     * _createNewPersistor
-     * ...
-     */
-    protected _createNewPersistor( collectionName: string ): IPersistor {
-        const factory = this._options.persistorFactory;
-        return factory.create( collectionName );
+    protected _createCollection( name: string ): Collection {
+        const persistor = this._options.persistorFactory.create( name );
+        return new Collection( persistor );
     }
 }

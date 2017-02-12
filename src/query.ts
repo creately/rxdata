@@ -1,101 +1,68 @@
-import Mingo from 'mingo';
+import * as Mingo from 'mingo';
 import { Observable } from 'rxjs';
+import { ChangeEvent } from './index';
 
+/**
+ * QueryOptions
+ * ...
+ */
+export type QueryOptions = {
+    filter: any,
+    documents: any[],
+    changes: Observable<ChangeEvent>,
+};
+
+/**
+ * Query
+ * ...
+ */
 export class Query {
-    /**
-     * _resultObservers
-     * ...
-     */
-    protected _valueObservers: Set<any>;
-
-    /**
-     * _resultObservable
-     * ...
-     */
-    protected _valueObservable: Observable<any>;
-
     /**
      * constructor
      * ...
      */
-    constructor( public filter: any, protected expire: Function ) {
-        this._valueObservers = new Set<any>();
-        this._valueObservable = this._createObservableWithSet( this._valueObservers );
+    constructor( protected _options: QueryOptions ) {
+        // ...
     }
 
     /**
      * value
      * ...
      */
-    public value(): Observable<any> {
-        return this._valueObservable;
+     public value(): Observable<any[]> {
+        return Observable.merge(
+            this._createInitialValueObservable(),
+            this._createUpdatedValueObservable(),
+        );
+     }
+
+    /**
+     * _createInitialValueObservable
+     * ...
+     */
+    protected _createInitialValueObservable(): Observable<any[]> {
+        return Observable.of( this._options.documents )
+            .map( docs => this._filterDocuments( docs ));
     }
 
     /**
-     * update
+     * _createUpdatedValueObservable
      * ...
      */
-    public update( documents: any[]) {
-        const result = this._filterDocuments( documents );
-        this._updateValueObservers( result );
+    protected _createUpdatedValueObservable(): Observable<any[]> {
+        return this._options.changes
+            .filter( e => e.type === 'value' )
+            .map( e => this._filterDocuments( e.data ));
     }
 
     /**
      * _filterDocuments
      * ...
      *
-     * @todo Store and reuse the Mingo query if it's faster.
+     * @todo store and reuse the Mingo query if it's faster.
      */
     protected _filterDocuments( documents: any[]): any[] {
-        const query = this._createMingoQuery();
+        const query = new Mingo.Query( this._options.filter );
         return query.find( documents ).all();
-    }
-
-    /**
-     * _createMingoQuery
-     * ...
-     */
-    protected _createMingoQuery(): any {
-        return new Mingo.Query( this.filter );
-    }
-
-    /**
-     * _getTotalObservers
-     * ...
-     */
-    protected _getTotalObservers(): number {
-        return this._valueObservers.size;
-    }
-
-    /**
-     * _updateResultObservers
-     * ...
-     */
-    protected _updateValueObservers( result: any[]) {
-        this._valueObservers.forEach( observer => observer.next( result ));
-    }
-
-    /**
-     * _createObservableWithSet
-     * ...
-     */
-    protected _createObservableWithSet( observers: Set<any> ) {
-        return Observable.create( observer => {
-            observers.add( observer );
-            return this._createObserverUnsubFn( observers, observer );
-        });
-    }
-
-    /**
-     * _createObserverUnsubFn
-     * ...
-     */
-    protected _createObserverUnsubFn( observers: Set<any>, observer: any ): Function {
-        return () => {
-            observers.delete( observer );
-            if ( !this._getTotalObservers()) {
-                this.expire();
-            }
-        };
     }
 }

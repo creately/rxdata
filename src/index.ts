@@ -18,3 +18,12 @@ export interface IPersistor {
     store( docs: any[]): Promise<any>;
     remove( docs: any[]): Promise<any>;
 }
+
+/**
+ * ChangeEvent
+ * ...
+ */
+export type ChangeEvent = {
+    type: String,
+    data: any,
+};
