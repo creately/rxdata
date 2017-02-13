@@ -1,4 +1,4 @@
-import LocalForage from 'localforage';
+import * as LocalForage from 'localforage';
 import { IPersistor } from '../';
 
 /**
