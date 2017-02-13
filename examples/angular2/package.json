@@ -1,0 +1,69 @@
+{
+  "name": "angular2-esnext-todomvc",
+  "version": "3.0.0",
+  "main": "client/app/main.js",
+  "scripts": {
+    "build": "webpack",
+    "deploy": "gh-pages -d dist",
+    "start": "webpack-dev-server",
+    "test": "karma start",
+    "test-watch": "karma start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blacksonic/angular2-esnext-todomvc.git"
+  },
+  "author": {
+    "name": "blacksonic",
+    "email": "soos.gabor86@gmail.com"
+  },
+  "license": "ISC",
+  "keywords": [
+    "angular2",
+    "todomvc",
+    "es6"
+  ],
+  "description": "Angular 2 TodoMVC application in Javascript (ES6/ES7).",
+  "engines": {
+    "node": "6.5.0"
+  },
+  "dependencies": {
+    "@angular/common": "2.4.5",
+    "@angular/compiler": "2.4.5",
+    "@angular/core": "2.4.5",
+    "@angular/forms": "2.4.5",
+    "@angular/http": "2.4.5",
+    "@angular/platform-browser": "2.4.5",
+    "@angular/platform-browser-dynamic": "2.4.5",
+    "@angular/router": "3.4.5",
+    "core-js": "2.4.1",
+    "node-uuid": "1.4.7",
+    "rxdata": "file:../../",
+    "rxjs": "5.0.3",
+    "todomvc-app-css": "2.0.6",
+    "todomvc-common": "1.0.3",
+    "zone.js": "0.7.6"
+  },
+  "devDependencies": {
+    "babel-core": "6.22.1",
+    "babel-loader": "6.2.10",
+    "babel-preset-angular2": "0.0.2",
+    "babel-preset-latest": "6.22.0",
+    "copy-webpack-plugin": "4.0.1",
+    "css-loader": "0.26.1",
+    "extract-text-webpack-plugin": "2.0.0-rc.2",
+    "gh-pages": "0.12.0",
+    "html-loader": "0.4.4",
+    "jasmine-core": "2.5.2",
+    "karma": "1.4.1",
+    "karma-jasmine": "1.1.0",
+    "karma-phantomjs-launcher": "1.0.2",
+    "karma-sourcemap-loader": "0.3.7",
+    "karma-webpack": "2.0.2",
+    "source-map-loader": "0.1.6",
+    "style-loader": "0.13.1",
+    "webpack": "2.2.1",
+    "webpack-dev-server": "2.2.1",
+    "webpack-merge": "2.6.1"
+  }
+}
