@@ -1,3 +1,7 @@
+# 2017-02-13 - v1.2.2
+
+ - Change TypeScript build target to ES5
+
 # 2017-02-13 - v1.2.1
 
  - Change RxJS to a peerDependency to avoid duplicates
