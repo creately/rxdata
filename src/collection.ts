@@ -1,4 +1,4 @@
-import Mingo from 'mingo';
+import * as Mingo from 'mingo';
 import { Observable, Subject } from 'rxjs';
 import { IPersistor, ChangeEvent } from './';
 import { Query } from './query';
@@ -21,6 +21,12 @@ export class Collection {
     protected _changes: Subject<ChangeEvent>;
 
     /**
+     * _initPromise
+     * ...
+     */
+    protected _initPromise: Promise<any>;
+
+    /**
      * constructor
      * ...
      */
@@ -34,6 +40,7 @@ export class Collection {
      * ...
      */
     public find( filter: any ): Query {
+        this._init();
         return new Query({
             filter: filter,
             documents: this._documents,
@@ -94,8 +101,14 @@ export class Collection {
      * ...
      */
     protected _init(): Promise<any> {
-        return this.persistor.load()
-            .then( docs => this._documents = docs );
+        if ( !this._initPromise ) {
+            this._initPromise = this.persistor.load()
+                .then( docs => {
+                    this._documents = docs;
+                    this._updateQueries();
+                });
+        }
+        return this._initPromise;
     }
 
     /**
