@@ -8,10 +8,18 @@
   },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "dependencies": {
+    "localforage": "^1.4.3",
+    "mingo": "^0.9.1"
+  },
+  "peerDependencies": {
+    "rxjs": "^5.0.0 || ^5.0.0-beta.0"
+  },
   "devDependencies": {
     "@types/jest": "~18.1.0",
     "jest": "~18.1.0",
     "rimraf": "~2.5.4",
+    "rxjs": "^5.1.1",
     "style-guide-typescript": "github:cinergix/style-guide-typescript",
     "tslint": "~4.4.2",
     "tslint-microsoft-contrib": "~4.0.0",
@@ -54,10 +62,5 @@
       "!src/__test_utils.ts",
       "!src/**/*.d.ts"
     ]
-  },
-  "dependencies": {
-    "localforage": "^1.4.3",
-    "mingo": "^0.9.1",
-    "rxjs": "^5.0.0 || ^5.0.0-beta.0"
   }
 }

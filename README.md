@@ -5,10 +5,10 @@ It is inspired by rxdb but uses localForage instead of pouchdb.
 
 ## Getting Started
 
-Install the rxdata module and add it to the package.json file.
+Install rxjs and rxdata modules and add them to the package.json file.
 
 ```shell
-npm install --save rxdata
+npm install --save rxjs rxdata
 ```
 
 Create a new database. Also create some collections to group similar data.
