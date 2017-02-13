@@ -162,7 +162,9 @@ export class Collection {
      * @todo also apply changes in nested fields
      */
     protected _updateDocument( doc: any, changes: any ) {
-        Object.assign( doc, changes );
+        if ( changes.$set ) {
+            Object.assign( doc, changes.$set );
+        }
     }
 
     /**
