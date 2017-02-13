@@ -1,3 +1,8 @@
+# 2017-02-13 - v1.2.1
+
+ - Change RxJS to a peerDependency to avoid duplicates
+ - Add support for RxJS v5.0.0-beta.0 and above
+
 # 2017-02-13 - v1.2.0
 
  - API change collection.update to use $set field
