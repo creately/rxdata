@@ -1,3 +1,16 @@
+# 2017-02-13 - v1.2.0
+
+ - API change collection.update to use $set field
+
+```diff
+-collection.update({ type: 'a' }, { foo: 'bar' })
++collection.update({ type: 'a' }, { $set: { foo: 'bar' }})
+```
+
+ - Fix unnecessary collection init calls
+ - Fix import statements (use 'import * as')
+ - Add support for RxJS v5.0.0 and above
+
 # 2017-02-09 - v1.1.1
 
  - Fix missing update call for active queries on data change
