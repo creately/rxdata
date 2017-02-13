@@ -1,5 +1,9 @@
 node_modules
+
 .scripts
+examples
+src
+CHANGELOG.md
 
 .editorconfig
 .travis.yml
