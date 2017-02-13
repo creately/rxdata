@@ -58,6 +58,6 @@
   "dependencies": {
     "localforage": "^1.4.3",
     "mingo": "^0.9.1",
-    "rxjs": "^5.0.0"
+    "rxjs": "^5.0.0 || ^5.0.0-beta.0"
   }
 }
