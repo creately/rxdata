@@ -68,13 +68,14 @@ export class Collection {
      * ...
      */
     public insert( doc: any ): Observable<any> {
+        const cleanDoc = this._cleanObject( doc );
         const promise = this._init()
             .then(() => {
-                this._removeDocument( doc );
-                this._insertDocument( doc );
+                this._removeDocument( cleanDoc );
+                this._insertDocument( cleanDoc );
                 this._updateQueries();
-                return this.persistor.store([ doc ])
-                    .then(() => doc );
+                return this.persistor.store([ cleanDoc ])
+                    .then(() => cleanDoc );
             });
         return Observable.fromPromise( promise );
     }
@@ -124,6 +125,15 @@ export class Collection {
                 });
         }
         return this._initPromise;
+    }
+
+    /**
+     * _cleanObject
+     * ...
+     */
+    protected _cleanObject( doc: any ): any {
+        const str = JSON.stringify( doc );
+        return JSON.parse( str );
     }
 
     /**
@@ -178,7 +188,8 @@ export class Collection {
      */
     protected _updateDocument( doc: any, changes: any ) {
         if ( changes.$set ) {
-            Object.assign( doc, changes.$set );
+            const clean$Set = this._cleanObject( changes.$set );
+            Object.assign( doc, clean$Set );
         }
     }
 
