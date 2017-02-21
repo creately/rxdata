@@ -191,6 +191,16 @@ export class Collection {
             const clean$Set = this._cleanObject( changes.$set );
             Object.assign( doc, clean$Set );
         }
+        if ( changes.$push ) {
+            const clean$Push = this._cleanObject( changes.$push );
+            Object.keys( clean$Push ).forEach( key => {
+                const val = clean$Push[ key ];
+                if ( !doc[ key ] || !Array.isArray( doc[ key ])) {
+                    doc[ key ] = [];
+                }
+                doc[ key ].push( val );
+            });
+        }
     }
 
     /**
