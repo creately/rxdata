@@ -8,6 +8,9 @@ import { ChangeEvent } from './index';
  */
 export type QueryOptions = {
     filter: any,
+    sort?: any,
+    limit?: number,
+    skip?: number,
     documents: any[],
     changes: Observable<ChangeEvent>,
 };
@@ -63,6 +66,16 @@ export class Query {
      */
     protected _filterDocuments( documents: any[]): any[] {
         const query = new Mingo.Query( this._options.filter );
-        return query.find( documents ).all();
+        let cursor = query.find( documents );
+        if ( this._options.sort ) {
+            cursor = cursor.sort( this._options.sort );
+        }
+        if ( this._options.skip ) {
+            cursor = cursor.skip( this._options.skip );
+        }
+        if ( this._options.limit ) {
+            cursor = cursor.limit( this._options.limit );
+        }
+        return cursor.all();
     }
 }

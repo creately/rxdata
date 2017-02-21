@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { Query } from '../query';
+import { FilterOptions } from '../collection';
 
 describe( 'Query', () => {
     describe( 'value', () => {
@@ -64,7 +65,7 @@ describe( 'Query', () => {
         it( 'should sort values by a field', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                options: { sort: { value: 1 } },
+                sort: { value: 1 },
                 documents: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b', value: 2 },
@@ -88,7 +89,7 @@ describe( 'Query', () => {
         it( 'should limit number of results', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                options: { limit: 1 },
+                limit: 1 ,
                 documents: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b' },
@@ -111,7 +112,7 @@ describe( 'Query', () => {
         it( 'should skip a number of results', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                options: { skip: 1 },
+                skip: 1 ,
                 documents: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b' },

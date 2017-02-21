@@ -4,6 +4,16 @@ import { IPersistor, ChangeEvent } from './';
 import { Query } from './query';
 
 /**
+ * FilterOptions
+ * ...
+ */
+export type FilterOptions = {
+    sort?: any,
+    limit?: number,
+    skip?: number,
+};
+
+/**
  * Collection
  * ...
  */
@@ -39,13 +49,18 @@ export class Collection {
      * find
      * ...
      */
-    public find( filter: any ): Query {
+    public find( filter: any, options: FilterOptions = {}): Query {
         this._init();
-        return new Query({
-            filter: filter,
-            documents: this._documents,
-            changes: this._changes,
-        });
+        return new Query(
+            {
+                filter: filter,
+                sort: options.sort,
+                limit: options.limit,
+                skip: options.skip,
+                documents: this._documents,
+                changes: this._changes,
+            },
+        );
     }
 
     /**
