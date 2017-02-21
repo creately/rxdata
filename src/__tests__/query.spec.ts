@@ -32,7 +32,7 @@ describe( 'Query', () => {
                     ]);
                     done();
                 },
-                err => done( err ),
+                err => done.fail( err ),
             );
         });
 
@@ -58,7 +58,7 @@ describe( 'Query', () => {
                     ]);
                     done();
                 },
-                err => done( err ),
+                err => done.fail( err ),
             );
         });
 
@@ -82,7 +82,7 @@ describe( 'Query', () => {
                     ]);
                     done();
                 },
-                err => done( err ),
+                err => done.fail( err ),
             );
         });
 
@@ -105,7 +105,7 @@ describe( 'Query', () => {
                     ]);
                     done();
                 },
-                err => done( err ),
+                err => done.fail( err ),
             );
         });
 
@@ -128,7 +128,7 @@ describe( 'Query', () => {
                     ]);
                     done();
                 },
-                err => done( err ),
+                err => done.fail( err ),
             );
         });
     });
