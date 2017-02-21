@@ -1,3 +1,16 @@
+# 2017-02-21 - v1.4.0
+
+ - Add $push update operator for collections
+
+```ts
+// before: { id: 'i1', arr: [10] }
+// after: { id: 'i1', arr: [10, 20] }
+collection.update(
+    { id: 'i1' },
+    { $push: { arr: 10 } },
+)
+```
+
 # 2017-02-21 - v1.3.1
 
  - Fix unexpected class information issue [#8](https://github.com/Cinergix/rxdata/pull/8)
