@@ -1,3 +1,7 @@
+# 2017-02-21 - v1.3.1
+
+ - Fix unexpected class information issue [#8](https://github.com/Cinergix/rxdata/pull/8)
+
 # 2017-02-21 - v1.3.0
 
  - Add sort/limit/skip options when querying data
