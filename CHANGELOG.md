@@ -1,3 +1,15 @@
+# 2017-02-21 - v1.3.0
+
+ - Add sort/limit/skip options when querying data
+
+```js
+collection.find({}, {
+    sort: { created: -1 },
+    limit: 10,
+    skip: 10,
+})
+```
+
 # 2017-02-13 - v1.2.2
 
  - Change TypeScript build target to ES5
