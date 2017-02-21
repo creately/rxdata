@@ -6,6 +6,7 @@ describe( 'Query', () => {
         it( 'should return an Observable', () => {
             const query = new Query({
                 filter: {},
+                options: {},
                 documents: [],
                 changes: Observable.of(),
             });
@@ -15,6 +16,7 @@ describe( 'Query', () => {
         it( 'should return matches on subscription', done => {
             const query = new Query({
                 filter: { type: 'b' },
+                options: {},
                 documents: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b' },
@@ -38,6 +40,7 @@ describe( 'Query', () => {
         it( 'should return matches on "value" event', done => {
             const query = new Query({
                 filter: { type: 'b' },
+                options: {},
                 documents: [],
                 changes: Observable.of({
                     type: 'value',
