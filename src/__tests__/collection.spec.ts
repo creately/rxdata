@@ -1,3 +1,7 @@
+import { Collection } from '../collection';
+import { MockPersistor } from '../persistors/__mocks__/persistor.mock';
+import { Observable } from 'rxjs';
+
 describe( 'Collection', () => {
     describe( 'find', () => {
         it( 'should return an Observable' );
@@ -24,6 +28,52 @@ describe( 'Collection', () => {
         it( 'should update matching documents in persistor' );
         it( 'should update active queries with new documents' );
         it( 'should return updated documents' );
+
+        /**
+         * testUpdate
+         * ...
+         */
+        const testUpdate = ( testCases: any[]) => {
+            testCases.forEach( t => {
+                it( t.description, done => {
+                    const collection = new Collection( new MockPersistor());
+                    Observable
+                        .forkJoin( t.initialData.map( doc => collection.insert( doc )))
+                        .switchMap(() => collection.update( t.updateQuery, t.updateChange ))
+                        .subscribe(
+                            data => {
+                                expect( data ).toEqual( t.updatedData );
+                                done();
+                            },
+                            err => done.fail( err ),
+                        );
+                });
+            });
+        };
+
+        describe( '$set', () => {
+            it( 'should modify all fields' );
+            it( 'should modify nested fields' );
+        });
+
+        describe( '$push', () => {
+            testUpdate([
+                {
+                    description: 'should push an item into an existing array',
+                    initialData: [{ id: 'i1', arr: [ 10 ] }],
+                    updateQuery: {},
+                    updateChange: { $push: { arr: 20 } },
+                    updatedData: [{ id: 'i1', arr: [ 10, 20 ] }],
+                },
+                {
+                    description: 'should create an array if the field is missing',
+                    initialData: [{ id: 'i1', arr: [ 10 ] }],
+                    updateQuery: {},
+                    updateChange: { $push: { arr: 20 } },
+                    updatedData: [{ id: 'i1', arr: [ 10, 20 ] }],
+                },
+            ]);
+        });
     });
 
     describe( 'remove', () => {
