@@ -1,7 +1,17 @@
 import * as Mingo from 'mingo';
 import { Observable, Subject } from 'rxjs';
 import { IPersistor, ChangeEvent } from './';
-import { Query, FilterOptions } from './query';
+import { Query } from './query';
+
+/**
+ * FilterOptions
+ * ...
+ */
+export type FilterOptions = {
+    sort?: any,
+    limit?: number,
+    skip?: number,
+};
 
 /**
  * Collection
@@ -39,12 +49,14 @@ export class Collection {
      * find
      * ...
      */
-    public find( filter: any, options: FilterOptions ): Query {
+    public find( filter: any, options: FilterOptions = {}): Query {
         this._init();
         return new Query(
             {
                 filter: filter,
-                options: options,
+                sort: options.sort,
+                limit: options.limit,
+                skip: options.skip,
                 documents: this._documents,
                 changes: this._changes,
             },

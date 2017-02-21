@@ -8,19 +8,11 @@ import { ChangeEvent } from './index';
  */
 export type QueryOptions = {
     filter: any,
-    options: FilterOptions,
-    documents: any[],
-    changes: Observable<ChangeEvent>,
-};
-
-/**
- * FilterOptions
- * ...
- */
-export type FilterOptions = {
     sort?: any,
     limit?: number,
     skip?: number,
+    documents: any[],
+    changes: Observable<ChangeEvent>,
 };
 
 /**
@@ -53,7 +45,7 @@ export class Query {
      */
     protected _createInitialValueObservable(): Observable<any[]> {
         return Observable.of( this._options.documents )
-            .map( docs => this._filterDocuments( docs, this._options.options ));
+            .map( docs => this._filterDocuments( docs ));
     }
 
     /**
@@ -63,7 +55,7 @@ export class Query {
     protected _createUpdatedValueObservable(): Observable<any[]> {
         return this._options.changes
             .filter( e => e.type === 'value' )
-            .map( e => this._filterDocuments( e.data, this._options.options ));
+            .map( e => this._filterDocuments( e.data ));
     }
 
     /**
@@ -72,17 +64,17 @@ export class Query {
      *
      * @todo store and reuse the Mingo query if it's faster.
      */
-    protected _filterDocuments( documents: any[], options: FilterOptions ): any[] {
+    protected _filterDocuments( documents: any[]): any[] {
         const query = new Mingo.Query( this._options.filter );
         let cursor = query.find( documents );
-        if ( options.sort ) {
-            cursor = cursor.sort( options.sort );
+        if ( this._options.sort ) {
+            cursor = cursor.sort( this._options.sort );
         }
-        if ( options.skip ) {
-            cursor = cursor.skip( options.skip );
+        if ( this._options.skip ) {
+            cursor = cursor.skip( this._options.skip );
         }
-        if ( options.limit ) {
-            cursor = cursor.limit( options.limit );
+        if ( this._options.limit ) {
+            cursor = cursor.limit( this._options.limit );
         }
         return cursor.all();
     }
