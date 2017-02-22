@@ -1,10 +1,10 @@
-import { IPersistor } from '../../';
+import { IPersistor, IPersistorFactory } from '../../';
 
 /**
  * MockPersistorFactory
  * ...
  */
-export class MockPersistorFactory {
+export class MockPersistorFactory implements IPersistorFactory {
     /**
      * create creates a new MockPersistor instance.
      */
@@ -17,7 +17,7 @@ export class MockPersistorFactory {
  * DefaultPersistor
  * ...
  */
-export class MockPersistor {
+export class MockPersistor implements IPersistor {
     public load: any = jest.fn().mockReturnValue( Promise.resolve([]));
     public store: any = jest.fn().mockReturnValue( Promise.resolve( null ));
     public remove: any = jest.fn().mockReturnValue( Promise.resolve( null ));

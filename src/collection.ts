@@ -1,7 +1,16 @@
 import * as Mingo from 'mingo';
 import { Observable, Subject } from 'rxjs';
-import { IPersistor, ChangeEvent } from './';
+import { IQuery, ICollection, IPersistor } from './';
 import { Query } from './query';
+
+/**
+ * ChangeEvent
+ * ...
+ */
+export type ChangeEvent = {
+    type: String,
+    data: any,
+};
 
 /**
  * FilterOptions
@@ -17,7 +26,7 @@ export type FilterOptions = {
  * Collection
  * ...
  */
-export class Collection {
+export class Collection implements ICollection {
     /**
      * _documents
      * ...
@@ -40,7 +49,7 @@ export class Collection {
      * constructor
      * ...
      */
-    constructor( protected persistor: IPersistor ) {
+    constructor( protected _persistor: IPersistor ) {
         this._documents = [];
         this._changes = new Subject();
     }
@@ -49,7 +58,7 @@ export class Collection {
      * find
      * ...
      */
-    public find( filter: any, options: FilterOptions = {}): Query {
+    public find( filter: any, options: FilterOptions = {}): IQuery {
         this._init();
         return new Query(
             {
@@ -74,7 +83,7 @@ export class Collection {
                 this._removeDocument( cleanDoc );
                 this._insertDocument( cleanDoc );
                 this._updateQueries();
-                return this.persistor.store([ cleanDoc ])
+                return this._persistor.store([ cleanDoc ])
                     .then(() => cleanDoc );
             });
         return Observable.fromPromise( promise );
@@ -90,7 +99,7 @@ export class Collection {
                 const matches = this._filterDocuments( filter );
                 this._updateDocuments( matches, changes );
                 this._updateQueries();
-                return this.persistor.store( matches )
+                return this._persistor.store( matches )
                     .then(() => matches );
             });
         return Observable.fromPromise( promise );
@@ -106,7 +115,7 @@ export class Collection {
                 const matches = this._filterDocuments( filter );
                 this._removeDocuments( matches );
                 this._updateQueries();
-                return this.persistor.remove( matches )
+                return this._persistor.remove( matches )
                     .then(() => matches );
             });
         return Observable.fromPromise( promise );
@@ -118,7 +127,7 @@ export class Collection {
      */
     protected _init(): Promise<any> {
         if ( !this._initPromise ) {
-            this._initPromise = this.persistor.load()
+            this._initPromise = this._persistor.load()
                 .then( docs => {
                     this._documents = docs;
                     this._updateQueries();
