@@ -17,28 +17,33 @@ Create a new database. Also create some collections to group similar data.
 import { Database } from 'rxdata'
 
 const db = new Database()
-const todos = db.collection('todos')
+const vehicles = db.collection('vehicles')
+
+```
+
+Query documents in a collection and subscribe to changes in result data.
+
+```js
+vehicles
+  .find({ tires: { $gte: 4 } })
+  .value()
+  .subscribe(data => console.log('data:', data))
 ```
 
 Use collection methods to query, insert, modify or remove documents.
 
 ```js
-// query todos
-const completed = todos.find({ completed: true }).value()
-completed.subscribe(data => console.log('completed:', data))
-
-// insert todo
-await todos.insert({
+await vehicles.insert({
   id: 'todo-1',
   title: 'write database module',
 })
 
-// update todo
-await todos.update(
+await vehicles.update(
   { id: 'todo-1' },
   { $set: { completed: true }},
 )
 
-// remove todo
-await todos.remove({ id: 'todo-1' })
+await vehicles.remove(
+  { id: 'todo-1' },
+)
 ```
