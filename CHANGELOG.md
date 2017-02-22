@@ -1,3 +1,16 @@
+# 2017-02-22 - v1.5.0
+
+ - Add $pull update operator for collections [#13](https://github.com/Cinergix/rxdata/pull/13)
+
+```ts
+// before: { id: 'i1', arr: [10, 20, 30] }
+// after: { id: 'i1', arr: [10, 30] }
+collection.update(
+    { id: 'i1' },
+    { $pull: { arr: 20 } },
+)
+```
+
 # 2017-02-21 - v1.4.0
 
  - Add $push update operator for collections [#10](https://github.com/Cinergix/rxdata/pull/10)
@@ -19,7 +32,7 @@ collection.update(
 
  - Add sort/limit/skip options when querying data [#4](https://github.com/Cinergix/rxdata/pull/4)
 
-```js
+```ts
 collection.find({}, {
     sort: { created: -1 },
     limit: 10,
