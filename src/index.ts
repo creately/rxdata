@@ -19,7 +19,7 @@ export interface IDatabase {
  * using collection methods. It uses a IPersistor to store data.
  */
 export interface ICollection {
-    find( filter: any, options: FilterOptions ): IQuery;
+    find( filter: any, options?: FilterOptions ): IQuery;
     insert( doc: any ): Observable<any>;
     update( filter: any, changes: any ): Observable<any[]>;
     remove( filter: any ): Observable<any[]>;
