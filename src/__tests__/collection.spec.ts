@@ -74,6 +74,25 @@ describe( 'Collection', () => {
                 },
             ]);
         });
+
+        describe( '$pull', () => {
+            testUpdate([
+                {
+                    description: 'should pull an item from an array field',
+                    initialData: [{ id: 'i1', arr: [ 10, 20, 30 ] }],
+                    updateQuery: {},
+                    updateChange: { $pull: { arr: 20 } },
+                    updatedData: [{ id: 'i1', arr: [ 10, 30 ] }],
+                },
+                {
+                    description: 'should pull an item from an array using $elemMatch',
+                    initialData: [{ id: 'i1', arr: [{ x: 10 }, { x: 20, y: 5 }, { x: 30 }] }],
+                    updateQuery: {},
+                    updateChange: { $pull: { arr: { $elemMatch: { x: 20 } } } },
+                    updatedData: [{ id: 'i1', arr: [{ x: 10 }, { x: 30 }] }],
+                },
+            ]);
+        });
     });
 
     describe( 'remove', () => {
