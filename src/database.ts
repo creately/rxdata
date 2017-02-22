@@ -1,5 +1,5 @@
 import { Collection } from './collection';
-import { IPersistorFactory } from './';
+import { IDatabase, ICollection, IPersistorFactory } from './';
 import { LocalForagePersistorFactory } from './persistors/localforage';
 
 /**
@@ -22,7 +22,7 @@ export const DEFAULT_OPTIONS = {
  * Database
  * ...
  */
-export class Database {
+export class Database implements IDatabase {
     /**
      * _collections
      * ...
@@ -41,7 +41,7 @@ export class Database {
      * collection
      * ...
      */
-    public collection( name ): Collection {
+    public collection( name ): ICollection {
         if ( this._collections.has( name )) {
             return this._collections.get( name );
         }

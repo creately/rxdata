@@ -1,11 +1,11 @@
 import * as LocalForage from 'localforage';
-import { IPersistor } from '../';
+import { IPersistor, IPersistorFactory } from '../';
 
 /**
  * DefaultPersistorFactory
  * ...
  */
-export class LocalForagePersistorFactory {
+export class LocalForagePersistorFactory implements IPersistorFactory {
     /**
      * constructor
      * ...
@@ -45,7 +45,7 @@ export class LocalForagePersistorFactory {
  * DefaultPersistor
  * ...
  */
-export class LocalForagePersistor {
+export class LocalForagePersistor implements IPersistor {
     constructor( protected localforage: any ) {
         // ...
     }

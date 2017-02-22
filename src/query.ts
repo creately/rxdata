@@ -1,6 +1,7 @@
 import * as Mingo from 'mingo';
 import { Observable } from 'rxjs';
-import { ChangeEvent } from './index';
+import { IQuery } from './';
+import { ChangeEvent } from './collection';
 
 /**
  * QueryOptions
@@ -19,7 +20,7 @@ export type QueryOptions = {
  * Query
  * ...
  */
-export class Query {
+export class Query implements IQuery {
     /**
      * constructor
      * ...
