@@ -96,7 +96,7 @@ export class Collection implements ICollection {
     public update( filter: any, changes: any ): Observable<any[]> {
         const promise = this._init()
             .then(() => {
-                const matches = this._filterDocuments( filter );
+                const matches = this._filterDocuments( filter, this._documents );
                 this._updateDocuments( matches, changes );
                 this._updateQueries();
                 return this._persistor.store( matches )
@@ -112,7 +112,7 @@ export class Collection implements ICollection {
     public remove( filter: any ): Observable<any[]> {
         const promise = this._init()
             .then(() => {
-                const matches = this._filterDocuments( filter );
+                const matches = this._filterDocuments( filter, this._documents );
                 this._removeDocuments( matches );
                 this._updateQueries();
                 return this._persistor.remove( matches )
@@ -149,9 +149,9 @@ export class Collection implements ICollection {
      * _filterDocuments
      * ...
      */
-    protected _filterDocuments( filter: any ): any[] {
+    protected _filterDocuments( filter: any, docs: any[]): any[] {
         const query = new Mingo.Query( filter );
-        return query.find( this._documents ).all();
+        return query.find( docs ).all();
     }
 
     /**
@@ -208,6 +208,22 @@ export class Collection implements ICollection {
                     doc[ key ] = [];
                 }
                 doc[ key ].push( val );
+            });
+        }
+        if ( changes.$pull ) {
+            const clean$Pull = this._cleanObject( changes.$pull );
+            Object.keys( clean$Pull ).forEach( key => {
+                const val = clean$Pull[ key ];
+                const docVal = doc[ key ];
+                if ( !docVal || !Array.isArray( docVal )) {
+                    return;
+                }
+                if ( val && val.$elemMatch ) {
+                    const matches = this._filterDocuments( val.$elemMatch, docVal );
+                    doc[ key ] = docVal.filter( elem => matches.indexOf( elem ) === -1 );
+                } else {
+                    doc[ key ] = docVal.filter( elem => elem !== val );
+                }
             });
         }
     }
