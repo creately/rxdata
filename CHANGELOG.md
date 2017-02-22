@@ -1,3 +1,7 @@
+# 2017-02-22 - v1.5.1
+
+ - Fix ICollection find method optional options parameter
+
 # 2017-02-22 - v1.5.0
 
  - Add $pull update operator for collections [#13](https://github.com/Cinergix/rxdata/pull/13)
