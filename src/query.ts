@@ -33,7 +33,7 @@ export class Query implements IQuery {
      * value
      * ...
      */
-     public value(): Observable<any[]> {
+     public value(): Observable<any> {
         return Observable.merge(
             this._createInitialValueObservable(),
             this._createUpdatedValueObservable(),
@@ -79,30 +79,4 @@ export class Query implements IQuery {
         }
         return cursor.all();
     }
-}
-
-/**
- * QueryOne
- * ...
- */
-export class QueryOne implements IQuery {
-    private _query: Query;
-
-    /**
-     * constructor
-     * ...
-     */
-    constructor( protected _options: QueryOptions ) {
-        this._query = new Query( this._options );
-    }
-
-    /**
-     * value
-     * ...
-     */
-     public value(): Observable<any> {
-        return this._query
-            .value()
-            .map( docs => docs[0]);
-     }
 }
