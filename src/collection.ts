@@ -1,7 +1,7 @@
 import * as Mingo from 'mingo';
 import { Observable, Subject } from 'rxjs';
 import { IQuery, ICollection, IPersistor } from './';
-import { Query } from './query';
+import { Query, QueryOne } from './query';
 
 /**
  * ChangeEvent
@@ -61,6 +61,24 @@ export class Collection implements ICollection {
     public find( filter: any, options: FilterOptions = {}): IQuery {
         this._init();
         return new Query(
+            {
+                filter: filter,
+                sort: options.sort,
+                limit: options.limit,
+                skip: options.skip,
+                documents: this._documents,
+                changes: this._changes,
+            },
+        );
+    }
+
+    /**
+     * findOne
+     * ...
+     */
+    public findOne( filter: any, options: FilterOptions = {}): IQuery {
+        this._init();
+        return new QueryOne(
             {
                 filter: filter,
                 sort: options.sort,
