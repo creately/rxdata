@@ -69,16 +69,15 @@ export class Collection implements ICollection {
      * ...
      */
     public find( filter: any, options: FilterOptions = {}): IQuery {
-        return new Query(
-            {
-                filter: filter,
-                sort: options.sort,
-                limit: options.limit,
-                skip: options.skip,
-                documents: this._documents,
-                changes: this._changes,
-            },
-        );
+        const queryOptions = {
+            filter: filter,
+            sort: options.sort,
+            limit: options.limit,
+            skip: options.skip,
+            documents: this._documents,
+            changes: this._changes,
+        };
+        return new Query( queryOptions );
     }
 
     /**
