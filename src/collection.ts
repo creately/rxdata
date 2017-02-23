@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import { IQuery, ICollection, IPersistor } from './';
 import { Query } from './query';
 import { SingleDocQuery } from './single-doc-query';
+import { DocumentUpdator } from './document-updator';
 
 /**
  * ChangeEvent
@@ -47,12 +48,19 @@ export class Collection implements ICollection {
     protected _initPromise: Promise<any>;
 
     /**
+     * _updator
+     * ...
+     */
+    protected _updator: DocumentUpdator;
+
+    /**
      * constructor
      * ...
      */
     constructor( protected _persistor: IPersistor ) {
         this._documents = [];
         this._changes = new Subject();
+        this._updator = new DocumentUpdator();
     }
 
     /**
@@ -108,7 +116,7 @@ export class Collection implements ICollection {
         const promise = this._init()
             .then(() => {
                 const matches = this._filterDocuments( filter, this._documents );
-                this._updateDocuments( matches, changes );
+                this._updator.updateDocuments( matches, changes );
                 this._updateQueries();
                 return this._persistor.store( matches )
                     .then(() => matches );
@@ -189,53 +197,6 @@ export class Collection implements ICollection {
         const index = this._documents.findIndex( _doc => _doc.id === doc.id );
         if ( index !== -1 ) {
             this._documents.splice( index, 1 );
-        }
-    }
-
-    /**
-     * _updateDocuments
-     * ...
-     */
-    protected _updateDocuments( docs: any[], changes: any ) {
-        docs.forEach( doc => this._updateDocument( doc, changes ));
-    }
-
-    /**
-     * _updateDocument
-     * ...
-     *
-     * @todo also apply changes in nested fields
-     */
-    protected _updateDocument( doc: any, changes: any ) {
-        if ( changes.$set ) {
-            const clean$Set = this._cleanObject( changes.$set );
-            Object.assign( doc, clean$Set );
-        }
-        if ( changes.$push ) {
-            const clean$Push = this._cleanObject( changes.$push );
-            Object.keys( clean$Push ).forEach( key => {
-                const val = clean$Push[ key ];
-                if ( !doc[ key ] || !Array.isArray( doc[ key ])) {
-                    doc[ key ] = [];
-                }
-                doc[ key ].push( val );
-            });
-        }
-        if ( changes.$pull ) {
-            const clean$Pull = this._cleanObject( changes.$pull );
-            Object.keys( clean$Pull ).forEach( key => {
-                const val = clean$Pull[ key ];
-                const docVal = doc[ key ];
-                if ( !docVal || !Array.isArray( docVal )) {
-                    return;
-                }
-                if ( val && val.$elemMatch ) {
-                    const matches = this._filterDocuments( val.$elemMatch, docVal );
-                    doc[ key ] = docVal.filter( elem => matches.indexOf( elem ) === -1 );
-                } else {
-                    doc[ key ] = docVal.filter( elem => elem !== val );
-                }
-            });
         }
     }
 
