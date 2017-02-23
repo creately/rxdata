@@ -1,7 +1,7 @@
 import * as Mingo from 'mingo';
 import { Observable, Subject } from 'rxjs';
 import { IQuery, ICollection, IPersistor } from './';
-import { Query, QueryOne } from './query';
+import { Query } from './query';
 import { SingleDocQuery } from './single-doc-query';
 
 /**
