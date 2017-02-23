@@ -2,8 +2,8 @@ import { Observable } from 'rxjs';
 import { FilterOptions } from './collection';
 
 export { Database } from './database';
-export { Collection } from './collection';
-export { Query } from './query';
+export { Collection, ExtendedCollection } from './collection';
+export { Query, ExtendedQuery } from './query';
 
 /**
  * IDatabase
