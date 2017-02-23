@@ -2,7 +2,8 @@ import { Observable } from 'rxjs';
 import { ICollection, IQuery } from './';
 import { FilterOptions } from './collection';
 import { ExtendedQuery } from './extended-query';
-import { ExtendedMerger } from './extended-merger';
+import { DocumentMerger } from './document-merger';
+import { SingleDocQuery } from './single-doc-query';
 
 /**
  * ExtendedCollection
@@ -25,7 +26,7 @@ export class ExtendedCollection implements ICollection {
      * _merger
      * ...
      */
-    protected _merger: ExtendedMerger;
+    protected _merger: DocumentMerger;
 
     /**
      * constructor
@@ -34,7 +35,7 @@ export class ExtendedCollection implements ICollection {
     constructor( protected parent: ICollection, protected child: ICollection, protected fields: String[]) {
         this._filterParent = key => key === 'id' || this.fields.indexOf( key ) === -1;
         this._filterChild = key => key === 'id' || this.fields.indexOf( key ) !== -1;
-        this._merger = new ExtendedMerger();
+        this._merger = new DocumentMerger();
     }
 
     /**
@@ -45,6 +46,16 @@ export class ExtendedCollection implements ICollection {
         const parentQuery = this.parent.find( filter, undefined );
         const childQuery = this.child.find( filter, options );
         return new ExtendedQuery( parentQuery, childQuery, this.fields );
+    }
+
+    /**
+     * findOne
+     * ...
+     */
+    public findOne( filter: any, options: FilterOptions = {}): IQuery {
+        const findOneOptions = Object.assign( options, { limit: 1 });
+        const query = this.find( filter, findOneOptions );
+        return new SingleDocQuery( query );
     }
 
     /**

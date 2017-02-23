@@ -1,8 +1,8 @@
 /**
- * ExtendedMerger
+ * DocumentMerger
  * ...
  */
-export class ExtendedMerger {
+export class DocumentMerger {
     /**
      * mergeDocumentArrays
      * ...
