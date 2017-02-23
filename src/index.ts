@@ -2,8 +2,10 @@ import { Observable } from 'rxjs';
 import { FilterOptions } from './collection';
 
 export { Database } from './database';
-export { Collection, ExtendedCollection } from './collection';
-export { Query, ExtendedQuery } from './query';
+export { Collection } from './collection';
+export { Query } from './query';
+export { ExtendedCollection } from './extended-collection';
+export { ExtendedQuery } from './extended-query';
 
 /**
  * IDatabase
@@ -20,6 +22,7 @@ export interface IDatabase {
  */
 export interface ICollection {
     find( filter: any, options?: FilterOptions ): IQuery;
+    findOne( filter: any, options?: FilterOptions ): IQuery;
     insert( doc: any ): Observable<any>;
     update( filter: any, changes: any ): Observable<any[]>;
     remove( filter: any ): Observable<any[]>;
@@ -30,7 +33,7 @@ export interface ICollection {
  * IQuery wraps the result of a collection find query.
  */
 export interface IQuery {
-    value(): Observable<any[]>;
+    value(): Observable<any>;
 }
 
 /**
