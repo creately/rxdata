@@ -61,6 +61,7 @@ export class Collection implements ICollection {
         this._documents = [];
         this._changes = new Subject();
         this._updator = new DocumentUpdator();
+        this._init();
     }
 
     /**
@@ -68,7 +69,6 @@ export class Collection implements ICollection {
      * ...
      */
     public find( filter: any, options: FilterOptions = {}): IQuery {
-        this._init();
         return new Query(
             {
                 filter: filter,
@@ -97,7 +97,7 @@ export class Collection implements ICollection {
      */
     public insert( doc: any ): Observable<any> {
         const cleanDoc = this._cleanObject( doc );
-        const promise = this._init()
+        const promise = this._initPromise
             .then(() => {
                 this._removeDocument( cleanDoc );
                 this._insertDocument( cleanDoc );
@@ -113,7 +113,7 @@ export class Collection implements ICollection {
      * ...
      */
     public update( filter: any, changes: any ): Observable<any[]> {
-        const promise = this._init()
+        const promise = this._initPromise
             .then(() => {
                 const matches = this._filterDocuments( filter, this._documents );
                 this._updator.updateDocuments( matches, changes );
@@ -129,7 +129,7 @@ export class Collection implements ICollection {
      * ...
      */
     public remove( filter: any ): Observable<any[]> {
-        const promise = this._init()
+        const promise = this._initPromise
             .then(() => {
                 const matches = this._filterDocuments( filter, this._documents );
                 this._removeDocuments( matches );
