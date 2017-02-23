@@ -45,6 +45,9 @@ export class Query implements IQuery {
      * ...
      */
     protected _createInitialValueObservable(): Observable<any[]> {
+        if ( !this._options.documents ) {
+            return Observable.of();
+        }
         return Observable.of( this._options.documents )
             .map( docs => this._filterDocuments( docs ));
     }

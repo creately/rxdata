@@ -58,7 +58,6 @@ export class Collection implements ICollection {
      * ...
      */
     constructor( protected _persistor: IPersistor ) {
-        this._documents = [];
         this._changes = new Subject();
         this._updator = new DocumentUpdator();
         this._init();
