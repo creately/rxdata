@@ -36,7 +36,11 @@ describe( 'Collection', () => {
         const testUpdate = ( testCases: any[]) => {
             testCases.forEach( t => {
                 it( t.description, done => {
-                    const collection = new Collection( new MockPersistor());
+                    const persistor = new MockPersistor();
+                    persistor.load.mockReturnValue( Promise.resolve([]));
+                    persistor.store.mockReturnValue( Promise.resolve( null ));
+                    persistor.remove.mockReturnValue( Promise.resolve( null ));
+                    const collection = new Collection( persistor );
                     Observable
                         .forkJoin( t.initialData.map( doc => collection.insert( doc )))
                         .switchMap(() => collection.update( t.updateQuery, t.updateChange ))
