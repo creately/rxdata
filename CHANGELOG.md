@@ -1,3 +1,9 @@
+# 2017-02-24 - v2.0.0
+
+ - Add findOne method to the collection [#15](https://github.com/Cinergix/rxdata/pull/15)
+ - Add ExtendedCollection and ExtendedQuery classes [#16](https://github.com/Cinergix/rxdata/pull/16)
+ - Fix typescript mapping for code coverage with ts-jest and the --no-cache flag
+
 # 2017-02-22 - v1.5.1
 
  - Fix ICollection find method optional options parameter
