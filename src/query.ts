@@ -8,10 +8,10 @@ import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents
  * ...
  */
 export type QueryOptions = {
-    filter: any,
+    filter?: any,
     filterOptions?: FilterOptions,
-    initialDocuments: any[],
-    changes: Observable<ChangeEvent>,
+    initialDocuments?: any[],
+    changes?: Observable<ChangeEvent>,
 };
 
 /**
@@ -23,7 +23,7 @@ export class Query implements IQuery {
      * constructor
      * ...
      */
-    constructor( protected _options: QueryOptions ) {
+    constructor( protected _options: QueryOptions = {}) {
         // ...
     }
 
@@ -55,6 +55,9 @@ export class Query implements IQuery {
      * ...
      */
     protected _createUpdatedValueObservable(): Observable<any[]> {
+        if ( !this._options.changes ) {
+            return Observable.of();
+        }
         return this._options.changes
             .filter( e => e.type === 'value' )
             .map( e => this._filterDocuments( e.data ));
@@ -65,6 +68,7 @@ export class Query implements IQuery {
      * ...
      */
     protected _filterDocuments( docs: any[]): any[] {
-        return filterDocuments( this._options.filter, docs, this._options.filterOptions );
+        const filter = this._options.filter || {};
+        return filterDocuments( filter, docs, this._options.filterOptions );
     }
 }
