@@ -16,25 +16,25 @@
     "rxjs": "^5.0.0 || ^5.0.0-beta.0"
   },
   "devDependencies": {
-    "@types/jest": "~18.1.0",
-    "jest": "~18.1.0",
-    "rimraf": "~2.5.4",
+    "@types/jest": "^18.1.1",
+    "jest": "^17.0.3",
+    "rimraf": "^2.5.4",
     "rxjs": "^5.1.1",
     "style-guide-typescript": "github:cinergix/style-guide-typescript",
-    "tslint": "~4.4.2",
-    "tslint-microsoft-contrib": "~4.0.0",
-    "typescript": "~2.1.6"
+    "ts-jest": "^17.0.0",
+    "tslint": "^4.4.2",
+    "typescript": "^2.1.6"
   },
   "scripts": {
     "clean": "rimraf coverage lib tmp",
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "npm run clean && tsc",
+    "watch": "npm run clean && tsc -w",
     "lint": "tslint -t stylish 'src/**/*.ts'",
     "pretest": "npm run lint",
     "test": "npm run test:only",
-    "test:only": "jest --coverage",
-    "test:watch": "jest --watch",
-    "prepublish": "npm run clean && npm run build"
+    "test:only": "jest --no-cache",
+    "test:cover": "jest --no-cache && open coverage/remapped/html/index.html",
+    "prepublish": "npm run build"
   },
   "author": "Thanish <thanish@cinergix.com> (http://cinergix.com/)",
   "license": "MIT",
@@ -49,17 +49,24 @@
   "jest": {
     "testEnvironment": "node",
     "transform": {
-      ".ts": "<rootDir>/.scripts/preprocessor.js"
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "moduleFileExtensions": [
       "ts",
       "js"
     ],
     "testRegex": "<rootDir>(src/).*\\.spec\\.ts$",
+    "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js",
+    "coverageReporters": [
+      "html"
+    ],
     "coverageDirectory": "coverage",
+    "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.{ts,js}",
+      "src/**/*.ts",
+      "!src/index.ts",
       "!src/__test_utils.ts",
+      "!src/**/*.mock.ts",
       "!src/**/*.d.ts"
     ]
   }
