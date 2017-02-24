@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { IQuery } from '../';
 
 /**
@@ -5,5 +6,5 @@ import { IQuery } from '../';
  * ...
  */
 export class MockQuery implements IQuery {
-    public value: any = jest.fn();
+    public value: any = jest.fn().mockReturnValue( Observable.of([]));
 }

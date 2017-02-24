@@ -111,7 +111,7 @@ export class ExtendedCollection implements ICollection {
         return Object.keys( changes )
             .reduce(
                 ( result, operator ) => {
-                    const opChanges = this._pickSubDocument( filter, result[ operator ]);
+                    const opChanges = this._pickSubDocument( filter, changes[ operator ]);
                     return Object.assign( result, { [ operator ]: opChanges });
                 },
                 {},
