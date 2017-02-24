@@ -10,7 +10,7 @@
     "declaration": true,
     "noImplicitAny": false,
     "rootDir": "src",
-    "outDir": "lib",
+    "outDir": "dist",
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
     "importHelpers": true,
@@ -23,6 +23,7 @@
   "exclude": [
     "src/__test_utils.ts",
     "src/**/*.spec.ts",
+    "src/**/*.mock.ts",
     "src/**/__mocks__/*",
     "src/**/__tests__/*"
   ]

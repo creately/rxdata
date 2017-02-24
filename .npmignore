@@ -8,5 +8,4 @@ CHANGELOG.md
 .editorconfig
 .travis.yml
 tsconfig.json
-tsconfig.release.json
 tslint.json

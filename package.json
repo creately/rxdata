@@ -6,8 +6,8 @@
   "engines": {
     "node": ">= 6.9.0"
   },
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "dependencies": {
     "localforage": "^1.4.3",
     "mingo": "^0.9.1"
@@ -26,7 +26,7 @@
     "typescript": "^2.1.6"
   },
   "scripts": {
-    "clean": "rimraf coverage lib tmp",
+    "clean": "rimraf coverage dist tmp",
     "build": "npm run clean && tsc",
     "watch": "npm run clean && tsc -w",
     "lint": "tslint -t stylish 'src/**/*.ts'",
