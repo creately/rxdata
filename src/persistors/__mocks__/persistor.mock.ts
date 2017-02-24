@@ -9,6 +9,7 @@ export class MockPersistorFactory implements IPersistorFactory {
      * create creates a new MockPersistor instance.
      */
     public create( collectionName: string ): IPersistor {
+        collectionName = collectionName;
         return new MockPersistor();
     }
 }
@@ -18,7 +19,7 @@ export class MockPersistorFactory implements IPersistorFactory {
  * ...
  */
 export class MockPersistor implements IPersistor {
-    public load: any = jest.fn();
-    public store: any = jest.fn();
-    public remove: any = jest.fn();
+    public load: any = jest.fn().mockReturnValue( Promise.resolve([]));
+    public store: any = jest.fn().mockReturnValue( Promise.resolve( null ));
+    public remove: any = jest.fn().mockReturnValue( Promise.resolve( null ));
 }
