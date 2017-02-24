@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { ICollection, IQuery } from './';
-import { FilterOptions } from './collection';
 import { ExtendedQuery } from './extended-query';
-import { DocumentMerger } from './document-merger';
 import { SingleDocQuery } from './single-doc-query';
+import { FilterOptions } from './doc-utilities/filter-documents';
+import { mergeDocumentArrays, mergeDocuments } from './doc-utilities/merge-documents';
 
 /**
  * ExtendedCollection
@@ -23,19 +23,12 @@ export class ExtendedCollection implements ICollection {
     private _filterChild: Function;
 
     /**
-     * _merger
-     * ...
-     */
-    protected _merger: DocumentMerger;
-
-    /**
      * constructor
      * ...
      */
     constructor( protected parent: ICollection, protected child: ICollection, protected fields: String[]) {
         this._filterParent = key => key === 'id' || this.fields.indexOf( key ) === -1;
         this._filterChild = key => key === 'id' || this.fields.indexOf( key ) !== -1;
-        this._merger = new DocumentMerger();
     }
 
     /**
@@ -68,7 +61,7 @@ export class ExtendedCollection implements ICollection {
                 this.parent.insert( this._pickSubDocument( this._filterParent, doc )),
                 this.child.insert( this._pickSubDocument( this._filterChild, doc )),
             )
-            .map( docs => this._merger.mergeDocuments( ...docs ));
+            .map( docs => this._mergeDocuments( ...docs ));
     }
 
     /**
@@ -81,7 +74,7 @@ export class ExtendedCollection implements ICollection {
                 this.parent.update( filter, this._pickSubChanges( this._filterParent, changes )),
                 this.child.update( filter, this._pickSubChanges( this._filterChild, changes )),
             )
-            .map( sets => this._merger.mergeDocumentArrays( ...sets ));
+            .map( sets => this._mergeDocumentArrays( ...sets ));
     }
 
     /**
@@ -94,7 +87,7 @@ export class ExtendedCollection implements ICollection {
                 this.parent.remove( filter ),
                 this.child.remove( filter ),
             )
-            .map( sets => this._merger.mergeDocumentArrays( ...sets ));
+            .map( sets => this._mergeDocumentArrays( ...sets ));
     }
 
     /**
@@ -123,5 +116,21 @@ export class ExtendedCollection implements ICollection {
                 },
                 {},
             );
+    }
+
+    /**
+     * _mergeDocumentArrays
+     * ...
+     */
+    protected _mergeDocumentArrays( ...sets: any[][]): any[] {
+        return mergeDocumentArrays( ...sets );
+    }
+
+    /**
+     * _mergeDocuments
+     * ...
+     */
+    protected _mergeDocuments( ...docs: any[]): any {
+        return mergeDocuments( ...docs );
     }
 }

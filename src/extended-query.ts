@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { IQuery } from './';
-import { DocumentMerger } from './document-merger';
+import { mergeDocumentArrays } from './doc-utilities/merge-documents';
 
 /**
  * ExtendedQuery
@@ -8,17 +8,11 @@ import { DocumentMerger } from './document-merger';
  */
 export class ExtendedQuery implements IQuery {
     /**
-     * _merger
-     * ...
-     */
-    protected _merger: DocumentMerger;
-
-    /**
      * constructor
      * ...
      */
     constructor( protected parent: IQuery, protected child: IQuery, protected fields: String[]) {
-        this._merger = new DocumentMerger();
+        // ...
     }
 
     /**
@@ -31,6 +25,14 @@ export class ExtendedQuery implements IQuery {
                 this.parent.value(),
                 this.child.value(),
             )
-            .map( sets => this._merger.mergeDocumentArrays( ...sets ));
+            .map( sets => this._mergeDocumentArrays( ...sets ));
+    }
+
+    /**
+     * _mergeDocumentArrays
+     * ...
+     */
+    protected _mergeDocumentArrays( ...sets: any[][]): any[] {
+        return mergeDocumentArrays( ...sets );
     }
 }

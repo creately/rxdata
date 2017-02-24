@@ -1,15 +1,21 @@
 describe( 'Collection', () => {
+    describe( 'constructor', () => {
+        it( 'should call the _init method' );
+    });
+
     describe( 'find', () => {
         it( 'should return an Observable' );
         it( 'should create a query with the filter' );
-        it( 'should insert the query into active queries set' );
-        it( 'should update the query with current documents' );
-        it( 'should remove the query from active queries set on unsub' );
+    });
+
+    describe( 'findOne', () => {
+        it( 'should return an Observable' );
+        it( 'should call the find method with given arguments' );
+        it( 'should always set options.limit field to 1' );
     });
 
     describe( 'insert', () => {
         it( 'should return an Observable' );
-        it( 'should initialize the collection' );
         it( 'should remove if a document already exists with id' );
         it( 'should insert the document in memory' );
         it( 'should insert the document in persistor' );
@@ -19,7 +25,6 @@ describe( 'Collection', () => {
 
     describe( 'update', () => {
         it( 'should return an Observable' );
-        it( 'should initialize the collection' );
         it( 'should update matching documents in memory' );
         it( 'should update matching documents in persistor' );
         it( 'should update active queries with new documents' );
@@ -28,7 +33,6 @@ describe( 'Collection', () => {
 
     describe( 'remove', () => {
         it( 'should return an Observable' );
-        it( 'should initialize the collection' );
         it( 'should remove matching documents in memory' );
         it( 'should remove matching documents in persistor' );
         it( 'should update active queries with new documents' );

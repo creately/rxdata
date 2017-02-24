@@ -1,13 +1,13 @@
 import { Observable } from 'rxjs';
 import { Query } from '../query';
-import { FilterOptions } from '../collection';
+import { FilterOptions } from '../doc-utilities/filter-documents';
 
 describe( 'Query', () => {
     describe( 'value', () => {
         it( 'should return an Observable', () => {
             const query = new Query({
                 filter: {},
-                documents: [],
+                initialDocuments: [],
                 changes: Observable.of(),
             });
             expect( query.value() instanceof Observable ).toBeTruthy();
@@ -16,7 +16,7 @@ describe( 'Query', () => {
         it( 'should return matches on subscription', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                documents: [
+                initialDocuments: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b' },
                     { _id: 'i3', type: 'c' },
@@ -39,7 +39,7 @@ describe( 'Query', () => {
         it( 'should return matches on "value" event', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                documents: [],
+                initialDocuments: [],
                 changes: Observable.of({
                     type: 'value',
                     data: [
@@ -65,8 +65,10 @@ describe( 'Query', () => {
         it( 'should sort values by a field', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                sort: { value: 1 },
-                documents: [
+                filterOptions: {
+                    sort: { value: 1 },
+                },
+                initialDocuments: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b', value: 2 },
                     { _id: 'i3', type: 'c' },
@@ -89,8 +91,10 @@ describe( 'Query', () => {
         it( 'should limit number of results', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                limit: 1 ,
-                documents: [
+                filterOptions: {
+                    limit: 1 ,
+                },
+                initialDocuments: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b' },
                     { _id: 'i3', type: 'c' },
@@ -112,8 +116,10 @@ describe( 'Query', () => {
         it( 'should skip a number of results', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                skip: 1 ,
-                documents: [
+                filterOptions: {
+                    skip: 1 ,
+                },
+                initialDocuments: [
                     { _id: 'i1', type: 'a' },
                     { _id: 'i2', type: 'b' },
                     { _id: 'i3', type: 'c' },
