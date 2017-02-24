@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { FilterOptions } from './collection';
+import { FilterOptions } from './doc-utilities/filter-documents';
 
 export { Database } from './database';
 export { Collection } from './collection';

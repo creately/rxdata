@@ -1,9 +1,9 @@
-import * as Mingo from 'mingo';
 import { Observable, Subject } from 'rxjs';
 import { IQuery, ICollection, IPersistor } from './';
 import { Query } from './query';
 import { SingleDocQuery } from './single-doc-query';
-import { DocumentUpdator } from './document-updator';
+import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
+import { updateDocuments } from './doc-utilities/update-documents';
 
 /**
  * ChangeEvent
@@ -12,16 +12,6 @@ import { DocumentUpdator } from './document-updator';
 export type ChangeEvent = {
     type: String,
     data: any,
-};
-
-/**
- * FilterOptions
- * ...
- */
-export type FilterOptions = {
-    sort?: any,
-    limit?: number,
-    skip?: number,
 };
 
 /**
@@ -48,19 +38,12 @@ export class Collection implements ICollection {
     protected _initPromise: Promise<any>;
 
     /**
-     * _updator
-     * ...
-     */
-    protected _updator: DocumentUpdator;
-
-    /**
      * constructor
      * ...
      */
     constructor( protected _persistor: IPersistor ) {
         this._changes = new Subject();
-        this._updator = new DocumentUpdator();
-        this._init();
+        this._initPromise = this._init();
     }
 
     /**
@@ -70,10 +53,8 @@ export class Collection implements ICollection {
     public find( filter: any, options: FilterOptions = {}): IQuery {
         const queryOptions = {
             filter: filter,
-            sort: options.sort,
-            limit: options.limit,
-            skip: options.skip,
-            documents: this._documents,
+            filterOptions: options,
+            initialDocuments: this._documents,
             changes: this._changes,
         };
         return new Query( queryOptions );
@@ -93,16 +74,8 @@ export class Collection implements ICollection {
      * insert
      * ...
      */
-    public insert( doc: any ): Observable<any> {
-        const cleanDoc = this._cleanObject( doc );
-        const promise = this._initPromise
-            .then(() => {
-                this._removeDocument( cleanDoc );
-                this._insertDocument( cleanDoc );
-                this._updateQueries();
-                return this._persistor.store([ cleanDoc ])
-                    .then(() => cleanDoc );
-            });
+    public insert( rawDoc: any ): Observable<any> {
+        const promise = this._insertPromise( rawDoc );
         return Observable.fromPromise( promise );
     }
 
@@ -111,14 +84,7 @@ export class Collection implements ICollection {
      * ...
      */
     public update( filter: any, changes: any ): Observable<any[]> {
-        const promise = this._initPromise
-            .then(() => {
-                const matches = this._filterDocuments( filter, this._documents );
-                this._updator.updateDocuments( matches, changes );
-                this._updateQueries();
-                return this._persistor.store( matches )
-                    .then(() => matches );
-            });
+        const promise = this._updatePromise( filter, changes );
         return Observable.fromPromise( promise );
     }
 
@@ -127,14 +93,7 @@ export class Collection implements ICollection {
      * ...
      */
     public remove( filter: any ): Observable<any[]> {
-        const promise = this._initPromise
-            .then(() => {
-                const matches = this._filterDocuments( filter, this._documents );
-                this._removeDocuments( matches );
-                this._updateQueries();
-                return this._persistor.remove( matches )
-                    .then(() => matches );
-            });
+        const promise = this._removePromise( filter );
         return Observable.fromPromise( promise );
     }
 
@@ -143,21 +102,65 @@ export class Collection implements ICollection {
      * ...
      */
     protected _init(): Promise<any> {
-        if ( !this._initPromise ) {
-            this._initPromise = this._persistor.load()
-                .then( docs => {
-                    this._documents = docs;
-                    this._updateQueries();
-                });
-        }
-        return this._initPromise;
+        return this._persistor
+            .load()
+            .then( docs => {
+                this._documents = docs;
+                this._updateQueries();
+            });
+    }
+
+    /**
+     * _insertPromise
+     * ...
+     */
+    public _insertPromise( rawDoc: any ): Promise<any> {
+        return this._initPromise.then(() => {
+            const doc = this._copyObject( rawDoc );
+            this._removeDocument( doc );
+            this._insertDocument( doc );
+            this._updateQueries();
+            return this._persistor
+                .store([ doc ])
+                .then(() => doc );
+        });
+    }
+
+    /**
+     * _updatePromise
+     * ...
+     */
+    public _updatePromise( filter: any, changes: any ): Promise<any[]> {
+        return this._initPromise.then(() => {
+            const matches = this._filterDocuments( filter );
+            this._updateDocuments( matches, changes );
+            this._updateQueries();
+            return this._persistor
+                .store( matches )
+                .then(() => matches );
+        });
+    }
+
+    /**
+     * _removePromise
+     * ...
+     */
+    public _removePromise( filter: any ): Promise<any[]> {
+        return this._initPromise.then(() => {
+            const matches = this._filterDocuments( filter );
+            this._removeDocuments( matches );
+            this._updateQueries();
+            return this._persistor
+                .remove( matches )
+                .then(() => matches );
+        });
     }
 
     /**
      * _cleanObject
      * ...
      */
-    protected _cleanObject( doc: any ): any {
+    protected _copyObject( doc: any ): any {
         const str = JSON.stringify( doc );
         return JSON.parse( str );
     }
@@ -166,24 +169,31 @@ export class Collection implements ICollection {
      * _filterDocuments
      * ...
      */
-    protected _filterDocuments( filter: any, docs: any[]): any[] {
-        const query = new Mingo.Query( filter );
-        return query.find( docs ).all();
+    protected _filterDocuments( filter: any ): any[] {
+        return filterDocuments( filter, this._documents );
     }
 
     /**
      * _insertDocument
      * ...
      */
-    protected _insertDocument( doc: any ) {
+    protected _insertDocument( doc: any ): void {
         this._documents.push( doc );
+    }
+
+    /**
+     * _updateDocuments
+     * ...
+     */
+    protected _updateDocuments( matches: any[], changes: any ): void {
+        updateDocuments( matches, changes );
     }
 
     /**
      * _removeDocuments
      * ...
      */
-    protected _removeDocuments( docs: any[]) {
+    protected _removeDocuments( docs: any[]): void {
         docs.forEach( doc => this._removeDocument( doc ));
     }
 
@@ -191,7 +201,7 @@ export class Collection implements ICollection {
      * _removeDocument
      * ...
      */
-    protected _removeDocument( doc: any ) {
+    protected _removeDocument( doc: any ): void {
         const index = this._documents.findIndex( _doc => _doc.id === doc.id );
         if ( index !== -1 ) {
             this._documents.splice( index, 1 );
@@ -202,7 +212,7 @@ export class Collection implements ICollection {
      * _updateQueries
      * ...
      */
-    protected _updateQueries( ) {
+    protected _updateQueries( ): void {
         const change: ChangeEvent = { type: 'value', data: this._documents };
         this._changes.next( change );
     }

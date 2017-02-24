@@ -1,5 +1,6 @@
 import { Database } from '../database';
 import { Collection } from '../collection';
+import { MockPersistor } from '../persistors/__mocks__/persistor.mock';
 
 describe( 'Database', () => {
     describe( 'collection', () => {
@@ -24,7 +25,9 @@ describe( 'Database', () => {
         });
 
         it( 'should create a new persister with the collection name', () => {
-            const factory = { create: jest.fn() };
+            const persistor = new MockPersistor();
+            persistor.load.mockReturnValue( Promise.resolve([]));
+            const factory = { create: jest.fn().mockReturnValue( persistor ) };
             const database = new Database({ persistorFactory: factory });
             database.collection( 'col' );
             expect( factory.create ).toHaveBeenCalledWith( 'col' );

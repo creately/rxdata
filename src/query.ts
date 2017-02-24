@@ -1,7 +1,7 @@
-import * as Mingo from 'mingo';
 import { Observable } from 'rxjs';
 import { IQuery } from './';
 import { ChangeEvent } from './collection';
+import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
 
 /**
  * QueryOptions
@@ -9,10 +9,8 @@ import { ChangeEvent } from './collection';
  */
 export type QueryOptions = {
     filter: any,
-    sort?: any,
-    limit?: number,
-    skip?: number,
-    documents: any[],
+    filterOptions?: FilterOptions,
+    initialDocuments: any[],
     changes: Observable<ChangeEvent>,
 };
 
@@ -45,10 +43,10 @@ export class Query implements IQuery {
      * ...
      */
     protected _createInitialValueObservable(): Observable<any[]> {
-        if ( !this._options.documents ) {
+        if ( !this._options.initialDocuments ) {
             return Observable.of();
         }
-        return Observable.of( this._options.documents )
+        return Observable.of( this._options.initialDocuments )
             .map( docs => this._filterDocuments( docs ));
     }
 
@@ -65,21 +63,8 @@ export class Query implements IQuery {
     /**
      * _filterDocuments
      * ...
-     *
-     * @todo store and reuse the Mingo query if it's faster.
      */
-    protected _filterDocuments( documents: any[]): any[] {
-        const query = new Mingo.Query( this._options.filter );
-        let cursor = query.find( documents );
-        if ( this._options.sort ) {
-            cursor = cursor.sort( this._options.sort );
-        }
-        if ( this._options.skip ) {
-            cursor = cursor.skip( this._options.skip );
-        }
-        if ( this._options.limit ) {
-            cursor = cursor.limit( this._options.limit );
-        }
-        return cursor.all();
+    protected _filterDocuments( docs: any[]): any[] {
+        return filterDocuments( this._options.filter, docs, this._options.filterOptions );
     }
 }
