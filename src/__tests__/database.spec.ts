@@ -1,7 +1,7 @@
 import { Database, DEFAULT_OPTIONS } from '../database';
 import { Collection } from '../collection';
 import { MockPersistor, MockPersistorFactory } from '../persistors/__mocks__/persistor.mock';
-import { ICollection } from '../';
+import { ICollection, IPersistorFactory } from '../';
 
 describe( 'Database', () => {
     describe( 'constructor', () => {
@@ -12,7 +12,7 @@ describe( 'Database', () => {
     });
 
     describe( 'collection', () => {
-        let factory: MockPersistorFactory;
+        let factory: IPersistorFactory;
         let database: Database;
         let collection: ICollection;
 
