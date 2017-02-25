@@ -7,7 +7,13 @@ import { updateDocuments } from './doc-utilities/update-documents';
 
 /**
  * ChangeEvent
- * ...
+ * ChangeEvent describes a change in the collection. Collections
+ * will emit these events to notify active queries to update their
+ * results accordingly. Valid ChangeEvent types are:
+ *  - value: documents in the collection has changed
+ *  - inserted: documents are inserted into the collection
+ *  - modified: documents are modified in the collection
+ *  - removed: documents are removed from the collection
  */
 export type ChangeEvent = {
     type: String,
@@ -16,30 +22,36 @@ export type ChangeEvent = {
 
 /**
  * Collection
- * ...
+ * Collection is a collection of documents.
  */
 export class Collection implements ICollection {
     /**
      * _documents
-     * ...
+     * _documents is a cached array of documents kept in memory.
+     * This field can have one of 2 states:
+     *  - null:  the collection has not completed initializing
+     *  - array: the collection is ready to perform operations
      */
     protected _documents: any[];
 
     /**
      * _changes
-     * ...
+     * _changes is a subject which emits ChangeEvents. Queries
+     * subscribe to this subject and emit new results if changed.
      */
     protected _changes: Subject<ChangeEvent>;
 
     /**
      * _initPromise
-     * ...
+     * _initPromise resolves when the collection has completed loading
+     * data from the persistor. All change operations should wait until
+     * the collection has completed initialization.
      */
     protected _initPromise: Promise<any>;
 
     /**
      * constructor
-     * ...
+     * constructor creates a new Collection instance and prepares it.
      */
     constructor( protected _persistor: IPersistor ) {
         this._changes = new Subject();
@@ -48,12 +60,15 @@ export class Collection implements ICollection {
 
     /**
      * find
-     * ...
+     * find creates a query which will emit all matching documents.
+     *
+     * @param filter: A mongodb like filter object.
+     * @param filterOptions: An optional object to customize the filter.
      */
-    public find( filter: any, options: FilterOptions = {}): IQuery {
+    public find( filter: any, filterOptions: FilterOptions = {}): IQuery {
         const queryOptions = {
             filter: filter,
-            filterOptions: options,
+            filterOptions: filterOptions,
             initialDocuments: this._documents,
             changes: this._changes,
         };
@@ -62,7 +77,11 @@ export class Collection implements ICollection {
 
     /**
      * findOne
-     * ...
+     * findOne creates a query which will emit the first matching document.
+     *
+     * @param filter: A mongodb like filter object.
+     * @param filterOptions: An optional object to customize the filter.
+     *  Note that the limit field will be set to 1 before it's used.
      */
     public findOne( filter: any, options: FilterOptions = {}): IQuery {
         const findOneOptions = Object.assign( options, { limit: 1 });
@@ -72,93 +91,76 @@ export class Collection implements ICollection {
 
     /**
      * insert
-     * ...
+     * insert adds a new document to the collection. If a document already
+     * exists in the collection with the same 'id', it'll be replaced.
+     *
+     * @param rawDoc: The document object. The only requirement is that it
+     *  should have an 'id' field to uniquely identify the document.
      */
     public insert( rawDoc: any ): Observable<any> {
-        const promise = this._insertPromise( rawDoc );
+        const promise = this._initPromise.then(() => {
+            const doc = this._copyObject( rawDoc );
+            this._removeDocument( doc );
+            this._insertDocument( doc );
+            return this._persistor
+                .store([ doc ])
+                .then(() => doc );
+        });
         return Observable.fromPromise( promise );
     }
 
     /**
      * update
-     * ...
+     * update updates all matching documents in the collection.
+     *
+     * @param filter: A mongodb like filter object.
+     * @param changes: A mongodb like changes object.
      */
     public update( filter: any, changes: any ): Observable<any[]> {
-        const promise = this._updatePromise( filter, changes );
+        const promise = this._initPromise.then(() => {
+            const matches = this._filterDocuments( filter );
+            this._updateDocuments( matches, changes );
+            return this._persistor
+                .store( matches )
+                .then(() => matches );
+        });
         return Observable.fromPromise( promise );
     }
 
     /**
      * remove
-     * ...
+     * remove removes all matching documents from the collection.
+     *
+     * @param filter: A mongodb like filter object.
      */
     public remove( filter: any ): Observable<any[]> {
-        const promise = this._removePromise( filter );
+        const promise = this._initPromise.then(() => {
+            const matches = this._filterDocuments( filter );
+            this._removeDocuments( matches );
+            return this._persistor
+                .remove( matches )
+                .then(() => matches );
+        });
         return Observable.fromPromise( promise );
     }
 
     /**
      * _init
-     * ...
+     * _init initializes the collection by loading available documents
+     * from the persistor. This function needs to run once before use.
      */
     protected _init(): Promise<any> {
         return this._persistor
             .load()
             .then( docs => {
                 this._documents = docs;
-                this._updateQueries();
+                this._sendValueEvent();
             });
     }
 
     /**
-     * _insertPromise
-     * ...
-     */
-    public _insertPromise( rawDoc: any ): Promise<any> {
-        return this._initPromise.then(() => {
-            const doc = this._copyObject( rawDoc );
-            this._removeDocument( doc );
-            this._insertDocument( doc );
-            this._updateQueries();
-            return this._persistor
-                .store([ doc ])
-                .then(() => doc );
-        });
-    }
-
-    /**
-     * _updatePromise
-     * ...
-     */
-    public _updatePromise( filter: any, changes: any ): Promise<any[]> {
-        return this._initPromise.then(() => {
-            const matches = this._filterDocuments( filter );
-            this._updateDocuments( matches, changes );
-            this._updateQueries();
-            return this._persistor
-                .store( matches )
-                .then(() => matches );
-        });
-    }
-
-    /**
-     * _removePromise
-     * ...
-     */
-    public _removePromise( filter: any ): Promise<any[]> {
-        return this._initPromise.then(() => {
-            const matches = this._filterDocuments( filter );
-            this._removeDocuments( matches );
-            this._updateQueries();
-            return this._persistor
-                .remove( matches )
-                .then(() => matches );
-        });
-    }
-
-    /**
-     * _cleanObject
-     * ...
+     * _copyObject
+     * _copyObject creates a deep copy of the object.
      */
     protected _copyObject( doc: any ): any {
         const str = JSON.stringify( doc );
@@ -167,7 +169,7 @@ export class Collection implements ICollection {
 
     /**
      * _filterDocuments
-     * ...
+     * _filterDocuments returns matching documents from the collection.
      */
     protected _filterDocuments( filter: any ): any[] {
         return filterDocuments( filter, this._documents );
@@ -175,31 +177,34 @@ export class Collection implements ICollection {
 
     /**
      * _insertDocument
-     * ...
+     * _insertDocument inserts a new document to the collection.
      */
     protected _insertDocument( doc: any ): void {
         this._documents.push( doc );
+        this._sendValueEvent();
     }
 
     /**
      * _updateDocuments
-     * ...
+     * _updateDocuments updates matching documents to the collection.
      */
     protected _updateDocuments( matches: any[], changes: any ): void {
         updateDocuments( matches, changes );
+        this._sendValueEvent();
     }
 
     /**
      * _removeDocuments
-     * ...
+     * _removeDocuments removes matching documents from the collection.
      */
     protected _removeDocuments( docs: any[]): void {
         docs.forEach( doc => this._removeDocument( doc ));
+        this._sendValueEvent();
     }
 
     /**
      * _removeDocument
-     * ...
+     * _removeDocument removes a document from the collection.
      */
     protected _removeDocument( doc: any ): void {
         const index = this._documents.findIndex( _doc => _doc.id === doc.id );
@@ -209,11 +214,11 @@ export class Collection implements ICollection {
     }
 
     /**
-     * _updateQueries
-     * ...
+     * _sendValueEvent
+     * _sendValueEvent sends a 'value' event to all active queries.
      */
-    protected _updateQueries( ): void {
-        const change: ChangeEvent = { type: 'value', data: this._documents };
-        this._changes.next( change );
+    protected _sendValueEvent( ): void {
+        const event: ChangeEvent = { type: 'value', data: this._documents };
+        this._changes.next( event );
     }
 }
