@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { SingleDocQuery } from './single-doc-query';
-import { MockQuery } from './__mocks__/query.mock';
+import { SingleDocQuery } from '../single-doc-query';
+import { MockQuery } from '../__mocks__/query.mock';
 
 describe( 'SingleDocQuery', () => {
     describe( 'value', () => {

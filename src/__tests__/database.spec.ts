@@ -1,7 +1,7 @@
-import { Database, DEFAULT_OPTIONS } from './database';
-import { Collection } from './collection';
-import { MockPersistor, MockPersistorFactory } from './persistors/__mocks__/persistor.mock';
-import { ICollection } from './';
+import { Database, DEFAULT_OPTIONS } from '../database';
+import { Collection } from '../collection';
+import { MockPersistor, MockPersistorFactory } from '../persistors/__mocks__/persistor.mock';
+import { ICollection } from '../';
 
 describe( 'Database', () => {
     describe( 'constructor', () => {

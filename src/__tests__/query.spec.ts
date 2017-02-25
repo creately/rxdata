@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { Query } from './query';
+import { Query } from '../query';
 
 describe( 'Query', () => {
     describe( 'value', () => {
