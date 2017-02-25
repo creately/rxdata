@@ -52,6 +52,8 @@ export class Collection implements ICollection {
     /**
      * constructor
      * constructor creates a new Collection instance and prepares it.
+     *
+     * @param _persistor: A IPersistor instance to store and load data.
      */
     constructor( protected _persistor: IPersistor ) {
         this._changes = new Subject();
@@ -161,6 +163,8 @@ export class Collection implements ICollection {
     /**
      * _copyObject
      * _copyObject creates a deep copy of the object.
+     *
+     * @param doc: A document object to copy.
      */
     protected _copyObject( doc: any ): any {
         const str = JSON.stringify( doc );
@@ -170,6 +174,8 @@ export class Collection implements ICollection {
     /**
      * _filterDocuments
      * _filterDocuments returns matching documents from the collection.
+     *
+     * @param filter: A mongodb like filter object.
      */
     protected _filterDocuments( filter: any ): any[] {
         return filterDocuments( filter, this._documents );
@@ -178,6 +184,8 @@ export class Collection implements ICollection {
     /**
      * _insertDocument
      * _insertDocument inserts a new document to the collection.
+     *
+     * @param doc: A document object to insert.
      */
     protected _insertDocument( doc: any ): void {
         this._documents.push( doc );
@@ -187,15 +195,20 @@ export class Collection implements ICollection {
     /**
      * _updateDocuments
      * _updateDocuments updates matching documents to the collection.
+     *
+     * @param: docs: An array of documents to update.
+     * @param changes: A mongodb like changes object.
      */
-    protected _updateDocuments( matches: any[], changes: any ): void {
-        updateDocuments( matches, changes );
+    protected _updateDocuments( docs: any[], changes: any ): void {
+        updateDocuments( docs, changes );
         this._sendValueEvent();
     }
 
     /**
      * _removeDocuments
      * _removeDocuments removes matching documents from the collection.
+     *
+     * @param: docs: An array of documents to remove.
      */
     protected _removeDocuments( docs: any[]): void {
         docs.forEach( doc => this._removeDocument( doc ));
@@ -205,6 +218,8 @@ export class Collection implements ICollection {
     /**
      * _removeDocument
      * _removeDocument removes a document from the collection.
+     *
+     * @param doc: A document object to remove.
      */
     protected _removeDocument( doc: any ): void {
         const index = this._documents.findIndex( _doc => _doc.id === doc.id );
