@@ -3,7 +3,7 @@ import { FilterOptions } from './doc-utilities/filter-documents';
 
 export { Database } from './database';
 export { Collection } from './collection';
-export { Query } from './query';
+export { Query, SingleDocQuery } from './query';
 export { ExtendedCollection, ExtendedQuery } from './extended';
 
 /**

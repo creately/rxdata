@@ -72,3 +72,26 @@ export class Query implements IQuery {
         return filterDocuments( filter, docs, this._options.filterOptions );
     }
 }
+
+/**
+ * SingleDocQuery
+ * ...
+ */
+export class SingleDocQuery implements IQuery {
+    /**
+     * constructor
+     * ...
+     */
+    constructor( protected _base: IQuery ) {
+        // ...
+    }
+
+    /**
+     * value
+     * ...
+     */
+    public value(): Observable<any> {
+        return this._base.value()
+            .map( docs => docs[0]);
+    }
+}

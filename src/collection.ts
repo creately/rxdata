@@ -1,7 +1,6 @@
 import { Observable, Subject } from 'rxjs';
 import { IQuery, ICollection, IPersistor } from './';
-import { Query } from './query';
-import { SingleDocQuery } from './single-doc-query';
+import { Query, SingleDocQuery } from './query';
 import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
 import { updateDocuments } from './doc-utilities/update-documents';
 

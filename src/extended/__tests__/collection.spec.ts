@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { MockCollection } from '../../__mocks__/collection.mock';
 import { ExtendedCollection } from '../collection';
 import { ExtendedQuery } from '../query';
-import { SingleDocQuery } from '../../single-doc-query';
+import { SingleDocQuery } from '../../query';
 
 describe( 'ExtendedCollection', () => {
     let parent: MockCollection;

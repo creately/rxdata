@@ -1,8 +1,7 @@
 import { Observable } from 'rxjs';
 import { Collection } from '../collection';
 import { MockPersistor } from '../persistors/__mocks__/persistor.mock';
-import { Query } from '../query';
-import { SingleDocQuery } from '../single-doc-query';
+import { Query, SingleDocQuery } from '../query';
 
 describe( 'Collection', () => {
     let persistor: MockPersistor;
