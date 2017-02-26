@@ -5,7 +5,7 @@ import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents
 
 /**
  * QueryOptions
- * ...
+ * QueryOptions is used to create a new Query instance.
  */
 export type QueryOptions = {
     filter?: any,
@@ -16,12 +16,14 @@ export type QueryOptions = {
 
 /**
  * Query
- * ...
+ * Query is a reactive getter for a subset of the database.
  */
 export class Query implements IQuery {
     /**
      * constructor
-     * ...
+     * constructor creates a new Query instance
+     *
+     * @param _options: An options object to customize the query.
      */
     constructor( protected _options: QueryOptions = {}) {
         // ...
@@ -29,7 +31,8 @@ export class Query implements IQuery {
 
     /**
      * value
-     * ...
+     * value creates an observable which returns the query result
+     * once initially and also whenever it changes.
      */
      public value(): Observable<any> {
         return Observable.merge(
@@ -40,7 +43,9 @@ export class Query implements IQuery {
 
     /**
      * _createInitialValueObservable
-     * ...
+     * _createInitialValueObservable creates an observable with initially
+     * available set of documents. This is done so that users will receive
+     * data as soon as they subscribe.
      */
     protected _createInitialValueObservable(): Observable<any[]> {
         if ( !this._options.initialDocuments ) {
@@ -52,7 +57,8 @@ export class Query implements IQuery {
 
     /**
      * _createUpdatedValueObservable
-     * ...
+     * _createUpdatedValueObservable creates an observable which will return
+     * updated results to the user when it changes.
      */
     protected _createUpdatedValueObservable(): Observable<any[]> {
         if ( !this._options.changes ) {
@@ -65,7 +71,9 @@ export class Query implements IQuery {
 
     /**
      * _filterDocuments
-     * ...
+     * _filterDocuments returns matching documents from an array of documents.
+     *
+     * @param docs: The array of documents to pick matching documents from.
      */
     protected _filterDocuments( docs: any[]): any[] {
         const filter = this._options.filter || {};
@@ -75,12 +83,14 @@ export class Query implements IQuery {
 
 /**
  * SingleDocQuery
- * ...
+ * SingleDocQuery wraps query and returns only the first matching document.
  */
 export class SingleDocQuery implements IQuery {
     /**
      * constructor
-     * ...
+     * constructor creates a new SingleDocQuery instance
+     *
+     * @param _base: The base query to get the document from.
      */
     constructor( protected _base: IQuery ) {
         // ...
@@ -88,7 +98,9 @@ export class SingleDocQuery implements IQuery {
 
     /**
      * value
-     * ...
+     * value creates an observable which returns the query result
+     * once initially and also whenever it changes. Unlike Query.value
+     * this will only return the first matching document.
      */
     public value(): Observable<any> {
         return this._base.value()
