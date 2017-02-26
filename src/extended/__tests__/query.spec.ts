@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { MockQuery } from '../__mocks__/query.mock';
-import { ExtendedQuery } from '../extended-query';
+import { MockQuery } from '../../__mocks__/query.mock';
+import { ExtendedQuery } from '../query';
 
 describe( 'ExtendedQuery', () => {
     let parent: MockQuery;

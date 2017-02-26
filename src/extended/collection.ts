@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
-import { ICollection, IQuery } from './';
-import { ExtendedQuery } from './extended-query';
-import { SingleDocQuery } from './single-doc-query';
-import { FilterOptions } from './doc-utilities/filter-documents';
-import { mergeDocumentArrays, mergeDocuments } from './doc-utilities/merge-documents';
+import { ICollection, IQuery } from '../';
+import { ExtendedQuery } from './query';
+import { SingleDocQuery } from '../single-doc-query';
+import { FilterOptions } from '../doc-utilities/filter-documents';
+import { mergeDocumentArrays, mergeDocuments } from '../doc-utilities/merge-documents';
 
 /**
  * ExtendedCollection

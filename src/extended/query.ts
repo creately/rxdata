@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { IQuery } from './';
-import { mergeDocumentArrays } from './doc-utilities/merge-documents';
+import { IQuery } from '../';
+import { mergeDocumentArrays } from '../doc-utilities/merge-documents';
 
 /**
  * ExtendedQuery

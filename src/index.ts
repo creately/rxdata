@@ -4,8 +4,7 @@ import { FilterOptions } from './doc-utilities/filter-documents';
 export { Database } from './database';
 export { Collection } from './collection';
 export { Query } from './query';
-export { ExtendedCollection } from './extended-collection';
-export { ExtendedQuery } from './extended-query';
+export { ExtendedCollection, ExtendedQuery } from './extended';
 
 /**
  * IDatabase
