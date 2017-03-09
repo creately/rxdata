@@ -4,6 +4,8 @@ node_modules
 examples
 src
 CHANGELOG.md
+__tests__
+__mocks__
 
 .editorconfig
 .travis.yml
