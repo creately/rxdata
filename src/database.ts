@@ -1,6 +1,7 @@
 import { Collection } from './collection';
 import { IDatabase, ICollection, IPersistorFactory } from './';
 import { LocalForagePersistorFactory } from './persistors/localforage';
+import { Observable } from 'rxjs';
 
 /**
  * DatabaseOptions
@@ -55,6 +56,23 @@ export class Database implements IDatabase {
         const collection = this._createCollection( name );
         this._collections.set( name,  collection );
         return collection;
+    }
+
+    /**
+     * drop
+     * drop clears all data in all collections in the database.
+     */
+    public drop(): Observable<any> {
+        const collections = this._collections;
+        this._collections = new Map<string, Collection>();
+        const observables = [];
+        collections.forEach( collection => {
+            const observable = collection.remove({});
+            observables.push( observable );
+        });
+        return Observable
+            .forkJoin( observables )
+            .flatMap(() => Observable.of());
     }
 
     /**

@@ -1,7 +1,9 @@
+import { Observable } from 'rxjs';
+import { ICollection, IPersistorFactory } from '../';
 import { Database, DEFAULT_OPTIONS } from '../database';
 import { Collection } from '../collection';
 import { MockPersistor, MockPersistorFactory } from '../persistors/__mocks__/persistor.mock';
-import { ICollection, IPersistorFactory } from '../';
+import { createCollections } from '../__mocks__/database.mock';
 
 describe( 'Database', () => {
     describe( 'constructor', () => {
@@ -38,6 +40,29 @@ describe( 'Database', () => {
 
         it( 'should create a new persister with the collection name', () => {
             expect( factory.create ).toHaveBeenCalledWith( 'col' );
+        });
+    });
+
+    describe( 'drop', () => {
+        let database: Database;
+
+        beforeEach(() => {
+            const persistor = new MockPersistor();
+            const factory = { create: jest.fn().mockReturnValue( persistor ) };
+            database = new Database({ persistorFactory: factory });
+        });
+
+        it( 'should call remove method on all collections', done => {
+            const collections = createCollections( database, 3 );
+            database.drop().subscribe({
+                error: err => done.fail( err ),
+                complete: () => {
+                    collections.forEach( col => {
+                        expect( col.remove ).toHaveBeenCalledWith({});
+                    });
+                    done();
+                },
+            });
         });
     });
 });
