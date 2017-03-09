@@ -1,3 +1,7 @@
+# 2017-02-24 - v2.1.0
+
+ - Add drop method to database [#18](https://github.com/Cinergix/rxdata/pull/18)
+
 # 2017-02-24 - v2.0.0
 
  - Add findOne method to the collection [#15](https://github.com/Cinergix/rxdata/pull/15)
