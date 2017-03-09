@@ -12,3 +12,11 @@ export class MockCollection implements ICollection {
     public update: any = jest.fn().mockReturnValue( Observable.of([]));
     public remove: any = jest.fn().mockReturnValue( Observable.of([]));
 }
+
+/**
+ * mockify
+ * ...
+ */
+export const mockify = ( col: ICollection ) => {
+    Object.assign( col, new MockCollection());
+};
