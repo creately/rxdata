@@ -53,6 +53,28 @@ describe( 'Collection', () => {
                 );
         });
 
+        it( 'should not store getters in the document object', done => {
+            class TestDoc {
+                public id = 'i1';
+                private x = 10;
+                get y() {
+                    return 20;
+                }
+            }
+            const doc = new TestDoc();
+            collection.insert( doc )
+                .switchMap(() => collection.find({}).value().take( 1 ))
+                .subscribe(
+                    docs => {
+                        expect( docs ).toEqual([
+                            { id: 'i1', x: 10 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
+
         it( 'should replace if a document already exists with id', done => {
             collection.insert({ id: 'i1', x: 10 })
                 .switchMap(() => collection.insert({ id: 'i1', x: 20 }))
