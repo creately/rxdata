@@ -25,7 +25,8 @@ export class ExtendedQuery implements IQuery {
                 this.parent.value(),
                 this.child.value(),
             )
-            .map( sets => this._mergeDocumentArrays( ...sets ));
+            .map( sets => this._mergeDocumentArrays( ...sets ))
+            .distinctUntilChanged();
     }
 
     /**

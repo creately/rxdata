@@ -35,10 +35,12 @@ export class Query implements IQuery {
      * once initially and also whenever it changes.
      */
      public value(): Observable<any> {
-        return Observable.merge(
-            this._createInitialValueObservable(),
-            this._createUpdatedValueObservable(),
-        );
+        return Observable
+            .merge(
+                this._createInitialValueObservable(),
+                this._createUpdatedValueObservable(),
+            )
+            .distinctUntilChanged();
      }
 
     /**
