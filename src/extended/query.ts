@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import * as isEqual from 'lodash.isequal';
 import { IQuery } from '../';
 import { mergeDocumentArrays } from '../doc-utilities/merge-documents';
 
@@ -26,7 +27,7 @@ export class ExtendedQuery implements IQuery {
                 this.child.value(),
             )
             .map( sets => this._mergeDocumentArrays( ...sets ))
-            .distinctUntilChanged();
+            .distinctUntilChanged( isEqual );
     }
 
     /**
