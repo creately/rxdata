@@ -33,9 +33,10 @@ const apply$push = ( doc: any, $push: any ) => {
     Object.keys( clean$Push ).forEach( key => {
         const val = clean$Push[ key ];
         if ( !doc[ key ] || !Array.isArray( doc[ key ])) {
-            doc[ key ] = [];
+            doc[ key ] = [ val ];
+        } else {
+            doc[ key ] = doc[ key ].concat([ val ]);
         }
-        doc[ key ].push( val );
     });
 };
 
