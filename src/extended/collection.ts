@@ -36,8 +36,8 @@ export class ExtendedCollection implements ICollection {
      * ...
      */
     public find( filter: any, options: FilterOptions = {}): IQuery {
-        const parentQuery = this.parent.find( filter );
-        const childQuery = this.child.find( filter, options );
+        const parentQuery = this.parent.find( this._pickSubDocument( this._filterParent, filter ));
+        const childQuery = this.child.find( this._pickSubDocument( this._filterChild, filter ), options );
         return new ExtendedQuery( parentQuery, childQuery, this.fields );
     }
 

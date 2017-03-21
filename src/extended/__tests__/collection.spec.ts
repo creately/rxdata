@@ -17,17 +17,27 @@ describe( 'ExtendedCollection', () => {
 
     describe( 'find', () => {
         it( 'should return an Query instance', () => {
-            expect( collection.find({ foo: 'bar' }) instanceof ExtendedQuery ).toBeTruthy();
+            expect( collection.find({ id: 'i1' }) instanceof ExtendedQuery ).toBeTruthy();
         });
 
         it( 'should call the find method on parent without options', () => {
-            collection.find({ foo: 'bar' }, { limit: 10 });
-            expect( parent.find ).toHaveBeenCalledWith({ foo: 'bar' });
+            collection.find({ id: 'i1' }, { limit: 10 });
+            expect( parent.find ).toHaveBeenCalledWith({ id: 'i1' });
+        });
+
+        it( 'should call the find method on parent with parent fields', () => {
+            collection.find({ id: 'i1', x: 2, y: 3 }, { limit: 10 });
+            expect( parent.find ).toHaveBeenCalledWith({ id: 'i1', x: 2 });
         });
 
         it( 'should call the find method on child with options', () => {
-            collection.find({ foo: 'bar' }, { limit: 10 });
-            expect( child.find ).toHaveBeenCalledWith({ foo: 'bar' }, { limit: 10 });
+            collection.find({ id: 'i1' }, { limit: 10 });
+            expect( child.find ).toHaveBeenCalledWith({ id: 'i1' }, { limit: 10 });
+        });
+
+        it( 'should call the find method on child with chlid fields', () => {
+            collection.find({ id: 'i1', x: 2, y: 3 }, { limit: 10 });
+            expect( child.find ).toHaveBeenCalledWith({ id: 'i1', y: 3 }, { limit: 10 });
         });
     });
 
