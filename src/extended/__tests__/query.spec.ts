@@ -50,5 +50,27 @@ describe( 'ExtendedQuery', () => {
                 },
             );
         });
+
+        it( 'should combine result documents and return', done => {
+            parent.value.mockReturnValue( Observable.of(
+                [{ id: 'i1', x: 10 }, { id: 'i2' }],
+                [{ id: 'i1', x: 10 }, { id: 'i2' }],
+            ));
+            child.value.mockReturnValue( Observable.of(
+                [{ id: 'i2' }, { id: 'i1', x: 20 }],
+                [{ id: 'i2' }, { id: 'i1', x: 20 }],
+            ));
+            const received = [];
+            query.value().subscribe(
+                docs => received.push( docs ),
+                err => done.fail( err ),
+                () => {
+                    expect( received ).toEqual([
+                        [{ id: 'i1', x: 20 }, { id: 'i2' }],
+                    ]);
+                    done();
+                },
+            );
+        });
     });
 });

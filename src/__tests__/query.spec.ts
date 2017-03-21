@@ -105,6 +105,33 @@ describe( 'Query', () => {
                 err => done.fail( err ),
             );
         });
+
+        it( 'should not emit duplicate results', done => {
+            const query = new Query({
+                filter: {},
+                changes: Observable.of(
+                    {
+                        type: 'value',
+                        data: [{ _id: 'i1', type: 'a', value: 5 }],
+                    },
+                    {
+                        type: 'value',
+                        data: [{ _id: 'i1', type: 'a', value: 5 }],
+                    },
+                ),
+            });
+            const received = [];
+            query.value().subscribe(
+                data => received.push( data ),
+                err => done.fail( err ),
+                () => {
+                    expect( received ).toEqual([
+                        [{ _id: 'i1', type: 'a', value: 5 }],
+                    ]);
+                    done();
+                },
+            );
+        });
     });
 });
 
