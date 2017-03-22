@@ -1,3 +1,8 @@
+# 2017-03-22 - v2.1.1
+
+ - Fix find method on ExtendedQuery [#20](https://github.com/Cinergix/rxdata/pull/20)
+ - Fix Fix $push operation to return new array [#22](https://github.com/Cinergix/rxdata/pull/22)
+
 # 2017-02-24 - v2.1.0
 
  - Add drop method to database [#18](https://github.com/Cinergix/rxdata/pull/18)
