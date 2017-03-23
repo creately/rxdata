@@ -12,12 +12,13 @@ export { ExtendedCollection, ExtendedQuery } from './extended';
  */
 export interface IDatabase {
     collection( name ): ICollection;
+    drop(): Observable<any>;
 }
 
 /**
  * ICollection
  * ICollection contains a set of documents which can be manipulated
- * using collection methods. It uses a IPersistor to store data.
+ * using collection methods. It uses ICollectionPersistors to store.
  */
 export interface ICollection {
     find( filter: any, options?: FilterOptions ): IQuery;
@@ -36,21 +37,23 @@ export interface IQuery {
 }
 
 /**
- * IPersistorFactory
- * IPersistorFactory creates a Persistors for collections to store data.
+ * IDatabasePersistor
+ * IDatabasePersistor creates Persistors for collections to store data.
  */
-export interface IPersistorFactory {
-    create( collectionName: string ): IPersistor;
+export interface IDatabasePersistor {
+    create( collectionName: string ): ICollectionPersistor;
+    drop(): Promise<any>;
 }
 
 /**
- * IPersistor
- * IPersistor stores data in a permanent storage location. With default
+ * ICollectionPersistor
+ * ICollectionPersistor stores data in a permanent storage location. With default
  * options, data may get stored in IndexedDB, WebSQL or LocalStorage.
- * Each collection has it's own IPersistor instance to store data.
+ * Each collection has it's own ICollectionPersistor instance to store data.
  */
-export interface IPersistor {
+export interface ICollectionPersistor {
     load(): Promise<any[]>;
     store( docs: any[]): Promise<any>;
     remove( docs: any[]): Promise<any>;
+    drop(): Promise<any>;
 }
