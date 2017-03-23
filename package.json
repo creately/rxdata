@@ -10,6 +10,7 @@
   "typings": "dist/index.d.ts",
   "dependencies": {
     "localforage": "^1.4.3",
+    "lodash.isequal": "^4.5.0",
     "mingo": "^0.9.1"
   },
   "peerDependencies": {

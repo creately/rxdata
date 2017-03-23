@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import * as isEqual from 'lodash.isequal';
 import { IQuery } from './';
 import { ChangeEvent } from './collection';
 import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
@@ -35,10 +36,12 @@ export class Query implements IQuery {
      * once initially and also whenever it changes.
      */
      public value(): Observable<any> {
-        return Observable.merge(
-            this._createInitialValueObservable(),
-            this._createUpdatedValueObservable(),
-        );
+        return Observable
+            .merge(
+                this._createInitialValueObservable(),
+                this._createUpdatedValueObservable(),
+            )
+            .distinctUntilChanged( isEqual );
      }
 
     /**
