@@ -13,11 +13,19 @@ export class LocalForageDatabasePersistor implements IDatabasePersistor {
     protected _metadata: any;
 
     /**
+     * _collections
+     * ...
+     */
+    protected _collections: Set<string>;
+    protected _loadCollectionsPromise: Promise<Set<string>>;
+
+    /**
      * constructor
      * ...
      */
     constructor( protected databaseName: string ) {
         this._metadata = this._createLocalForageForMetadata();
+        this._collections = new Set<string>();
     }
 
     /**
@@ -51,17 +59,34 @@ export class LocalForageDatabasePersistor implements IDatabasePersistor {
     }
 
     /**
+     * _loadInitialCollections
+     * ...
+     */
+    protected _loadInitialCollections(): Promise<Set<string>> {
+        if ( !this._loadCollectionsPromise ) {
+            this._loadCollectionsPromise = this._metadata.getItem( 'collections' )
+                .then( collections => {
+                    if ( collections ) {
+                        collections.forEach( name => this._collections.add( name ));
+                    }
+                });
+        }
+        return this._loadCollectionsPromise;
+    }
+
+    /**
      * _registerCollection
      * ...
      */
     protected _registerCollection( name: string ): Promise<any> {
-        return this._metadata.getItem( 'collections' )
-            .then( collections => {
-                if ( !Array.isArray( collections )) {
-                    return this._metadata.setItem( 'collections', [ name ]);
+        return this._loadInitialCollections()
+            .then(() => {
+                if ( this._collections.has( name )) {
+                    return;
                 }
-                const set = new Set<string>( collections.concat( name ));
-                return this._metadata.setItem( 'collections', Array.from( set ));
+                this._collections.add( name );
+                const collections = Array.from( this._collections );
+                this._metadata.setItem( 'collections', collections );
             });
     }
 
