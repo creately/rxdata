@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
-import { ICollection, IPersistorFactory } from '../';
+import { ICollection, IDatabasePersistor } from '../';
 import { Database, DEFAULT_OPTIONS } from '../database';
 import { Collection } from '../collection';
-import { MockPersistor, MockPersistorFactory } from '../persistors/__mocks__/persistor.mock';
+import { MockCollectionPersistor, MockDatabasePersistor } from '../persistors/__mocks__/persistor.mock';
 import { createCollections } from '../__mocks__/database.mock';
 
 describe( 'Database', () => {
@@ -14,14 +14,13 @@ describe( 'Database', () => {
     });
 
     describe( 'collection', () => {
-        let factory: IPersistorFactory;
+        let databasePersistor: MockDatabasePersistor;
         let database: Database;
         let collection: ICollection;
 
         beforeEach(() => {
-            const persistor = new MockPersistor();
-            factory = { create: jest.fn().mockReturnValue( persistor ) };
-            database = new Database({ persistorFactory: factory });
+            databasePersistor = new MockDatabasePersistor();
+            database = new Database({ persistor: databasePersistor });
             collection = database.collection( 'col' );
         });
 
@@ -39,27 +38,24 @@ describe( 'Database', () => {
         });
 
         it( 'should create a new persister with the collection name', () => {
-            expect( factory.create ).toHaveBeenCalledWith( 'col' );
+            expect( databasePersistor.create ).toHaveBeenCalledWith( 'col' );
         });
     });
 
     describe( 'drop', () => {
+        let databasePersistor: MockDatabasePersistor;
         let database: Database;
 
         beforeEach(() => {
-            const persistor = new MockPersistor();
-            const factory = { create: jest.fn().mockReturnValue( persistor ) };
-            database = new Database({ persistorFactory: factory });
+            databasePersistor = new MockDatabasePersistor();
+            database = new Database({ persistor: databasePersistor });
         });
 
-        it( 'should call remove method on all collections', done => {
-            const collections = createCollections( database, 3 );
+        it( 'should call drop method on database persistor', done => {
             database.drop().subscribe({
                 error: err => done.fail( err ),
                 complete: () => {
-                    collections.forEach( col => {
-                        expect( col.remove ).toHaveBeenCalledWith({});
-                    });
+                    expect( databasePersistor.drop ).toHaveBeenCalled();
                     done();
                 },
             });

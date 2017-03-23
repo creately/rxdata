@@ -1,19 +1,19 @@
 import { Observable } from 'rxjs';
 import { Collection } from '../collection';
-import { MockPersistor } from '../persistors/__mocks__/persistor.mock';
+import { MockCollectionPersistor } from '../persistors/__mocks__/persistor.mock';
 import { Query, SingleDocQuery } from '../query';
 
 describe( 'Collection', () => {
-    let persistor: MockPersistor;
+    let persistor: MockCollectionPersistor;
     let collection: Collection;
 
     beforeEach(() => {
-        persistor = new MockPersistor();
+        persistor = new MockCollectionPersistor();
         collection = new Collection( persistor );
     });
 
     describe( 'find', () => {
-        it( 'should return an Query instance', () => {
+        it( 'should return a Query instance', () => {
             expect( collection.find({ foo: 'bar' }) instanceof Query ).toBeTruthy();
         });
     });
