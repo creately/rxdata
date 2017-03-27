@@ -1,3 +1,11 @@
+# 2017-03-27 - v3.0.0
+
+ - Remove `IPersistorFactory` public interface [#21](https://github.com/Cinergix/rxdata/pull/21)
+ - Remove `IPersistor` public interface [#21](https://github.com/Cinergix/rxdata/pull/21)
+ - Add `ICollectionPersistor` public interface [#21](https://github.com/Cinergix/rxdata/pull/21)
+ - Add `IDatabasePersistor` public interface [#21](https://github.com/Cinergix/rxdata/pull/21)
+ - Fix `drop` method to remove all collections [#21](https://github.com/Cinergix/rxdata/pull/21)
+
 # 2017-03-24 - v2.1.2
 
  - Fix query emits to avoid duplicates [#21](https://github.com/Cinergix/rxdata/pull/21)
