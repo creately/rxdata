@@ -8,9 +8,9 @@ import { ICollection } from '../';
 export class MockCollection implements ICollection {
     public find: any = jest.fn();
     public findOne: any = jest.fn();
-    public insert: any = jest.fn().mockImplementation( doc => Observable.of( doc ));
-    public update: any = jest.fn().mockReturnValue( Observable.of([]));
-    public remove: any = jest.fn().mockReturnValue( Observable.of([]));
+    public insert: any = jest.fn( doc => Observable.of( doc ));
+    public update: any = jest.fn(() => Observable.of([]));
+    public remove: any = jest.fn(() => Observable.of([]));
 }
 
 /**

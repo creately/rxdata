@@ -1,5 +1,5 @@
 import { Observable, Subject } from 'rxjs';
-import { IQuery, ICollection, IPersistor } from './';
+import { IQuery, ICollection, ICollectionPersistor } from './';
 import { Query, SingleDocQuery } from './query';
 import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
 import { updateDocuments } from './doc-utilities/update-documents';
@@ -52,9 +52,9 @@ export class Collection implements ICollection {
      * constructor
      * constructor creates a new Collection instance and prepares it.
      *
-     * @param _persistor: A IPersistor instance to store and load data.
+     * @param _persistor: A ICollectionPersistor instance to store and load data.
      */
-    constructor( protected _persistor: IPersistor ) {
+    constructor( protected _persistor: ICollectionPersistor ) {
         this._changes = new Subject();
         this._initPromise = this._init();
     }

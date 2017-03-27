@@ -1,27 +1,111 @@
 import * as LocalForage from 'localforage';
-import { IPersistor, IPersistorFactory } from '../';
+import { IDatabasePersistor, ICollectionPersistor } from '../';
 
 /**
- * DefaultPersistorFactory
+ * LocalForageDatabasePersistor
  * ...
  */
-export class LocalForagePersistorFactory implements IPersistorFactory {
+export class LocalForageDatabasePersistor implements IDatabasePersistor {
+    /**
+     * _registry
+     * ...
+     */
+    protected _metadata: any;
+
+    /**
+     * _collections
+     * ...
+     */
+    protected _collections: Set<string>;
+    protected _loadCollectionsPromise: Promise<Set<string>>;
+
     /**
      * constructor
      * ...
      */
     constructor( protected databaseName: string ) {
-        // ...
+        this._metadata = this._createLocalForageForMetadata();
+        this._collections = new Set<string>();
     }
 
     /**
      * create
      * ...
      */
-    public create( collectionName: string ): IPersistor {
-        const name = this._createFullName( collectionName );
-        const localforage = this._createLocalForage( name );
-        return new LocalForagePersistor( localforage );
+    public create( collectionName: string ): ICollectionPersistor {
+        // FIXME: collection registering is run async!!
+        this._registerCollection( collectionName );
+        const localforage = this._createLocalForageForCollection( collectionName );
+        return new LocalForageCollectionPersistor( localforage );
+    }
+
+    /**
+     * drop
+     * ...
+     */
+    public drop(): Promise<any> {
+        return this._metadata.getItem( 'collections' )
+            .then( collections => {
+                if ( !collections || !collections.length ) {
+                    return;
+                }
+                return Promise.all( collections.map( collectionName => {
+                    const localforage = this._createLocalForageForCollection( collectionName );
+                    return localforage.clear();
+                }));
+            })
+            .then(() => this._metadata.setItem( 'collections', []));
+
+    }
+
+    /**
+     * _loadInitialCollections
+     * ...
+     */
+    protected _loadInitialCollections(): Promise<Set<string>> {
+        if ( !this._loadCollectionsPromise ) {
+            this._loadCollectionsPromise = this._metadata.getItem( 'collections' )
+                .then( collections => {
+                    if ( collections ) {
+                        collections.forEach( name => this._collections.add( name ));
+                    }
+                });
+        }
+        return this._loadCollectionsPromise;
+    }
+
+    /**
+     * _registerCollection
+     * ...
+     */
+    protected _registerCollection( name: string ): Promise<any> {
+        return this._loadInitialCollections()
+            .then(() => {
+                if ( this._collections.has( name )) {
+                    return;
+                }
+                this._collections.add( name );
+                const collections = Array.from( this._collections );
+                this._metadata.setItem( 'collections', collections );
+            });
+    }
+
+    /**
+     * _createLocalForageForCollection
+     * ...
+     */
+    protected _createLocalForageForCollection( collectionName: string ): any {
+        const name = this._createCollectionName( collectionName );
+        return this._createLocalForage( name );
+    }
+
+    /**
+     * _createLocalForageForMetadata
+     * ...
+     */
+    protected _createLocalForageForMetadata(): any {
+        const name = this._createMetadataCollectionName( 'metadata' );
+        return this._createLocalForage( name );
     }
 
     /**
@@ -33,19 +117,27 @@ export class LocalForagePersistorFactory implements IPersistorFactory {
     }
 
     /**
-     * _createFullName
+     * _createCollectionName
      * ...
      */
-     protected _createFullName( collectionName: string ): string {
+     protected _createCollectionName( collectionName: string ): string {
          return `${this.databaseName}:${collectionName}`;
+     }
+
+    /**
+     * _createMetadataCollectionName
+     * ...
+     */
+     protected _createMetadataCollectionName( collectionName: string ): string {
+         return `${this.databaseName}.${collectionName}`;
      }
 }
 
 /**
- * DefaultPersistor
+ * LocalForageCollectionPersistor
  * ...
  */
-export class LocalForagePersistor implements IPersistor {
+export class LocalForageCollectionPersistor implements ICollectionPersistor {
     constructor( protected localforage: any ) {
         // ...
     }
@@ -58,6 +150,7 @@ export class LocalForagePersistor implements IPersistor {
         const documents = [];
         return this.localforage
             .iterate( value  => {
+                // If a non-undefined value is returned, the iterator will stop
                 documents.push( value );
                 return undefined;
             })
@@ -69,8 +162,7 @@ export class LocalForagePersistor implements IPersistor {
      * ...
      */
     public store( docs: any[]): Promise<any> {
-        const promises = docs.map( doc => this.localforage.setItem( doc.id, doc ));
-        return Promise.all( promises );
+        return Promise.all( docs.map( doc => this.localforage.setItem( doc.id, doc )));
     }
 
     /**
@@ -78,7 +170,14 @@ export class LocalForagePersistor implements IPersistor {
      * ...
      */
     public remove( docs: any[]): Promise<any> {
-        const promises = docs.map( doc => this.localforage.removeItem( doc.id ));
-        return Promise.all( promises );
+        return Promise.all( docs.map( doc => this.localforage.removeItem( doc.id )));
+    }
+
+    /**
+     * drop
+     * ...
+     */
+    public drop(): Promise<any> {
+        return this.localforage.clear();
     }
 }

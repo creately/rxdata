@@ -1,6 +1,6 @@
 import { Collection } from './collection';
-import { IDatabase, ICollection, IPersistorFactory } from './';
-import { LocalForagePersistorFactory } from './persistors/localforage';
+import { IDatabase, ICollection, IDatabasePersistor } from './';
+import { LocalForageDatabasePersistor } from './persistors/localforage';
 import { Observable } from 'rxjs';
 
 /**
@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
  * DatabaseOptions is used to customize database behavior.
  */
 export type DatabaseOptions = {
-    persistorFactory: IPersistorFactory,
+    persistor: IDatabasePersistor,
 };
 
 /**
@@ -17,7 +17,7 @@ export type DatabaseOptions = {
  * provided when creating a new database.
  */
 export const DEFAULT_OPTIONS = {
-    persistorFactory: new LocalForagePersistorFactory( 'rxdata' ),
+    persistor: new LocalForageDatabasePersistor( 'rxdata' ),
 };
 
 /**
@@ -63,16 +63,9 @@ export class Database implements IDatabase {
      * drop clears all data in all collections in the database.
      */
     public drop(): Observable<any> {
-        const collections = this._collections;
         this._collections = new Map<string, Collection>();
-        const observables = [];
-        collections.forEach( collection => {
-            const observable = collection.remove({});
-            observables.push( observable );
-        });
-        return Observable
-            .forkJoin( observables )
-            .flatMap(() => Observable.of());
+        const promise = this._options.persistor.drop();
+        return Observable.fromPromise( promise );
     }
 
     /**
@@ -83,7 +76,7 @@ export class Database implements IDatabase {
      * @param name: The name of the collection to create.
      */
     protected _createCollection( name: string ): Collection {
-        const persistor = this._options.persistorFactory.create( name );
+        const persistor = this._options.persistor.create( name );
         return new Collection( persistor );
     }
 }

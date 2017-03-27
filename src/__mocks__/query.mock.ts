@@ -6,5 +6,5 @@ import { IQuery } from '../';
  * ...
  */
 export class MockQuery implements IQuery {
-    public value: any = jest.fn().mockReturnValue( Observable.of([]));
+    public value: any = jest.fn(() => Observable.of([]));
 }
