@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
-import * as isEqual from 'lodash.isequal';
 import { IQuery } from './';
 import { ChangeEvent } from './collection';
 import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
+import { createCompareFn } from './doc-utilities/compare-documents';
 
 /**
  * QueryOptions
@@ -41,7 +41,7 @@ export class Query implements IQuery {
                 this._createInitialValueObservable(),
                 this._createUpdatedValueObservable(),
             )
-            .distinctUntilChanged( isEqual );
+            .distinctUntilChanged( createCompareFn());
      }
 
     /**
