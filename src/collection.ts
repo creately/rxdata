@@ -1,23 +1,8 @@
-import { Observable, Subject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { IQuery, ICollection, ICollectionPersistor } from './';
 import { Query, SingleDocQuery } from './query';
 import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
 import { updateDocuments } from './doc-utilities/update-documents';
-
-/**
- * ChangeEvent
- * ChangeEvent describes a change in the collection. Collections
- * will emit these events to notify active queries to update their
- * results accordingly. Valid ChangeEvent types are:
- *  - value: documents in the collection has changed
- *  - inserted: documents are inserted into the collection
- *  - modified: documents are modified in the collection
- *  - removed: documents are removed from the collection
- */
-export type ChangeEvent = {
-    type: String,
-    data: any,
-};
 
 /**
  * Collection
@@ -34,29 +19,30 @@ export class Collection implements ICollection {
     protected _documents: any[];
 
     /**
-     * _changes
-     * _changes is a subject which emits ChangeEvents. Queries
-     * subscribe to this subject and emit new results if changed.
+     * _values
+     * _values is an observable which emits all documents in the
+     * collection when any of them change. This is a BehaviorSubject
+     * therefore it'll always emit the latest value when subscribed.
      */
-    protected _changes: Subject<ChangeEvent>;
+    protected _values: BehaviorSubject<any[]>;
 
     /**
-     * _initPromise
-     * _initPromise resolves when the collection has completed loading
+     * _initp
+     * _initp promise resolves when the collection has completed loading
      * data from the persistor. All change operations should wait until
      * the collection has completed initialization.
      */
-    protected _initPromise: Promise<any>;
+    protected _initp: Promise<any>;
 
     /**
      * constructor
-     * constructor creates a new Collection instance and prepares it.
+     * constructor creates a new Collection instance and initializes it.
      *
      * @param _persistor: A ICollectionPersistor instance to store and load data.
      */
     constructor( protected _persistor: ICollectionPersistor ) {
-        this._changes = new Subject();
-        this._initPromise = this._init();
+        this._values = new BehaviorSubject([]);
+        this._initp = this._init();
     }
 
     /**
@@ -70,8 +56,7 @@ export class Collection implements ICollection {
         const queryOptions = {
             filter: filter,
             filterOptions: filterOptions,
-            initialDocuments: this._documents,
-            changes: this._changes,
+            values: this._values,
         };
         return new Query( queryOptions );
     }
@@ -99,7 +84,7 @@ export class Collection implements ICollection {
      *  should have an 'id' field to uniquely identify the document.
      */
     public insert( rawDoc: any ): Observable<any> {
-        const promise = this._initPromise.then(() => {
+        const promise = this._initp.then(() => {
             const doc = this._copyObject( rawDoc );
             this._removeDocument( doc );
             this._insertDocument( doc );
@@ -118,7 +103,7 @@ export class Collection implements ICollection {
      * @param changes: A mongodb like changes object.
      */
     public update( filter: any, changes: any ): Observable<any[]> {
-        const promise = this._initPromise.then(() => {
+        const promise = this._initp.then(() => {
             const matches = this._filterDocuments( filter );
             this._updateDocuments( matches, changes );
             return this._persistor
@@ -135,7 +120,7 @@ export class Collection implements ICollection {
      * @param filter: A mongodb like filter object.
      */
     public remove( filter: any ): Observable<any[]> {
-        const promise = this._initPromise.then(() => {
+        const promise = this._initp.then(() => {
             const matches = this._filterDocuments( filter );
             this._removeDocuments( matches );
             return this._persistor
@@ -232,7 +217,6 @@ export class Collection implements ICollection {
      * _sendValueEvent sends a 'value' event to all active queries.
      */
     protected _sendValueEvent( ): void {
-        const event: ChangeEvent = { type: 'value', data: this._documents };
-        this._changes.next( event );
+        this._values.next( this._documents );
     }
 }

@@ -1,6 +1,5 @@
 import { Observable } from 'rxjs';
 import { IQuery } from './';
-import { ChangeEvent } from './collection';
 import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
 import { createCompareFn } from './doc-utilities/compare-documents';
 
@@ -11,8 +10,7 @@ import { createCompareFn } from './doc-utilities/compare-documents';
 export type QueryOptions = {
     filter?: any,
     filterOptions?: FilterOptions,
-    initialDocuments?: any[],
-    changes?: Observable<ChangeEvent>,
+    values?: Observable<any[]>,
 };
 
 /**
@@ -36,41 +34,10 @@ export class Query implements IQuery {
      * once initially and also whenever it changes.
      */
      public value(): Observable<any> {
-        return Observable
-            .merge(
-                this._createInitialValueObservable(),
-                this._createUpdatedValueObservable(),
-            )
+        return this._options.values
+            .map( docs => this._filterDocuments( docs ))
             .distinctUntilChanged( createCompareFn());
      }
-
-    /**
-     * _createInitialValueObservable
-     * _createInitialValueObservable creates an observable with initially
-     * available set of documents. This is done so that users will receive
-     * data as soon as they subscribe.
-     */
-    protected _createInitialValueObservable(): Observable<any[]> {
-        if ( !this._options.initialDocuments ) {
-            return Observable.of();
-        }
-        return Observable.of( this._options.initialDocuments )
-            .map( docs => this._filterDocuments( docs ));
-    }
-
-    /**
-     * _createUpdatedValueObservable
-     * _createUpdatedValueObservable creates an observable which will return
-     * updated results to the user when it changes.
-     */
-    protected _createUpdatedValueObservable(): Observable<any[]> {
-        if ( !this._options.changes ) {
-            return Observable.of();
-        }
-        return this._options.changes
-            .filter( e => e.type === 'value' )
-            .map( e => this._filterDocuments( e.data ));
-    }
 
     /**
      * _filterDocuments
@@ -107,6 +74,7 @@ export class SingleDocQuery implements IQuery {
      */
     public value(): Observable<any> {
         return this._base.value()
-            .map( docs => docs[0]);
+            .map( docs => docs[0])
+            .distinctUntilChanged( createCompareFn());
     }
 }

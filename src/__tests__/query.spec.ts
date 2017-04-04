@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Query, SingleDocQuery } from '../query';
 import { MockQuery } from '../__mocks__/query.mock';
 
@@ -12,15 +12,16 @@ describe( 'Query', () => {
         ];
 
         it( 'should return an Observable', () => {
-            const query = new Query();
+            const query = new Query({
+                values: new BehaviorSubject( documents ),
+            });
             expect( query.value() instanceof Observable ).toBeTruthy();
         });
 
         it( 'should return matches on subscription', done => {
             const query = new Query({
                 filter: { type: 'b' },
-                initialDocuments: documents,
-                changes: Observable.of(),
+                values: new BehaviorSubject( documents ),
             });
             query.value().take( 1 ).subscribe(
                 data => {
@@ -34,15 +35,14 @@ describe( 'Query', () => {
             );
         });
 
-        it( 'should return matches on "value" event', done => {
+        it( 'should return matches on "next" call on "values" Observable', done => {
+            const values = new BehaviorSubject([]);
             const query = new Query({
                 filter: { type: 'b' },
-                changes: Observable.of({
-                    type: 'value',
-                    data: documents,
-                }),
+                values: values,
             });
-            query.value().take( 1 ).subscribe(
+            setTimeout(() => values.next( documents ), 100 );
+            query.value().skip( 1 ).take( 1 ).subscribe(
                 data => {
                     expect( data ).toEqual([
                         { _id: 'i2', type: 'b', value: 2 },
@@ -58,7 +58,7 @@ describe( 'Query', () => {
             const query = new Query({
                 filter: { type: 'b' },
                 filterOptions: { sort: { value: 1 } },
-                initialDocuments: documents,
+                values: new BehaviorSubject( documents ),
             });
             query.value().take( 1 ).subscribe(
                 data => {
@@ -76,7 +76,7 @@ describe( 'Query', () => {
             const query = new Query({
                 filter: { type: 'b' },
                 filterOptions: { limit: 1 },
-                initialDocuments: documents,
+                values: new BehaviorSubject( documents ),
             });
             query.value().take( 1 ).subscribe(
                 data => {
@@ -93,7 +93,7 @@ describe( 'Query', () => {
             const query = new Query({
                 filter: { type: 'b' },
                 filterOptions: { skip: 1 },
-                initialDocuments: documents,
+                values: new BehaviorSubject( documents ),
             });
             query.value().take( 1 ).subscribe(
                 data => {
@@ -107,29 +107,23 @@ describe( 'Query', () => {
         });
 
         it( 'should not emit duplicate results', done => {
+            const values = new BehaviorSubject( documents );
             const query = new Query({
                 filter: {},
-                changes: Observable.of(
-                    {
-                        type: 'value',
-                        data: [{ _id: 'i1', type: 'a', value: 5 }],
-                    },
-                    {
-                        type: 'value',
-                        data: [{ _id: 'i1', type: 'a', value: 5 }],
-                    },
-                ),
+                values: values,
             });
             const received = [];
+            setTimeout(() => values.next( documents ), 100 );
+            setTimeout(
+                () => {
+                    expect( received ).toEqual([ documents ]);
+                    done();
+                },
+                200,
+            );
             query.value().subscribe(
                 data => received.push( data ),
                 err => done.fail( err ),
-                () => {
-                    expect( received ).toEqual([
-                        [{ _id: 'i1', type: 'a', value: 5 }],
-                    ]);
-                    done();
-                },
             );
         });
     });
