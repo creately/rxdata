@@ -12,19 +12,38 @@ export type DatabaseOptions = {
 };
 
 /**
- * DEFAULT_OPTIONS
- * DEFAULT_OPTIONS will be used if database options are not
- * provided when creating a new database.
- */
-export const DEFAULT_OPTIONS = {
-    persistor: new LocalForageDatabasePersistor( 'rxdata' ),
-};
-
-/**
  * Database
  * Database is a collection of collections.
  */
 export class Database implements IDatabase {
+    /**
+     * static defaultOptions
+     * defaultOptions is the DatabaseOptions object which will be used
+     * if an options argument is not provided when creating a database.
+     */
+    protected static defaultOptions: DatabaseOptions = {
+        persistor: new LocalForageDatabasePersistor( 'rxdata' ),
+    };
+
+    /**
+     * static configure
+     * configure sets the default options which will
+     * @param _options: An options object to set as default options.
+     */
+    public static configure( options: DatabaseOptions ) {
+        this.defaultOptions = options;
+    }
+
+    /**
+     * static create
+     * create creates a new Database class with default configurations.
+     * This method can be used as a factory function to create new
+     * Database instances. (eg: with Angular2 AOT compilation)
+     */
+    public static create(): IDatabase {
+        return new Database();
+    }
+
     /**
      * _collections
      * _collections is a map of collections by their names.
@@ -37,7 +56,7 @@ export class Database implements IDatabase {
      *
      * @param _options: An options object to customize the database.
      */
-    constructor( protected _options: DatabaseOptions = DEFAULT_OPTIONS ) {
+    constructor( protected _options: DatabaseOptions = Database.defaultOptions ) {
         this._collections = new Map<string, Collection>();
     }
 

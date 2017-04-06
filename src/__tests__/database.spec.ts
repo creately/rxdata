@@ -1,15 +1,36 @@
 import { Observable } from 'rxjs';
 import { ICollection, IDatabasePersistor } from '../';
-import { Database, DEFAULT_OPTIONS } from '../database';
+import { Database, DatabaseOptions } from '../database';
 import { Collection } from '../collection';
 import { MockCollectionPersistor, MockDatabasePersistor } from '../persistors/__mocks__/persistor.mock';
 import { createCollections } from '../__mocks__/database.mock';
 
 describe( 'Database', () => {
+    describe( 'static defaultOptions', () => {
+        it( 'should have a value', () => {
+            expect(( Database as any ).defaultOptions ).toBeDefined();
+        });
+    });
+
+    describe( 'static configure', () => {
+        it( 'should set the default options', () => {
+            const testOptions: DatabaseOptions = { persistor: new MockDatabasePersistor() };
+            Database.configure( testOptions );
+            expect(( Database as any ).defaultOptions ).toBe( testOptions );
+        });
+    });
+
+    describe( 'static create', () => {
+        it( 'should return a new Database instance', () => {
+            const db = Database.create();
+            expect( db instanceof Database ).toBeTruthy();
+        });
+    });
+
     describe( 'constructor', () => {
         it( 'should create a new instance with default options', () => {
             const database = new Database();
-            expect(( database as any )._options ).toBe( DEFAULT_OPTIONS );
+            expect(( database as any )._options ).toBe(( Database as any ).defaultOptions );
         });
     });
 
