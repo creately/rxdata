@@ -1,3 +1,16 @@
+# 2017-04-07 - v3.0.2
+
+ - Add a static create method on Database class [#26](https://github.com/Cinergix/rxdata/pull/26)
+
+```ts
+Database.configure( options )
+const db = Database.create()
+```
+
+# 2017-03-30 - v3.0.1
+
+ - Fix compare function used with `distinctUntilChanged` operator [#24](https://github.com/Cinergix/rxdata/pull/24)
+
 # 2017-03-27 - v3.0.0
 
  - Remove `IPersistorFactory` public interface [#21](https://github.com/Cinergix/rxdata/pull/21)
