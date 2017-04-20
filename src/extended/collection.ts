@@ -91,6 +91,14 @@ export class ExtendedCollection implements ICollection {
     }
 
     /**
+     * unsub
+     * ...
+     */
+    public unsub(): Observable<any> {
+        return Observable.of();
+    }
+
+    /**
      * _pickSubDocument
      * ...
      */

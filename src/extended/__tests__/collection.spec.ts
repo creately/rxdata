@@ -199,4 +199,10 @@ describe( 'ExtendedCollection', () => {
             );
         });
     });
+
+    describe( 'unsub', () => {
+        it( 'should return an Observable', () => {
+            expect( collection.unsub() instanceof Observable ).toBeTruthy();
+        });
+    });
 });
