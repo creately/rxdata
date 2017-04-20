@@ -50,4 +50,9 @@ LocalForage.createInstance = function (options) {
   return LocalForage.collections[options.name];
 };
 
+LocalForage.clear = function () {
+  debug('clear: clearing', Object.keys(LocalForage.collections));
+  LocalForage.collections = {};
+}
+
 module.exports = LocalForage;
