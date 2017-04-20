@@ -22,6 +22,20 @@ describe( 'Collection', () => {
         it( 'should return a SingleDocQuery instance', () => {
             expect( collection.findOne({}) instanceof SingleDocQuery ).toBeTruthy();
         });
+
+        it( 'should work with find options', done => {
+            collection.insert({ id: 'i1', x: 10 })
+                .switchMap(() => collection.insert({ id: 'i2', x: 20 }))
+                .switchMap(() => collection.insert({ id: 'i3', x: 30 }))
+                .switchMap(() => collection.findOne({}, { sort: { x: 1 }, skip: 1 }).value().take( 1 ))
+                .subscribe(
+                    doc => {
+                        expect( doc ).toEqual({ id: 'i2', x: 20 });
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
     });
 
     describe( 'insert', () => {
