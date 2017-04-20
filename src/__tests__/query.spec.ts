@@ -18,6 +18,24 @@ describe( 'Query', () => {
             expect( query.value() instanceof Observable ).toBeTruthy();
         });
 
+        it( 'should return all docs on subscription if no filter is given', done => {
+            const query = new Query({
+                values: new BehaviorSubject( documents ),
+            });
+            query.value().take( 1 ).subscribe(
+                data => {
+                    expect( data ).toEqual([
+                        { _id: 'i1', type: 'a', value: 5 },
+                        { _id: 'i2', type: 'b', value: 2 },
+                        { _id: 'i3', type: 'c', value: 3 },
+                        { _id: 'i4', type: 'b', value: 1 },
+                    ]);
+                    done();
+                },
+                err => done.fail( err ),
+            );
+        });
+
         it( 'should return matches on subscription', done => {
             const query = new Query({
                 filter: { type: 'b' },

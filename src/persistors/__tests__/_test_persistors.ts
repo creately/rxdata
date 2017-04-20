@@ -18,7 +18,6 @@ export const testDatabasePersistor = persistorFactory => {
 
     beforeEach( async () => {
         databasePersistor = persistorFactory();
-        await databasePersistor.drop();
     });
 
     describe( 'create', () => {
