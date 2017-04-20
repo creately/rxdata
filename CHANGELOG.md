@@ -1,6 +1,17 @@
+# 2017-04-20 - v3.1.0
+
+ - Add `unsub` method to close all subscriptions in a collection [#28](https://github.com/Cinergix/rxdata/pull/28)
+ - Edit database `drop` method to close all subscriptions in all  collection [#28](https://github.com/Cinergix/rxdata/pull/28)
+
+```ts
+collection.unsub().subscribe({
+    complete: () => console.log('closed all query subscriptions'),
+})
+```
+
 # 2017-04-07 - v3.0.2
 
- - Add a static create method on Database class [#26](https://github.com/Cinergix/rxdata/pull/26)
+ - Add a static `create` method on Database class [#26](https://github.com/Cinergix/rxdata/pull/26)
 
 ```ts
 Database.configure( options )
