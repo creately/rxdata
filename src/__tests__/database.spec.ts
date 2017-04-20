@@ -81,5 +81,24 @@ describe( 'Database', () => {
                 },
             });
         });
+
+        it( 'should call unsub method on all collections', done => {
+            const collections = [
+                database.collection( 'col-1' ),
+                database.collection( 'col-2' ),
+            ];
+            collections.forEach( col => {
+                col.unsub = jest.fn().mockReturnValue( Observable.of());
+            });
+            database.drop().subscribe({
+                error: err => done.fail( err ),
+                complete: () => {
+                    collections.forEach( col => {
+                        expect( col.unsub ).toHaveBeenCalled();
+                    });
+                    done();
+                },
+            });
+        });
     });
 });

@@ -80,11 +80,14 @@ export class Database implements IDatabase {
     /**
      * drop
      * drop clears all data in all collections in the database.
+     * It also closes all active subscriptions in all collections.
      */
     public drop(): Observable<any> {
+        const observables = [];
+        this._collections.forEach( col => observables.push( col.unsub()));
+        observables.push( Observable.fromPromise( this._options.persistor.drop()));
         this._collections = new Map<string, Collection>();
-        const promise = this._options.persistor.drop();
-        return Observable.fromPromise( promise );
+        return Observable.forkJoin( observables );
     }
 
     /**
