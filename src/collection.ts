@@ -41,7 +41,8 @@ export class Collection implements ICollection {
      * @param _persistor: A ICollectionPersistor instance to store and load data.
      */
     constructor( protected _persistor: ICollectionPersistor ) {
-        this._values = new BehaviorSubject([]);
+        this._documents = [];
+        this._resetValuesSubject();
         this._initp = this._init();
     }
 
@@ -131,6 +132,15 @@ export class Collection implements ICollection {
     }
 
     /**
+     * unsub
+     * unsub closes all query subscriptions with a complete.
+     */
+    public unsub(): Observable<any> {
+        this._resetValuesSubject();
+        return Observable.of();
+    }
+
+    /**
      * _init
      * _init initializes the collection by loading available documents
      * from the persistor. This function needs to run once before use.
@@ -142,6 +152,17 @@ export class Collection implements ICollection {
                 this._documents = docs;
                 this._sendValueEvent();
             });
+    }
+
+    /**
+     * _resetValuesSubject
+     * _resetValuesSubject closes all subscriptions and resets values subject.
+     */
+    protected _resetValuesSubject() {
+        if ( this._values ) {
+            this._values.complete();
+        }
+        this._values = new BehaviorSubject( this._documents );
     }
 
     /**

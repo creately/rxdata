@@ -172,4 +172,13 @@ describe( 'Collection', () => {
                 );
         });
     });
+
+    describe( 'unsub', () => {
+        it( 'should close all active queries', done => {
+            collection.find({}).value().subscribe({
+                complete: () => done(),
+            });
+            collection.unsub();
+        });
+    });
 });

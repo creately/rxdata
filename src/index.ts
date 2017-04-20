@@ -26,6 +26,7 @@ export interface ICollection {
     insert( doc: any ): Observable<any>;
     update( filter: any, changes: any ): Observable<any[]>;
     remove( filter: any ): Observable<any[]>;
+    unsub(): Observable<any>;
 }
 
 /**
