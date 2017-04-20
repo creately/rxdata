@@ -3,6 +3,7 @@ import { MockCollection } from '../../__mocks__/collection.mock';
 import { ExtendedCollection } from '../';
 import { ExtendedQuery } from '../';
 import { SingleDocQuery } from '../../query';
+import { MockQuery } from '../../__mocks__/query.mock';
 
 describe( 'ExtendedCollection', () => {
     let parent: MockCollection;
@@ -44,6 +45,34 @@ describe( 'ExtendedCollection', () => {
     describe( 'findOne', () => {
         it( 'should return a SingleDocQuery instance', () => {
             expect( collection.findOne({}) instanceof SingleDocQuery ).toBeTruthy();
+        });
+
+        it( 'should work with find options', done => {
+            const parentQuery = new MockQuery();
+            const childQuery = new MockQuery();
+            parentQuery.value.mockReturnValue( Observable.of([
+                { id: 'i1', x: 10 },
+                { id: 'i2', x: 20 },
+                { id: 'i3', x: 30 },
+            ]));
+            childQuery.value.mockReturnValue( Observable.of([
+                // { id: 'i1', y: 100 },
+                { id: 'i2', y: 200 },
+                { id: 'i3', y: 300 },
+            ]));
+            parent.find.mockReturnValue( parentQuery );
+            child.find.mockReturnValue( childQuery );
+            collection.insert({ id: 'i1', x: 10, y: 100 })
+                .switchMap(() => collection.insert({ id: 'i2', x: 20, y: 200 }))
+                .switchMap(() => collection.insert({ id: 'i3', x: 30, y: 300 }))
+                .switchMap(() => collection.findOne({}, { sort: { x: 1 }, skip: 1 }).value().take( 1 ))
+                .subscribe(
+                    doc => {
+                        expect( doc ).toEqual({ id: 'i2', x: 20, y: 200 });
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
         });
     });
 
