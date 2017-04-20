@@ -10,7 +10,7 @@ import { createCompareFn } from './doc-utilities/compare-documents';
 export type QueryOptions = {
     filter?: any,
     filterOptions?: FilterOptions,
-    values?: Observable<any[]>,
+    values: Observable<any[]>,
 };
 
 /**
@@ -24,7 +24,7 @@ export class Query implements IQuery {
      *
      * @param _options: An options object to customize the query.
      */
-    constructor( protected _options: QueryOptions = {}) {
+    constructor( protected _options: QueryOptions ) {
         // ...
     }
 
