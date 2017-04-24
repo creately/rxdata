@@ -55,7 +55,7 @@ export class ExtendedCollection implements ICollection {
      * insert
      * ...
      */
-    public insert( docOrDocs: any ): Observable<any> {
+    public insert( docOrDocs: any ): Observable<any[]> {
         const docsArray = [].concat( docOrDocs );
         const parentDocs = docsArray.map( doc => this._pickSubDocument( this._filterParent, doc ));
         const childDocs = docsArray.map( doc => this._pickSubDocument( this._filterChild, doc ));

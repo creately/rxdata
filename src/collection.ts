@@ -84,7 +84,7 @@ export class Collection implements ICollection {
      * @param rawDocOrDocs: The document object. The only requirement is that
      *  it should have an 'id' field to uniquely identify the document.
      */
-    public insert( rawDocOrDocs: any ): Observable<any> {
+    public insert( rawDocOrDocs: any ): Observable<any[]> {
         const promise = this._initp.then(() => {
             const rawDocs = [].concat( rawDocOrDocs );
             const docs = rawDocs.map( rawDoc => this._copyObject( rawDoc ));
