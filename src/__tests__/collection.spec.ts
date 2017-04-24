@@ -152,6 +152,23 @@ describe( 'Collection', () => {
             expect( collection.update({}, {}) instanceof Observable ).toBeTruthy();
         });
 
+        it( 'should update matched document', done => {
+            collection.insert({ id: 'i1', x: 10 })
+                .switchMap(() => collection.insert({ id: 'i2', x: 20 }))
+                .switchMap(() => collection.update({ id: 'i1' }, { $set: { x: 100 } }))
+                .switchMap(() => collection.find({}).value().take( 1 ))
+                .subscribe(
+                    docs => {
+                        expect( docs ).toEqual([
+                            { id: 'i1', x: 100 },
+                            { id: 'i2', x: 20 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
+
         it( 'should return updated document', done => {
             collection.insert({ id: 'i1', x: 10 })
                 .switchMap(() => collection.update({ id: 'i1' }, { $set: { x: 20 } }))
