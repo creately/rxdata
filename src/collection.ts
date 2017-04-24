@@ -1,4 +1,3 @@
-import * as Mingo from 'mingo';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { IQuery, ICollection, ICollectionPersistor } from './';
 import { Query, SingleDocQuery } from './query';
