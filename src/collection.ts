@@ -82,18 +82,18 @@ export class Collection implements ICollection {
      * insert adds a new document to the collection. If a document already
      * exists in the collection with the same 'id', it'll be replaced.
      *
-     * @param rawDoc: The document object. The only requirement is that it
-     *  should have an 'id' field to uniquely identify the document.
+     * @param rawDocOrDocs: The document object. The only requirement is that
+     *  it should have an 'id' field to uniquely identify the document.
      */
-    public insert( rawDoc: any ): Observable<any> {
+    public insert( rawDocOrDocs: any ): Observable<any> {
         const promise = this._initp.then(() => {
-            const doc = this._copyObject( rawDoc );
-            this._removeDocuments( _doc => _doc.id === doc.id );
-            this._insertDocuments([ doc ]);
+            const rawDocs = [].concat( rawDocOrDocs );
+            const docs = rawDocs.map( rawDoc => this._copyObject( rawDoc ));
+            this._insertDocuments( docs );
             this._sendValueEvent();
             return this._persistor
-                .store([ doc ])
-                .then(() => doc );
+                .store( docs )
+                .then(() => docs );
         });
         return Observable.fromPromise( promise );
     }
@@ -187,6 +187,8 @@ export class Collection implements ICollection {
      * @param doc: A document object to insert.
      */
     protected _insertDocuments( docs: any[]): void {
+        const docIds = docs.map( doc => doc.id );
+        this._removeDocuments( doc => docIds.indexOf( doc.id ) >= 0 );
         this._documents.push( ...docs );
     }
 

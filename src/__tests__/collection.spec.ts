@@ -63,7 +63,17 @@ describe( 'Collection', () => {
         it( 'should return inserted document', done => {
             collection.insert({ id: 'i1', x: 10 }).subscribe(
                 doc => {
-                    expect( doc ).toEqual({ id: 'i1', x: 10 });
+                    expect( doc ).toEqual([{ id: 'i1', x: 10 }]);
+                    done();
+                },
+                err => done.fail( err ),
+            );
+        });
+
+        it( 'should return inserted documents array', done => {
+            collection.insert([{ id: 'i1', x: 10 }, { id: 'i2', x: 20 }]).subscribe(
+                doc => {
+                    expect( doc ).toEqual([{ id: 'i1', x: 10 }, { id: 'i2', x: 20 }]);
                     done();
                 },
                 err => done.fail( err ),
@@ -77,6 +87,21 @@ describe( 'Collection', () => {
                     docs => {
                         expect( docs ).toEqual([
                             { id: 'i1', x: 10 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
+
+        it( 'should insert new documents in collection', done => {
+            collection.insert([{ id: 'i1', x: 10 }, { id: 'i2', x: 20 }])
+                .switchMap(() => collection.find({}).value().take( 1 ))
+                .subscribe(
+                    docs => {
+                        expect( docs ).toEqual([
+                            { id: 'i1', x: 10 },
+                            { id: 'i2', x: 20 },
                         ]);
                         done();
                     },
