@@ -16,6 +16,23 @@ describe( 'Collection', () => {
         it( 'should return a Query instance', () => {
             expect( collection.find({ foo: 'bar' }) instanceof Query ).toBeTruthy();
         });
+
+        it( 'should work with find options', done => {
+            collection.insert({ id: 'i1', x: 10 })
+                .switchMap(() => collection.insert({ id: 'i2', x: 20 }))
+                .switchMap(() => collection.insert({ id: 'i3', x: 30 }))
+                .switchMap(() => collection.find({}, { sort: { x: 1 }, skip: 1 }).value().take( 1 ))
+                .subscribe(
+                    doc => {
+                        expect( doc ).toEqual([
+                            { id: 'i2', x: 20 },
+                            { id: 'i3', x: 30 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
     });
 
     describe( 'findOne', () => {

@@ -1,8 +1,9 @@
+import * as Mingo from 'mingo';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { IQuery, ICollection, ICollectionPersistor } from './';
 import { Query, SingleDocQuery } from './query';
-import { FilterOptions, filterDocuments } from './doc-utilities/filter-documents';
-import { updateDocuments } from './doc-utilities/update-documents';
+import { FilterOptions, createFilterFunction } from './doc-utilities/filter-documents';
+import { updateDocument } from './doc-utilities/update-documents';
 
 /**
  * Collection
@@ -70,8 +71,8 @@ export class Collection implements ICollection {
      * @param filterOptions: An optional object to customize the filter.
      *  Note that the limit field will be set to 1 before it's used.
      */
-    public findOne( filter: any, options: FilterOptions = {}): IQuery {
-        const findOneOptions = Object.assign( options, { limit: 1 });
+    public findOne( filter: any, filterOptions: FilterOptions = {}): IQuery {
+        const findOneOptions = Object.assign( filterOptions, { limit: 1 });
         const query = this.find( filter, findOneOptions );
         return new SingleDocQuery( query );
     }
@@ -87,8 +88,9 @@ export class Collection implements ICollection {
     public insert( rawDoc: any ): Observable<any> {
         const promise = this._initp.then(() => {
             const doc = this._copyObject( rawDoc );
-            this._removeDocument( doc );
-            this._insertDocument( doc );
+            this._removeDocuments( _doc => _doc.id === doc.id );
+            this._insertDocuments([ doc ]);
+            this._sendValueEvent();
             return this._persistor
                 .store([ doc ])
                 .then(() => doc );
@@ -105,11 +107,12 @@ export class Collection implements ICollection {
      */
     public update( filter: any, changes: any ): Observable<any[]> {
         const promise = this._initp.then(() => {
-            const matches = this._filterDocuments( filter );
-            this._updateDocuments( matches, changes );
+            const filterFunction = createFilterFunction( filter );
+            const updatedDocuments = this._updateDocuments( filterFunction, changes );
+            this._sendValueEvent();
             return this._persistor
-                .store( matches )
-                .then(() => matches );
+                .store( updatedDocuments )
+                .then(() => updatedDocuments );
         });
         return Observable.fromPromise( promise );
     }
@@ -122,11 +125,12 @@ export class Collection implements ICollection {
      */
     public remove( filter: any ): Observable<any[]> {
         const promise = this._initp.then(() => {
-            const matches = this._filterDocuments( filter );
-            this._removeDocuments( matches );
+            const filterFunction = createFilterFunction( filter );
+            const removedDocuments = this._removeDocuments( filterFunction );
+            this._sendValueEvent();
             return this._persistor
-                .remove( matches )
-                .then(() => matches );
+                .remove( removedDocuments )
+                .then(() => removedDocuments );
         });
         return Observable.fromPromise( promise );
     }
@@ -177,60 +181,51 @@ export class Collection implements ICollection {
     }
 
     /**
-     * _filterDocuments
-     * _filterDocuments returns matching documents from the collection.
-     *
-     * @param filter: A mongodb like filter object.
-     */
-    protected _filterDocuments( filter: any ): any[] {
-        return filterDocuments( filter, this._documents );
-    }
-
-    /**
      * _insertDocument
      * _insertDocument inserts a new document to the collection.
      *
      * @param doc: A document object to insert.
      */
-    protected _insertDocument( doc: any ): void {
-        this._documents.push( doc );
-        this._sendValueEvent();
+    protected _insertDocuments( docs: any[]): void {
+        this._documents.push( ...docs );
     }
 
     /**
      * _updateDocuments
-     * _updateDocuments updates matching documents to the collection.
+     * _updateDocuments updates matching documents in the collection.
      *
-     * @param: docs: An array of documents to update.
-     * @param changes: A mongodb like changes object.
+     * @param: filterFunction: Afunction to filter documents
+     * @param: changes: A mongodb like changes object.
      */
-    protected _updateDocuments( docs: any[], changes: any ): void {
-        updateDocuments( docs, changes );
-        this._sendValueEvent();
+    protected _updateDocuments( filterFunction: Function, changes: any ): any[] {
+        const updatedDocuments = [];
+        this._documents = this._documents.map( doc => {
+            if ( !filterFunction( doc )) {
+                return doc;
+            }
+            const updated = updateDocument( doc, changes );
+            updatedDocuments.push( updated );
+            return updated;
+        });
+        return updatedDocuments;
     }
 
     /**
      * _removeDocuments
      * _removeDocuments removes matching documents from the collection.
      *
-     * @param: docs: An array of documents to remove.
+     * @param: filterFunction: Afunction to filter documents
      */
-    protected _removeDocuments( docs: any[]): void {
-        docs.forEach( doc => this._removeDocument( doc ));
-        this._sendValueEvent();
-    }
-
-    /**
-     * _removeDocument
-     * _removeDocument removes a document from the collection.
-     *
-     * @param doc: A document object to remove.
-     */
-    protected _removeDocument( doc: any ): void {
-        const index = this._documents.findIndex( _doc => _doc.id === doc.id );
-        if ( index !== -1 ) {
-            this._documents.splice( index, 1 );
-        }
+    protected _removeDocuments( filterFunction: Function ): any[] {
+        const removedDocuments = [];
+        this._documents = this._documents.filter( doc => {
+            if ( filterFunction( doc )) {
+                removedDocuments.push( doc );
+                return false;
+            }
+            return true;
+        });
+        return removedDocuments;
     }
 
     /**
@@ -238,6 +233,6 @@ export class Collection implements ICollection {
      * _sendValueEvent sends a 'value' event to all active queries.
      */
     protected _sendValueEvent( ): void {
-        this._values.next( this._documents );
+        this._values.next( this._documents.slice());
     }
 }
