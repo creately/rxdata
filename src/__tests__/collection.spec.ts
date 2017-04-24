@@ -16,6 +16,23 @@ describe( 'Collection', () => {
         it( 'should return a Query instance', () => {
             expect( collection.find({ foo: 'bar' }) instanceof Query ).toBeTruthy();
         });
+
+        it( 'should work with find options', done => {
+            collection.insert({ id: 'i1', x: 10 })
+                .switchMap(() => collection.insert({ id: 'i2', x: 20 }))
+                .switchMap(() => collection.insert({ id: 'i3', x: 30 }))
+                .switchMap(() => collection.find({}, { sort: { x: 1 }, skip: 1 }).value().take( 1 ))
+                .subscribe(
+                    doc => {
+                        expect( doc ).toEqual([
+                            { id: 'i2', x: 20 },
+                            { id: 'i3', x: 30 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
     });
 
     describe( 'findOne', () => {
@@ -46,7 +63,17 @@ describe( 'Collection', () => {
         it( 'should return inserted document', done => {
             collection.insert({ id: 'i1', x: 10 }).subscribe(
                 doc => {
-                    expect( doc ).toEqual({ id: 'i1', x: 10 });
+                    expect( doc ).toEqual([{ id: 'i1', x: 10 }]);
+                    done();
+                },
+                err => done.fail( err ),
+            );
+        });
+
+        it( 'should return inserted documents array', done => {
+            collection.insert([{ id: 'i1', x: 10 }, { id: 'i2', x: 20 }]).subscribe(
+                doc => {
+                    expect( doc ).toEqual([{ id: 'i1', x: 10 }, { id: 'i2', x: 20 }]);
                     done();
                 },
                 err => done.fail( err ),
@@ -60,6 +87,21 @@ describe( 'Collection', () => {
                     docs => {
                         expect( docs ).toEqual([
                             { id: 'i1', x: 10 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
+        });
+
+        it( 'should insert new documents in collection', done => {
+            collection.insert([{ id: 'i1', x: 10 }, { id: 'i2', x: 20 }])
+                .switchMap(() => collection.find({}).value().take( 1 ))
+                .subscribe(
+                    docs => {
+                        expect( docs ).toEqual([
+                            { id: 'i1', x: 10 },
+                            { id: 'i2', x: 20 },
                         ]);
                         done();
                     },
@@ -108,6 +150,23 @@ describe( 'Collection', () => {
     describe( 'update', () => {
         it( 'should return an Observable', () => {
             expect( collection.update({}, {}) instanceof Observable ).toBeTruthy();
+        });
+
+        it( 'should update matched document', done => {
+            collection.insert({ id: 'i1', x: 10 })
+                .switchMap(() => collection.insert({ id: 'i2', x: 20 }))
+                .switchMap(() => collection.update({ id: 'i1' }, { $set: { x: 100 } }))
+                .switchMap(() => collection.find({}).value().take( 1 ))
+                .subscribe(
+                    docs => {
+                        expect( docs ).toEqual([
+                            { id: 'i1', x: 100 },
+                            { id: 'i2', x: 20 },
+                        ]);
+                        done();
+                    },
+                    err => done.fail( err ),
+                );
         });
 
         it( 'should return updated document', done => {

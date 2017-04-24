@@ -3,7 +3,7 @@ import { ICollection, IQuery } from '../';
 import { ExtendedQuery } from './query';
 import { SingleDocQuery } from '../query';
 import { FilterOptions } from '../doc-utilities/filter-documents';
-import { mergeDocumentArrays, mergeDocuments } from '../doc-utilities/merge-documents';
+import { mergeDocumentArrays } from '../doc-utilities/merge-documents';
 
 /**
  * ExtendedCollection
@@ -55,13 +55,16 @@ export class ExtendedCollection implements ICollection {
      * insert
      * ...
      */
-    public insert( doc: any ): Observable<any> {
+    public insert( docOrDocs: any ): Observable<any[]> {
+        const docsArray = [].concat( docOrDocs );
+        const parentDocs = docsArray.map( doc => this._pickSubDocument( this._filterParent, doc ));
+        const childDocs = docsArray.map( doc => this._pickSubDocument( this._filterChild, doc ));
         return Observable
             .combineLatest(
-                this.parent.insert( this._pickSubDocument( this._filterParent, doc )),
-                this.child.insert( this._pickSubDocument( this._filterChild, doc )),
+                this.parent.insert( parentDocs ),
+                this.child.insert( childDocs ),
             )
-            .map( docs => this._mergeDocuments( ...docs ));
+            .map( sets => this._mergeDocumentArrays( ...sets ));
     }
 
     /**
@@ -132,13 +135,5 @@ export class ExtendedCollection implements ICollection {
      */
     protected _mergeDocumentArrays( ...sets: any[][]): any[] {
         return mergeDocumentArrays( ...sets );
-    }
-
-    /**
-     * _mergeDocuments
-     * ...
-     */
-    protected _mergeDocuments( ...docs: any[]): any {
-        return mergeDocuments( ...docs );
     }
 }

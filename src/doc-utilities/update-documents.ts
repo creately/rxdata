@@ -69,7 +69,8 @@ const apply$pull = ( doc: any, $pull: any ) => {
  * updateDocument
  * updateDocument updates a document with given set of changes
  */
-export const updateDocument = ( doc: any, changes: any ) => {
+export const updateDocument = ( _doc: any, changes: any ): any => {
+    const doc = cloneObject( _doc );
     if ( changes.$set ) {
         apply$set( doc, changes.$set );
     }
@@ -79,13 +80,5 @@ export const updateDocument = ( doc: any, changes: any ) => {
     if ( changes.$pull ) {
         apply$pull( doc, changes.$pull );
     }
+    return doc;
 };
-
-/**
- * updateDocuments
- * updateDocuments updates an array of documents with given set of changes
- */
-export const updateDocuments = ( docs: any[], changes: any ) => {
-    docs.forEach( doc => updateDocument( doc, changes ));
-};
-

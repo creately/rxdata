@@ -15,6 +15,18 @@ export type FilterOptions = {
 };
 
 /**
+ * createFilterFunction
+ * createFilterFunction creates a function which can be used to filter
+ * an array of documents. Converts mongodb like query objects to functions.
+ *
+ * @param filter: A mongodb like filter object.
+ */
+export const createFilterFunction = ( filter: any ): Function => {
+    const query = Mingo.Query( filter );
+    return doc => query.test( doc );
+};
+
+/**
  * filterDocuments
  * filterDocuments returns a subset of documents using given filter options.
  * The filter parameter is similar to the one used in Mongo database queries.

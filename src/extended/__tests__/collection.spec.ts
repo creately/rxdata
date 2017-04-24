@@ -84,7 +84,21 @@ describe( 'ExtendedCollection', () => {
         it( 'should return merged inserted document', done => {
             collection.insert({ id: 'i1', x: 10, y: 20 }).subscribe(
                 doc => {
-                    expect( doc ).toEqual({ id: 'i1', x: 10, y: 20 });
+                    expect( doc ).toEqual([{ id: 'i1', x: 10, y: 20 }]);
+                    done();
+                },
+                err => done.fail( err ),
+            );
+        });
+
+        it( 'should return merged inserted documents', done => {
+            const docs = [
+                { id: 'i1', x: 10, y: 20 },
+                { id: 'i2', x: 100, y: 200 },
+            ];
+            collection.insert( docs ).subscribe(
+                doc => {
+                    expect( doc ).toEqual( docs );
                     done();
                 },
                 err => done.fail( err ),
@@ -96,7 +110,25 @@ describe( 'ExtendedCollection', () => {
                 () => { /* ¯\_(ツ)_/¯ */ },
                 err => done.fail( err ),
                 () => {
-                    expect( parent.insert ).toHaveBeenCalledWith({ id: 'i1', x: 10 });
+                    expect( parent.insert ).toHaveBeenCalledWith([{ id: 'i1', x: 10 }]);
+                    done();
+                },
+            );
+        });
+
+        it( 'should insert the parent sub documents in parent collection', done => {
+            const docs = [
+                { id: 'i1', x: 10, y: 20 },
+                { id: 'i2', x: 100, y: 200 },
+            ];
+            collection.insert( docs ).subscribe(
+                () => { /* ¯\_(ツ)_/¯ */ },
+                err => done.fail( err ),
+                () => {
+                    expect( parent.insert ).toHaveBeenCalledWith([
+                        { id: 'i1', x: 10 },
+                        { id: 'i2', x: 100 },
+                    ]);
                     done();
                 },
             );
@@ -107,7 +139,25 @@ describe( 'ExtendedCollection', () => {
                 () => { /* ¯\_(ツ)_/¯ */ },
                 err => done.fail( err ),
                 () => {
-                    expect( child.insert ).toHaveBeenCalledWith({ id: 'i1', y: 20 });
+                    expect( child.insert ).toHaveBeenCalledWith([{ id: 'i1', y: 20 }]);
+                    done();
+                },
+            );
+        });
+
+        it( 'should insert the child sub documents in child collection', done => {
+            const docs = [
+                { id: 'i1', x: 10, y: 20 },
+                { id: 'i2', x: 100, y: 200 },
+            ];
+            collection.insert( docs ).subscribe(
+                () => { /* ¯\_(ツ)_/¯ */ },
+                err => done.fail( err ),
+                () => {
+                    expect( child.insert ).toHaveBeenCalledWith([
+                        { id: 'i1', y: 20 },
+                        { id: 'i2', y: 200 },
+                    ]);
                     done();
                 },
             );

@@ -23,7 +23,7 @@ export interface IDatabase {
 export interface ICollection {
     find( filter: any, options?: FilterOptions ): IQuery;
     findOne( filter: any, options?: FilterOptions ): IQuery;
-    insert( doc: any ): Observable<any>;
+    insert( doc: any ): Observable<any[]>;
     update( filter: any, changes: any ): Observable<any[]>;
     remove( filter: any ): Observable<any[]>;
     unsub(): Observable<any>;
