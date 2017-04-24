@@ -1,3 +1,16 @@
+# 2017-04-24 - v3.2.0
+
+ - Add bulk document insert support [#29](https://github.com/Cinergix/rxdata/pull/29)
+ - Fix issue where document update not being detected by making updates immutable [#29](https://github.com/Cinergix/rxdata/pull/29)
+
+```ts
+collection.insert([
+    { id: 'i1', name: 'n1' },
+    { id: 'i2', name: 'n2' },
+    { id: 'i3', name: 'n3' },
+])
+```
+
 # 2017-04-20 - v3.1.0
 
  - Add `unsub` method to close all subscriptions in a collection [#28](https://github.com/Cinergix/rxdata/pull/28)
