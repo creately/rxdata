@@ -1,3 +1,7 @@
+# 2017-04-28 - v3.2.1
+
+ - Fix metadata collection in memory cache not getting cleared [#30](https://github.com/Cinergix/rxdata/pull/30)
+
 # 2017-04-24 - v3.2.0
 
  - Add bulk document insert support [#29](https://github.com/Cinergix/rxdata/pull/29)
