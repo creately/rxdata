@@ -37,6 +37,26 @@ describe( 'LocalForageDatabasePersistor', () => {
             }, 100 );
         });
     });
+
+
+    describe( 'drop', () => {
+        let databasePersistor: LocalForageDatabasePersistor;
+
+        beforeEach( async () => {
+            databasePersistor = new LocalForageDatabasePersistor( 'test-db' );
+        });
+
+        it( 'should clear the stored collections', done  => {
+            databasePersistor.drop().then(
+                () => {
+                    expect(( <any>databasePersistor )._collections.size ).toBe( 0 );
+                    done();
+                },
+            );
+        });
+
+    });
+
 });
 
 describe( 'LocalForageCollectionPersistor', () => {
