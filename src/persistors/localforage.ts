@@ -51,6 +51,7 @@ export class LocalForageDatabasePersistor implements IDatabasePersistor {
                 }
                 return Promise.all( collections.map( collectionName => {
                     const localforage = this._createLocalForageForCollection( collectionName );
+                    this._collections.clear();
                     return localforage.clear();
                 }));
             })
