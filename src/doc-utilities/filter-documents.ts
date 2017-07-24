@@ -22,8 +22,8 @@ export type FilterOptions = {
  * @param filter: A mongodb like filter object.
  */
 export const createFilterFunction = ( filter: any ): Function => {
-    const query = Mingo.Query( filter );
-    return doc => query.test( doc );
+    const query = new Mingo.Query( filter );
+    return (doc: any) => query.test( doc );
 };
 
 /**
