@@ -2,67 +2,46 @@
   "name": "rxdata",
   "version": "3.2.1",
   "description": "A reactive document database for web browsers",
-  "engineStrict": true,
-  "engines": {
-    "node": ">= 6.9.0"
-  },
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "dependencies": {
-    "localforage": "^1.4.3",
-    "mingo": "^0.9.1"
-  },
-  "peerDependencies": {
-    "rxjs": "^5.0.0 || ^5.0.0-beta.0"
-  },
-  "devDependencies": {
-    "@types/jest": "^18.1.1",
-    "jest": "^17.0.3",
-    "rimraf": "^2.5.4",
-    "rxjs": "^5.1.1",
-    "style-guide-typescript": "github:cinergix/style-guide-typescript",
-    "ts-jest": "^17.0.0",
-    "tslib": "^1.6.0",
-    "tslint": "^4.4.2",
-    "typescript": "^2.1.6"
-  },
   "scripts": {
-    "clean": "rimraf coverage dist tmp",
-    "build": "npm run clean && tsc",
-    "watch": "npm run clean && tsc -w",
-    "lint": "tslint -t stylish 'src/**/*.ts'",
-    "pretest": "npm run lint",
-    "test": "npm run test:only",
-    "test:only": "jest --no-cache",
-    "test:cover": "jest --no-cache && open coverage/remapped/html/index.html",
-    "prepublish": "npm run build"
+    "test": "jest --coverage --watch",
+    "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\""
   },
-  "author": "Thanish <thanish@cinergix.com> (http://cinergix.com/)",
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cinergix/rxdata.git"
+    "url": "git+https://github.com/cinergix/rxdata.git"
   },
+  "keywords": [],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cinergix/rxdata/issues"
   },
   "homepage": "https://github.com/cinergix/rxdata#readme",
+  "peerDependencies": {
+    "rxjs": "^5.0.0 || ^5.0.0-beta.0"
+  },
+  "dependencies": {
+    "localforage": "^1.4.3",
+    "mingo": "^0.9.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^20.0.0",
+    "jest": "^20.0.0",
+    "prettier": "^1.5.3",
+    "rxjs": "^5.0.0",
+    "ts-jest": "^20.0.0",
+    "typescript": "^2.0.0"
+  },
   "jest": {
-    "testEnvironment": "node",
     "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
+    "testRegex": "\\.spec\\.ts$",
     "moduleFileExtensions": [
       "ts",
       "js"
     ],
-    "testRegex": "<rootDir>(src/).*\\.spec\\.ts$",
-    "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js",
-    "coverageReporters": [
-      "html"
-    ],
-    "coverageDirectory": "coverage",
-    "collectCoverage": true,
+    "mapCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/index.ts",
