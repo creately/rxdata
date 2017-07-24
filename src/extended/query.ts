@@ -8,33 +8,29 @@ import { createCompareFn } from '../doc-utilities/compare-documents';
  * ...
  */
 export class ExtendedQuery implements IQuery {
-    /**
+  /**
      * constructor
      * ...
      */
-    constructor( protected parent: IQuery, protected child: IQuery, protected fields: String[]) {
-        // ...
-    }
+  constructor(protected parent: IQuery, protected child: IQuery, protected fields: String[]) {
+    // ...
+  }
 
-    /**
+  /**
      * value
      * ...
      */
-    public value(): Observable<any[]> {
-        return Observable
-            .combineLatest(
-                this.parent.value(),
-                this.child.value(),
-            )
-            .map( sets => this._mergeDocumentArrays( ...sets ))
-            .distinctUntilChanged( createCompareFn());
-    }
+  public value(): Observable<any[]> {
+    return Observable.combineLatest(this.parent.value(), this.child.value())
+      .map(sets => this._mergeDocumentArrays(...sets))
+      .distinctUntilChanged(createCompareFn());
+  }
 
-    /**
+  /**
      * _mergeDocumentArrays
      * ...
      */
-    protected _mergeDocumentArrays( ...sets: any[][]): any[] {
-        return mergeDocumentArrays( ...sets );
-    }
+  protected _mergeDocumentArrays(...sets: any[][]): any[] {
+    return mergeDocumentArrays(...sets);
+  }
 }

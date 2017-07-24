@@ -9,9 +9,9 @@ import * as Mingo from 'mingo';
  *  3. limit
  */
 export type FilterOptions = {
-    sort?: any,
-    limit?: number,
-    skip?: number,
+  sort?: any;
+  limit?: number;
+  skip?: number;
 };
 
 /**
@@ -21,9 +21,9 @@ export type FilterOptions = {
  *
  * @param filter: A mongodb like filter object.
  */
-export const createFilterFunction = ( filter: any ): Function => {
-    const query = new Mingo.Query( filter );
-    return (doc: any) => query.test( doc );
+export const createFilterFunction = (filter: any): Function => {
+  const query = new Mingo.Query(filter);
+  return (doc: any) => query.test(doc);
 };
 
 /**
@@ -31,16 +31,16 @@ export const createFilterFunction = ( filter: any ): Function => {
  * filterDocuments returns a subset of documents using given filter options.
  * The filter parameter is similar to the one used in Mongo database queries.
  */
-export const filterDocuments = ( filter: any, docs: any[], options: FilterOptions = {}): any[] => {
-    let cursor = Mingo.find( docs, filter );
-    if ( options.sort ) {
-        cursor = cursor.sort( options.sort );
-    }
-    if ( options.skip ) {
-        cursor = cursor.skip( options.skip );
-    }
-    if ( options.limit ) {
-        cursor = cursor.limit( options.limit );
-    }
-    return cursor.all();
+export const filterDocuments = (filter: any, docs: any[], options: FilterOptions = {}): any[] => {
+  let cursor = Mingo.find(docs, filter);
+  if (options.sort) {
+    cursor = cursor.sort(options.sort);
+  }
+  if (options.skip) {
+    cursor = cursor.skip(options.skip);
+  }
+  if (options.limit) {
+    cursor = cursor.limit(options.limit);
+  }
+  return cursor.all();
 };

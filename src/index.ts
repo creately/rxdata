@@ -11,8 +11,8 @@ export { ExtendedCollection, ExtendedQuery } from './extended';
  * IDatabase contains a set of collections which stores documents.
  */
 export interface IDatabase {
-    collection( name ): ICollection;
-    drop(): Observable<any>;
+  collection(name): ICollection;
+  drop(): Observable<any>;
 }
 
 /**
@@ -21,12 +21,12 @@ export interface IDatabase {
  * using collection methods. It uses ICollectionPersistors to store.
  */
 export interface ICollection {
-    find( filter: any, options?: FilterOptions ): IQuery;
-    findOne( filter: any, options?: FilterOptions ): IQuery;
-    insert( doc: any ): Observable<any[]>;
-    update( filter: any, changes: any ): Observable<any[]>;
-    remove( filter: any ): Observable<any[]>;
-    unsub(): Observable<any>;
+  find(filter: any, options?: FilterOptions): IQuery;
+  findOne(filter: any, options?: FilterOptions): IQuery;
+  insert(doc: any): Observable<any[]>;
+  update(filter: any, changes: any): Observable<any[]>;
+  remove(filter: any): Observable<any[]>;
+  unsub(): Observable<any>;
 }
 
 /**
@@ -34,7 +34,7 @@ export interface ICollection {
  * IQuery wraps the result of a collection find query.
  */
 export interface IQuery {
-    value(): Observable<any>;
+  value(): Observable<any>;
 }
 
 /**
@@ -42,8 +42,8 @@ export interface IQuery {
  * IDatabasePersistor creates Persistors for collections to store data.
  */
 export interface IDatabasePersistor {
-    create( collectionName: string ): ICollectionPersistor;
-    drop(): Promise<any>;
+  create(collectionName: string): ICollectionPersistor;
+  drop(): Promise<any>;
 }
 
 /**
@@ -53,8 +53,8 @@ export interface IDatabasePersistor {
  * Each collection has it's own ICollectionPersistor instance to store data.
  */
 export interface ICollectionPersistor {
-    load(): Promise<any[]>;
-    store( docs: any[]): Promise<any>;
-    remove( docs: any[]): Promise<any>;
-    drop(): Promise<any>;
+  load(): Promise<any[]>;
+  store(docs: any[]): Promise<any>;
+  remove(docs: any[]): Promise<any>;
+  drop(): Promise<any>;
 }
