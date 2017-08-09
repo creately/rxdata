@@ -4,8 +4,11 @@
   "description": "A reactive document database for web browsers",
   "main": "dist/index.js",
   "scripts": {
+    "clean": "rimraf coverage dist",
+    "build": "npm run clean && tsc",
     "test": "jest --coverage --watch",
-    "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\""
+    "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\"",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -28,6 +31,7 @@
     "@types/jest": "^20.0.0",
     "jest": "^20.0.0",
     "prettier": "^1.5.3",
+    "rimraf": "^2.6.1",
     "rxjs": "^5.0.0",
     "ts-jest": "^20.0.0",
     "typescript": "^2.0.0"
