@@ -23,10 +23,8 @@ export class Collection<T> implements ICollection<T> {
   // in the persistor.
   constructor(public name: string, private persistor: ICollectionPersistor) {
     this.values = new BehaviorSubject<T[]>([]);
-    this.persistor.oplog.subscribe(async () => {
-      const values = await this.persistor.find();
-      this.values.next(values);
-    });
+    this.refresh();
+    this.persistor.oplog.subscribe(() => this.refresh());
   }
 
   // find
@@ -74,6 +72,11 @@ export class Collection<T> implements ICollection<T> {
     const values = this.values.value;
     this.values.complete();
     this.values = new BehaviorSubject<T[]>(values);
+  }
+
+  private async refresh() {
+    const values = await this.persistor.find();
+    this.values.next(values);
   }
 
   // nullify
