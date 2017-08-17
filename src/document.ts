@@ -1,11 +1,11 @@
 import * as Mingo from 'mingo';
 import * as clone from 'clone';
-import { IFilterOptions, DocumentModifier, DocumentFilter, DocumentSelector } from '../types';
+import { IFilterOptions, DocumentModifier, DocumentSelector } from './types';
 
 // createFilterFn
 // createFilterFn creates a function which can be used to filter
 // an array of documents. Converts mongodb like query objects to functions.
-export function createFilterFn(selector: DocumentSelector): DocumentFilter {
+export function createFilterFn(selector: DocumentSelector): any {
   const mq = new Mingo.Query(selector);
   return (doc: any) => mq.test(doc);
 }

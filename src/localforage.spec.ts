@@ -1,9 +1,6 @@
 import * as LocalForage from 'localforage';
-import { IDatabasePersistor, ICollectionPersistor } from '../types';
-import {
-  DatabasePersistor as LocalForageDatabasePersistor,
-  CollectionPersistor as LocalForageCollectionPersistor,
-} from './localforage';
+import { IDatabasePersistor, ICollectionPersistor } from './types';
+import { DatabasePersistor, CollectionPersistor } from './localforage';
 
 // crateWithDocs
 // crateWithDocs creates a collection persistor for given database persistor
@@ -16,15 +13,16 @@ const crateWithDocs = async (databasePersistor: IDatabasePersistor, name: string
   return persistor;
 };
 
-// testDatabasePersistor
-// testDatabasePersistor tests an IDatabasePersistor class.
-// The factory param creates an IDatabasePersistor class to test.
-export const testDatabasePersistor = (factory: () => IDatabasePersistor) => {
+describe('persistors/localforage', () => {
+  beforeEach(() => {
+    LocalForage.clear();
+  });
+
   describe('DatabasePersistor', () => {
     let persistor: IDatabasePersistor;
 
     beforeEach(async () => {
-      persistor = factory();
+      persistor = new DatabasePersistor('test-db');
     });
 
     describe('create', () => {
@@ -48,17 +46,12 @@ export const testDatabasePersistor = (factory: () => IDatabasePersistor) => {
       });
     });
   });
-};
 
-// testCollectionPersistor
-// testCollectionPersistor tests an ICollectionPersistor class.
-// The factory param creates an ICollectionPersistor class to test.
-export const testCollectionPersistor = (factory: () => ICollectionPersistor) => {
   describe('CollectionPersistor', () => {
     let persistor: ICollectionPersistor;
 
     beforeEach(() => {
-      persistor = factory();
+      persistor = new CollectionPersistor('test-col');
     });
 
     describe('find', () => {
@@ -114,13 +107,4 @@ export const testCollectionPersistor = (factory: () => ICollectionPersistor) => 
       });
     });
   });
-};
-
-describe('persistors/localforage', () => {
-  beforeEach(() => {
-    LocalForage.clear();
-  });
-
-  testDatabasePersistor(() => new LocalForageDatabasePersistor('test-db'));
-  testCollectionPersistor(() => new LocalForageCollectionPersistor('test-col'));
 });

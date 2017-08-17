@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { IQueryOne, IQueryMany, IFilterOptions } from '../types';
+import { IQueryOne, IQueryMany, IFilterOptions } from './types';
 import { filterDocuments } from './document';
 
 // AbstractQuery

@@ -1,6 +1,6 @@
 import * as LocalForage from 'localforage';
 import { Subject } from 'rxjs';
-import { ICollectionPersistor, IDatabasePersistor } from '../types';
+import { ICollectionPersistor, IDatabasePersistor } from './types';
 
 // DatabasePersistor
 // DatabasePersistor creates collection persistors and maintains a registry.

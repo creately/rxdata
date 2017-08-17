@@ -1,12 +1,6 @@
 import { Observable } from 'rxjs';
-import { IDatabase, IDatabasePersistor, ICollection } from '../types';
+import { IDatabase, IDatabaseOptions, ICollection } from './types';
 import { Collection } from './collection';
-
-// DatabaseOptions
-// DatabaseOptions is used to customize database behavior.
-export type DatabaseOptions = {
-  persistor: IDatabasePersistor;
-};
 
 // Database
 // Database is a collection of collections.
@@ -17,7 +11,7 @@ export class Database implements IDatabase {
 
   // constructor
   // constructor creates a new Database instance.
-  constructor(protected options: DatabaseOptions) {
+  constructor(protected options: IDatabaseOptions) {
     this.collections = new Map<string, ICollection<any>>();
   }
 

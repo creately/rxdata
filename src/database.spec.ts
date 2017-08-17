@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { Database } from './database';
 import { Collection } from './collection';
-import { DatabasePersistor } from '../persistors/localforage';
+import { DatabasePersistor } from './localforage';
 
 describe('Database', () => {
   describe('constructor', () => {

@@ -1,7 +1,8 @@
-import { Database, DatabaseOptions } from './database/database';
-import { DatabasePersistor } from './persistors/localforage';
+import { IDatabaseOptions } from './types';
+import { Database } from './database';
+import { DatabasePersistor } from './localforage';
 
-export function create(options?: DatabaseOptions) {
+export function createDatabase(options?: IDatabaseOptions) {
   return new Database(
     options || {
       persistor: new DatabasePersistor('rxdata'),

@@ -7,7 +7,7 @@ import {
   DocumentSelector,
   ICollectionPersistor,
   DocumentModifier,
-} from '../types';
+} from './types';
 import { QueryMany, QueryOne } from './query';
 import { createFilterFn, updateDocument } from './document';
 

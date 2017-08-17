@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import * as LocalForage from 'localforage';
 import { Collection } from './collection';
 import { QueryMany, QueryOne } from './query';
-import { CollectionPersistor } from '../persistors/localforage';
+import { CollectionPersistor } from './localforage';
 
 describe('Collection', () => {
   async function createCollection(docs: any[] = []) {

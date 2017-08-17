@@ -8,6 +8,12 @@ export type DocumentSelector = any;
 // DocumentChanges is a mongo like modifier used to modify documents.
 export type DocumentModifier = any;
 
+// IDatabaseOptions
+// IDatabaseOptions is used to customize database behavior.
+export interface IDatabaseOptions {
+  persistor: IDatabasePersistor;
+}
+
 // IFilterOptions
 // IFilterOptions can be used to customized how documents are filtered.
 // Fields are optional. They are used in this order: query, sort, skip, limit.
