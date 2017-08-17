@@ -49,10 +49,10 @@
     "mapCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.ts",
+      "!src/**/*.d.ts",
       "!src/index.ts",
-      "!src/__test_utils.ts",
-      "!src/**/*.mock.ts",
-      "!src/**/*.d.ts"
+      "!src/setup.ts",
+      "!src/types.ts"
     ]
   }
 }
