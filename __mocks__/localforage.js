@@ -8,6 +8,12 @@ class LocalForage {
     this.data = {};
   }
 
+  keys() {
+    debug('keys:');
+    const keys = Object.keys(this.data);
+    return Promise.resolve(keys);
+  }
+
   iterate(iterator) {
     debug('iterate:', this.name, this.data);
     Object.keys(this.data)
