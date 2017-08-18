@@ -1,0 +1,1 @@
+localStorage = require('localStorage');
