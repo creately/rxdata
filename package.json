@@ -9,7 +9,8 @@
     "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\"",
     "test": "karma start karma.conf.js --single-run",
     "test:watch": "karma start karma.conf.js",
-    "coverage": "npm run test && open coverage/index.html"
+    "test:cover": "npm run test && open coverage/index.html",
+    "prepublish": "npm run clean && npm run lint && npm run build"
   },
   "keywords": ["karma", "typescript", "jasmine", "istanbul", "webpack", "coverage"],
   "author": "Muhammed Thanish <mnmtanish@gmail.com> (http://thanish.me/)",
