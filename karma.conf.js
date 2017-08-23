@@ -5,7 +5,7 @@ module.exports = function(config) {
       'jasmine',
     ],
     files: [
-      { pattern: 'src/tests.ts' },
+      { pattern: 'src/__tests.ts' },
     ],
     mime: {
       'text/x-typescript': ['ts'],
