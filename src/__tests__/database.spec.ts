@@ -24,6 +24,16 @@ describe('Database', () => {
       const c2 = db.collection('test');
       expect(c1).toBe(c2);
     });
+
+    it('should sync collection documents in different database instances', async () => {
+      const { db: d1 } = prepare();
+      const d2 = new Database(d1.name);
+      const c1 = d1.collection('test');
+      const c2 = d2.collection('test');
+      await c1.insert({ id: 'd1' });
+      const out = await c2.find().take(1).toPromise();
+      expect(out).toEqual([{ id: 'd1' }]);
+    });
   });
 
   describe('drop', () => {
