@@ -1,2 +1,2 @@
-export { Database } from './database';
-export { Collection } from './collection';
+export * from './database';
+export * from './collection';
