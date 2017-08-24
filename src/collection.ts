@@ -1,5 +1,6 @@
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
+import * as isequal from 'lodash.isequal';
 import { Observable, Subject } from 'rxjs';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
@@ -78,7 +79,7 @@ export class Collection<T> {
     return Observable.fromPromise(this.load(selector))
       .concat(this.allDocs)
       .map(docs => this.filter(docs, selector, options))
-      .distinctUntilChanged(this.createCompareFn());
+      .distinctUntilChanged(isequal);
   }
 
   // insert
@@ -154,26 +155,5 @@ export class Collection<T> {
   private async refresh() {
     const documents = await this.load();
     this.allDocs.next(documents);
-  }
-
-  // createCompareFn
-  // createCompareFn compares 2 documents made to use with RxJS
-  // distinctUntilChanged helper. Works even when the documents
-  // are changed in-place.
-  //
-  // FIXME use a memory and cpu efficient hash function
-  private createCompareFn() {
-    let prev: any = undefined;
-    return (_prev: any, _next: any) => {
-      if (!prev) {
-        prev = JSON.stringify(_prev);
-      }
-      const next = JSON.stringify(_next);
-      if (next === prev) {
-        return true;
-      }
-      prev = next;
-      return false;
-    };
   }
 }
