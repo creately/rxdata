@@ -97,8 +97,8 @@ describe('Collection', () => {
     it('should skip given number of matching documents if skip option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ y: 2 }, { skip: 1 }).take(1).toPromise();
-      expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).slice(1));
+      const out = await col.find({ y: 2 }, { sort: { z: -1 }, skip: 1 }).take(1).toPromise();
+      expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse().slice(1));
     });
 
     it('should limit result to given number of matching documents if limit option is set', async () => {
@@ -141,6 +141,64 @@ describe('Collection', () => {
         [{ id: 'd113', x: 1, y: 1, z: 3, a: 2 }, { id: 'd123', x: 1, y: 2, z: 3, a: 2 }],
       ]);
     });
+  });
+
+  describe('findOne', () => {
+      it('should return an observable', async () => {
+        const { col } = await prepare();
+        expect(col.findOne()).toEqual(jasmine.any(Observable));
+      });
+
+      it('should emit a document if a selector is not given', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const out = await col.findOne().take(1).toPromise();
+        expect(TEST_DOCS.findIndex(doc => doc.id === out.id)).not.toBe(-1);
+      });
+
+      it('should a matching document immediately', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const out = await col.findOne({ z: 3 }).take(1).toPromise();
+        const matches = TEST_DOCS.filter(doc => doc.z === 3);
+        expect(matches.findIndex(doc => doc.id === out.id)).not.toBe(-1);
+      });
+
+      it('should sort and get the matching document if sort option is set', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const out = await col.findOne({ y: 2 }, { sort: { z: -1 } }).take(1).toPromise();
+        expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[0]);
+      });
+
+      it('should skip given number of matching documents if skip option is set', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const out = await col.findOne({ y: 2 }, { sort: { z: -1 }, skip: 1 }).take(1).toPromise();
+        expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[1]);
+      });
+
+      it('should emit different document instances for each find query', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const out1 = await col.findOne({ z: 3 }).take(1).toPromise();
+        const out2 = await col.findOne({ z: 3 }).take(1).toPromise();
+        expect(out1).toEqual(out2);
+        expect(out1).not.toBe(out2);
+      });
+
+      it('should not re-emit the same result if documents in the result did not change', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const promise = col.findOne({ z: 3 }).take(2).toArray().toPromise();
+        await col.update({ z: 2 }, { $set: { a: 1 } });
+        await col.update({ z: 3 }, { $set: { a: 2 } });
+        const out = await promise;
+        expect(out).toEqual([
+          { id: 'd113', x: 1, y: 1, z: 3 },
+          { id: 'd113', x: 1, y: 1, z: 3, a: 2 },
+        ]);
+      });
   });
 
   describe('insert', () => {

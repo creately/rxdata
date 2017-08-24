@@ -75,10 +75,21 @@ export class Collection<T> {
     if (Object.keys(selector).length === 0 && Object.keys(options).length === 0) {
       return this.allDocs;
     }
-    // FIXME make sure distinctUntilChanged works properly
     return Observable.fromPromise(this.load(selector))
       .concat(this.allDocs)
       .map(docs => this.filter(docs, selector, options))
+      .distinctUntilChanged(isequal);
+  }
+
+  // find
+  // find returns an observable of a document which matches the given
+  // selector and filter options (both are optional). The observable
+  // re-emits whenever the result value changes.
+  public findOne(selector: Selector = {}, options: FindOptions = {}): Observable<T> {
+    options.limit = 1;
+    return Observable.fromPromise(this.load(selector))
+      .concat(this.allDocs)
+      .map(docs => this.filter(docs, selector, options)[0] || null)
       .distinctUntilChanged(isequal);
   }
 
