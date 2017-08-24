@@ -3,8 +3,8 @@ import { Collection } from '../collection';
 
 describe('Database', () => {
   beforeEach(() => {
-      localStorage.clear();
-  })
+    localStorage.clear();
+  });
 
   function prepare() {
     const db = new Database('test-db');
@@ -46,8 +46,8 @@ describe('Database', () => {
     it('should remove all documents in all collections in the database', async () => {
       const { db } = prepare();
       const c1 = db.collection('test');
-      await c1.insert([ { id: 'd1' } ]);
-      expect(await c1.find().take(1).toPromise()).toEqual([ { id: 'd1' } ]);
+      await c1.insert([{ id: 'd1' }]);
+      expect(await c1.find().take(1).toPromise()).toEqual([{ id: 'd1' }]);
       await db.drop();
       expect(await c1.find().take(1).toPromise()).toEqual([]);
     });
