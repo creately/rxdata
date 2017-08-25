@@ -54,16 +54,19 @@ export class Collection<T> {
 
   // watch
   // watch watches for modified documents in the collection and emits
-  // when they change. Accepts an optional selector to only watch
-  // documents which mtch the selector.
+  // when they change. Accepts an optional selector to only watch changes
+  // made to documents which match the selector.
   public watch(selector?: Selector): Observable<DocumentChange<T>> {
     if (!selector) {
       return this.changes;
     }
     const mq = new mingo.Query(selector);
-    return this.changes.filter(change => {
-      const matches = change.docs.filter(doc => mq.test(doc));
-      return matches.length > 0;
+    return this.changes.flatMap(change => {
+      const docs = change.docs.filter(doc => mq.test(doc));
+      if (!docs.length) {
+        return Observable.of();
+      }
+      return Observable.of(Object.assign({}, change, { docs }));
     });
   }
 

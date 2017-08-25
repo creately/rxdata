@@ -53,7 +53,7 @@ describe('Collection', () => {
         const promise = col.watch({ z: 3 }).take(1).toPromise();
         await col.insert(TEST_DOCS);
         const out = await promise;
-        expect(out).toEqual({ type: 'insert', docs: TEST_DOCS });
+        expect(out).toEqual({ type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) });
       });
 
       it('should not emit modified documents if they do not match the selector', async () => {
