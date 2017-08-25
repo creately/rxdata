@@ -143,18 +143,53 @@ export class Collection<T> {
   }
 
   // load
-  // load fetches a set of documents which belongs to a collection.
-  // If a filter is given, only return documents passing the filter.
+  // load loads documents which match the selector from storage.
   // Returns a promise which resolves to an array of documents.
-  private async load(selector?: Selector): Promise<any[]> {
-    const docs: any[] = [];
-    let filter: Function;
-    if (selector) {
-      const mq = new mingo.Query(selector);
-      filter = (doc: any) => mq.test(doc);
+  private async load(selector?: Selector): Promise<T[]> {
+    if (!selector || Object.keys(selector).length === 0) {
+      return await this.loadAll();
     }
+    if (selector.id) {
+      return await this.loadWithId(selector);
+    }
+    return await this.loadWithFilter(selector);
+  }
+
+  // loadAll
+  // loadAll loads all documents from storage without filtering.
+  // Returns a promise which resolves to an array of documents.
+  private async loadAll(): Promise<T[]> {
+    const docs: any[] = [];
     await this.storage.iterate((doc: any) => {
-      if (!filter || filter(doc)) {
+      docs.push(doc);
+      // If a non-undefined value is returned,
+      // the localforage iterator will stop.
+      return undefined;
+    });
+    return docs;
+  }
+
+  // loadWithId
+  // loadWithId loads the document which matches the selector
+  // from storage. It will use the document id to fetch it.
+  // Returns a promise which resolves to an array of documents.
+  private async loadWithId(selector: Selector): Promise<T[]> {
+    const filter = this.createFilter(selector);
+    const doc = await this.storage.getItem<T>(selector.id);
+    if (doc && filter(doc)) {
+      return [doc]
+    }
+    return [];
+  }
+
+  // loadWithFilter
+  // loadWithFilter loads documents which match the selector from storage.
+  // Returns a promise which resolves to an array of documents.
+  private async loadWithFilter(selector: Selector): Promise<T[]> {
+    const docs: any[] = [];
+    const filter = this.createFilter(selector);
+    await this.storage.iterate((doc: any) => {
+      if (filter(doc)) {
         docs.push(doc);
       }
       // If a non-undefined value is returned,
@@ -162,6 +197,13 @@ export class Collection<T> {
       return undefined;
     });
     return docs;
+  }
+
+  // createFilter
+  // createFilter creates a document filter function from a selector.
+  private createFilter(selector: Selector): (doc: T) => boolean {
+    const mq = new mingo.Query(selector);
+    return (doc: T) => mq.test(doc);
   }
 
   // refresh
