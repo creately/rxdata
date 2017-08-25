@@ -1,3 +1,8 @@
+# 2017-08-25 - v4.1.1
+
+- Optimize loading documents from storage when the id is given.
+- Fix find/findOne to load data from storage when it gets subscribed.
+
 # 2017-08-25 - v4.1.0
 
 - Add missing `findOne` method on collection
