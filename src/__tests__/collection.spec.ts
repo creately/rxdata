@@ -141,6 +141,15 @@ describe('Collection', () => {
         [{ id: 'd113', x: 1, y: 1, z: 3, a: 2 }, { id: 'd123', x: 1, y: 2, z: 3, a: 2 }],
       ]);
     });
+
+    it('should not call the load method until user subscribes to the observable', async () => {
+      const { col } = await prepare();
+      spyOn(col as any, 'load').and.returnValue(Promise.resolve([]));
+      const observable = col.find({});
+      expect((col as any).load).not.toHaveBeenCalled();
+      await observable.take(1).toPromise();
+      expect((col as any).load).toHaveBeenCalled();
+    });
   });
 
   describe('findOne', () => {
@@ -209,6 +218,15 @@ describe('Collection', () => {
         { id: 'd113', x: 1, y: 1, z: 3, a: 2 },
         { id: 'd113', x: 1, y: 1, z: 3, a: 3 },
       ]);
+    });
+
+    it('should not call the load method until user subscribes to the observable', async () => {
+      const { col } = await prepare();
+      spyOn(col as any, 'load').and.returnValue(Promise.resolve([]));
+      const observable = col.findOne({});
+      expect((col as any).load).not.toHaveBeenCalled();
+      await observable.take(1).toPromise();
+      expect((col as any).load).toHaveBeenCalled();
     });
   });
 
