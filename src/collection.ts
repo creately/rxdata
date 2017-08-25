@@ -76,10 +76,7 @@ export class Collection<T> {
   // selector and filter options (both are optional). The observable
   // re-emits whenever the result value changes.
   public find(selector: Selector = {}, options: FindOptions = {}): Observable<T[]> {
-    if (Object.keys(selector).length === 0 && Object.keys(options).length === 0) {
-      return this.allDocs;
-    }
-    return Observable.fromPromise(this.load(selector))
+    return Observable.defer(() => Observable.fromPromise(this.load(selector)))
       .concat(this.allDocs)
       .map(docs => this.filter(docs, selector, options))
       .distinctUntilChanged(isequal);
@@ -91,7 +88,7 @@ export class Collection<T> {
   // re-emits whenever the result value changes.
   public findOne(selector: Selector = {}, options: FindOptions = {}): Observable<T> {
     options.limit = 1;
-    return Observable.fromPromise(this.load(selector))
+    return Observable.defer(() => Observable.fromPromise(this.load(selector)))
       .concat(this.allDocs)
       .map(docs => this.filter(docs, selector, options)[0] || null)
       .distinctUntilChanged(isequal);
