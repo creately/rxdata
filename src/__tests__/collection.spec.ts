@@ -115,27 +115,6 @@ describe('Collection', () => {
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).slice(0, 2));
     });
 
-    it('should emit different result arrays for each find query', async () => {
-      const { col } = await prepare();
-      await col.insert(TEST_DOCS);
-      const out1 = await col.find({ z: 3 }).take(1).toPromise();
-      const out2 = await col.find({ z: 3 }).take(1).toPromise();
-      expect(out1).toEqual(out2);
-      expect(out1).not.toBe(out2);
-    });
-
-    it('should emit different document instances for each find query', async () => {
-      const { col } = await prepare();
-      await col.insert(TEST_DOCS);
-      const out1 = await col.find({ z: 3 }).take(1).toPromise();
-      const out2 = await col.find({ z: 3 }).take(1).toPromise();
-      expect(out1.length).toBe(out2.length);
-      for (let i = 0; i < out1.length; ++i) {
-        expect(out1[i]).toEqual(out2[i]);
-        expect(out1[i]).not.toBe(out2[i]);
-      }
-    });
-
     it('should not re-emit the same result if documents in the result did not change', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
@@ -151,68 +130,56 @@ describe('Collection', () => {
   });
 
   describe('findOne', () => {
-      it('should return an observable', async () => {
-        const { col } = await prepare();
-        expect(col.findOne()).toEqual(jasmine.any(Observable));
-      });
+    it('should return an observable', async () => {
+      const { col } = await prepare();
+      expect(col.findOne()).toEqual(jasmine.any(Observable));
+    });
 
-      it('should emit a document if a selector is not given', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const out = await col.findOne().take(1).toPromise();
-        expect(TEST_DOCS.findIndex(doc => doc.id === out.id)).not.toBe(-1);
-      });
+    it('should emit a document if a selector is not given', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col.findOne().take(1).toPromise();
+      expect(TEST_DOCS.findIndex(doc => doc.id === out.id)).not.toBe(-1);
+    });
 
-      it('should emit null if no documents match the selector', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const out = await col.findOne({ x: -1 }).take(1).toPromise();
-        expect(out).toBe(null);
-      });
+    it('should emit null if no documents match the selector', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col.findOne({ x: -1 }).take(1).toPromise();
+      expect(out).toBe(null);
+    });
 
-      it('should a matching document immediately', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const out = await col.findOne({ z: 3 }).take(1).toPromise();
-        const matches = TEST_DOCS.filter(doc => doc.z === 3);
-        expect(matches.findIndex(doc => doc.id === out.id)).not.toBe(-1);
-      });
+    it('should a matching document immediately', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col.findOne({ z: 3 }).take(1).toPromise();
+      const matches = TEST_DOCS.filter(doc => doc.z === 3);
+      expect(matches.findIndex(doc => doc.id === out.id)).not.toBe(-1);
+    });
 
-      it('should sort and get the matching document if sort option is set', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const out = await col.findOne({ y: 2 }, { sort: { z: -1 } }).take(1).toPromise();
-        expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[0]);
-      });
+    it('should sort and get the matching document if sort option is set', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col.findOne({ y: 2 }, { sort: { z: -1 } }).take(1).toPromise();
+      expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[0]);
+    });
 
-      it('should skip given number of matching documents if skip option is set', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const out = await col.findOne({ y: 2 }, { sort: { z: -1 }, skip: 1 }).take(1).toPromise();
-        expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[1]);
-      });
+    it('should skip given number of matching documents if skip option is set', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col.findOne({ y: 2 }, { sort: { z: -1 }, skip: 1 }).take(1).toPromise();
+      expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[1]);
+    });
 
-      it('should emit different document instances for each find query', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const out1 = await col.findOne({ z: 3 }).take(1).toPromise();
-        const out2 = await col.findOne({ z: 3 }).take(1).toPromise();
-        expect(out1).toEqual(out2);
-        expect(out1).not.toBe(out2);
-      });
-
-      it('should not re-emit the same result if documents in the result did not change', async () => {
-        const { col } = await prepare();
-        await col.insert(TEST_DOCS);
-        const promise = col.findOne({ z: 3 }).take(2).toArray().toPromise();
-        await col.update({ z: 2 }, { $set: { a: 1 } });
-        await col.update({ z: 3 }, { $set: { a: 2 } });
-        const out = await promise;
-        expect(out).toEqual([
-          { id: 'd113', x: 1, y: 1, z: 3 },
-          { id: 'd113', x: 1, y: 1, z: 3, a: 2 },
-        ]);
-      });
+    it('should not re-emit the same result if documents in the result did not change', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const promise = col.findOne({ z: 3 }).take(2).toArray().toPromise();
+      await col.update({ z: 2 }, { $set: { a: 1 } });
+      await col.update({ z: 3 }, { $set: { a: 2 } });
+      const out = await promise;
+      expect(out).toEqual([{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd113', x: 1, y: 1, z: 3, a: 2 }]);
+    });
   });
 
   describe('insert', () => {
