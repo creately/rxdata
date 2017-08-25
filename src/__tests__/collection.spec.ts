@@ -80,6 +80,13 @@ describe('Collection', () => {
       expect(out).toEqual(TEST_DOCS);
     });
 
+    it('should emit an empty array if no documents match selector', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col.find({ x: -1 }).take(1).toPromise();
+      expect(out).toEqual([]);
+    });
+
     it('should emit all matching document immediately', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
@@ -154,6 +161,13 @@ describe('Collection', () => {
         await col.insert(TEST_DOCS);
         const out = await col.findOne().take(1).toPromise();
         expect(TEST_DOCS.findIndex(doc => doc.id === out.id)).not.toBe(-1);
+      });
+
+      it('should emit null if no documents match the selector', async () => {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        const out = await col.findOne({ x: -1 }).take(1).toPromise();
+        expect(out).toBe(null);
       });
 
       it('should a matching document immediately', async () => {
