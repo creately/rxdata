@@ -1,101 +1,55 @@
-import { Observable } from 'rxjs';
-import { ICollection, IDatabasePersistor } from '../';
-import { Database, DatabaseOptions } from '../database';
+import { Database } from '../database';
 import { Collection } from '../collection';
-import { MockCollectionPersistor, MockDatabasePersistor } from '../persistors/__mocks__/persistor.mock';
-import { createCollections } from '../__mocks__/database.mock';
 
 describe('Database', () => {
-  describe('static defaultOptions', () => {
-    it('should have a value', () => {
-      expect((Database as any).defaultOptions).toBeDefined();
-    });
+  beforeEach(() => {
+    localStorage.clear();
   });
 
-  describe('static configure', () => {
-    it('should set the default options', () => {
-      const testOptions: DatabaseOptions = { persistor: new MockDatabasePersistor() };
-      Database.configure(testOptions);
-      expect((Database as any).defaultOptions).toBe(testOptions);
-    });
-  });
-
-  describe('static create', () => {
-    it('should return a new Database instance', () => {
-      const db = Database.create();
-      expect(db instanceof Database).toBeTruthy();
-    });
-  });
-
-  describe('constructor', () => {
-    it('should create a new instance with default options', () => {
-      const database = new Database();
-      expect((database as any)._options).toBe((Database as any).defaultOptions);
-    });
-  });
+  function prepare() {
+    const db = new Database('test-db');
+    return { db };
+  }
 
   describe('collection', () => {
-    let databasePersistor: MockDatabasePersistor;
-    let database: Database;
-    let collection: ICollection;
-
-    beforeEach(() => {
-      databasePersistor = new MockDatabasePersistor();
-      database = new Database({ persistor: databasePersistor });
-      collection = database.collection('col');
+    it('should return a Collection instance', () => {
+      const { db } = prepare();
+      const c1 = db.collection('test');
+      expect(c1).toEqual(jasmine.any(Collection));
     });
 
-    it('should create a new collection if one does not exist with given name', () => {
-      expect(collection instanceof Collection).toBeTruthy();
-    });
-    it('should return collection if one exists with given collection name', () => {
-      expect(database.collection('col')).toBe(collection);
-    });
-
-    it('should always return the same collection instance for a given name', () => {
-      for (let i = 0; i < 5; i++) {
-        expect(database.collection('col')).toBe(collection);
-      }
+    it('should return the same collection instance for the same name', () => {
+      const { db } = prepare();
+      const c1 = db.collection('test');
+      const c2 = db.collection('test');
+      expect(c1).toBe(c2);
     });
 
-    it('should create a new persister with the collection name', () => {
-      expect(databasePersistor.create).toHaveBeenCalledWith('col');
+    it('should sync collection documents in different database instances', async () => {
+      const { db: d1 } = prepare();
+      const d2 = new Database(d1.name);
+      const c1 = d1.collection('test');
+      const c2 = d2.collection('test');
+      await c1.insert({ id: 'd1' });
+      const out = await c2.find().take(1).toPromise();
+      expect(out).toEqual([{ id: 'd1' }]);
     });
   });
 
   describe('drop', () => {
-    let databasePersistor: MockDatabasePersistor;
-    let database: Database;
-
-    beforeEach(() => {
-      databasePersistor = new MockDatabasePersistor();
-      database = new Database({ persistor: databasePersistor });
+    it('should return a promise which resolves to undefined', async () => {
+      const { db } = prepare();
+      const out = await db.drop();
+      expect(out).toBe(undefined);
     });
 
-    it('should call drop method on database persistor', done => {
-      database.drop().subscribe({
-        error: err => done.fail(err),
-        complete: () => {
-          expect(databasePersistor.drop).toHaveBeenCalled();
-          done();
-        },
-      });
-    });
-
-    it('should call unsub method on all collections', done => {
-      const collections = [database.collection('col-1'), database.collection('col-2')];
-      collections.forEach(col => {
-        col.unsub = jest.fn().mockReturnValue(Observable.of());
-      });
-      database.drop().subscribe({
-        error: err => done.fail(err),
-        complete: () => {
-          collections.forEach(col => {
-            expect(col.unsub).toHaveBeenCalled();
-          });
-          done();
-        },
-      });
+    it('should remove all documents in all collections in the database', async () => {
+      const { db } = prepare();
+      const c1 = db.collection('test');
+      await c1.insert([{ id: 'd1' }]);
+      expect(await c1.find().take(1).toPromise()).toEqual([{ id: 'd1' }]);
+      await db.drop();
+      expect(await c1.find().take(1).toPromise()).toEqual([]);
     });
   });
 });

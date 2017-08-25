@@ -1,6 +1,2 @@
 dist
-node_modules
 coverage
-
-.editorconfig
-tslint.json

@@ -1,14 +1,13 @@
 # RxData
 
-RxData is a schemaless reactive document database for web browsers.
-It is inspired by rxdb but uses localForage instead of pouchdb.
+RxData is a schemaless reactive document database for web browsers. It is inspired by rxdb but uses localForage instead of pouchdb to store data.
 
 ## Getting Started
 
-Install rxjs and rxdata modules and add them to the package.json file.
+Install @creately/rxdata module from npm.
 
 ```shell
-npm install --save rxjs rxdata
+npm install @creately/rxdata
 ```
 
 Create a new database. Also create some collections to group similar data.
@@ -16,7 +15,7 @@ Create a new database. Also create some collections to group similar data.
 ```js
 import { Database } from 'rxdata'
 
-const db = new Database()
+const db = new Database('test-db')
 const vehicles = db.collection('vehicles')
 
 ```
@@ -26,7 +25,6 @@ Query documents in a collection and subscribe to changes in result data.
 ```js
 vehicles
   .find({ tires: { $gte: 4 } })
-  .value()
   .subscribe(data => console.log('data:', data))
 ```
 

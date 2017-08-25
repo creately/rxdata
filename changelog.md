@@ -1,3 +1,14 @@
+# 2017-08-24 - v4.0.0
+
+- Change package name to `@creately/rxdata`.
+- Add support for multiple tabs/windows using `@creately/lschannel` module.
+- Add a `watch` method on collection to subscribe to document changes.
+- Combine DatabasePersistor class and Database class.
+- Combine CollectionPersistor class and Collection class.
+- Reduce memory usage by removing in-memory cache of collection data.
+- Reduce memory usage by using `lodash.isequal` with distinctUntilChanged.
+- Run unit tests with Karma on ChromeHeadless browser
+
 # 2017-04-28 - v3.2.1
 
  - Fix metadata collection in memory cache not getting cleared [#30](https://github.com/Cinergix/rxdata/pull/30)

@@ -1,104 +1,78 @@
 import { Collection } from './collection';
-import { IDatabase, ICollection, IDatabasePersistor } from './';
-import { LocalForageDatabasePersistor } from './persistors/localforage';
-import { Observable } from 'rxjs';
 
-/**
- * DatabaseOptions
- * DatabaseOptions is used to customize database behavior.
- */
-export type DatabaseOptions = {
-  persistor: IDatabasePersistor;
-};
+// Database
+// Database is a collection of collections.
+export class Database {
+  // collections
+  // collections is a map of collections by their names.
+  private collections: Map<string, Collection<any>>;
 
-/**
- * Database
- * Database is a collection of collections.
- */
-export class Database implements IDatabase {
-  /**
-     * static defaultOptions
-     * defaultOptions is the DatabaseOptions object which will be used
-     * if an options argument is not provided when creating a database.
-     */
-  protected static defaultOptions: DatabaseOptions = {
-    persistor: new LocalForageDatabasePersistor('rxdata'),
-  };
-
-  /**
-     * static configure
-     * configure sets the default options which will
-     * @param _options: An options object to set as default options.
-     */
-  public static configure(options: DatabaseOptions) {
-    this.defaultOptions = options;
+  // constructor
+  // constructor creates a new Database instance.
+  constructor(public name: string) {
+    this.collections = new Map();
   }
 
-  /**
-     * static create
-     * create creates a new Database class with default configurations.
-     * This method can be used as a factory function to create new
-     * Database instances. (eg: with Angular2 AOT compilation)
-     */
-  public static create(): IDatabase {
-    return new Database();
-  }
-
-  /**
-     * _collections
-     * _collections is a map of collections by their names.
-     */
-  protected _collections: Map<string, Collection>;
-
-  /**
-     * constructor
-     * constructor creates a new Database instance.
-     *
-     * @param _options: An options object to customize the database.
-     */
-  constructor(protected _options: DatabaseOptions = Database.defaultOptions) {
-    this._collections = new Map<string, Collection>();
-  }
-
-  /**
-     * collection
-     * collection will return a collection for a given collection name.
-     * If a collection does not already exists with the given name,
-     * a new collection will be created.
-     *
-     * @param name: The name of the collection to fetch/create.
-     */
-  public collection(name: string): ICollection {
-    if (this._collections.has(name)) {
-      return this._collections.get(name);
+  // collection
+  // collection will return a collection for a given collection name.
+  // If a collection does not already exists with the given name,
+  // a new collection will be created.
+  public collection<T>(cname: string): Collection<T> {
+    const name = `rxdata.${this.name}.${cname}`;
+    if (this.collections.has(name)) {
+      return this.collections.get(name) as Collection<T>;
     }
-    const collection = this._createCollection(name);
-    this._collections.set(name, collection);
+    const collection = this.createCollection<T>(name);
+    this.collections.set(name, collection);
     return collection;
   }
 
-  /**
-     * drop
-     * drop clears all data in all collections in the database.
-     * It also closes all active subscriptions in all collections.
-     */
-  public drop(): Observable<any> {
-    const observables = [];
-    this._collections.forEach(col => observables.push(col.unsub()));
-    observables.push(Observable.fromPromise(this._options.persistor.drop()));
-    this._collections = new Map<string, Collection>();
-    return Observable.forkJoin(observables);
+  // drop
+  // drop clears all data in all collections in the database.
+  // It also closes all active subscriptions in all collections.
+  public async drop(): Promise<void> {
+    this.collections = new Map();
+    const collections = this.collectionsList;
+    this.collectionsList = [];
+    await Promise.all(collections.map(name => new Collection<any>(name).remove({})));
   }
 
-  /**
-     * _createCollection
-     * _createCollection creates a collection with given name. It will also
-     * create a new persistor for the collection.
-     *
-     * @param name: The name of the collection to create.
-     */
-  protected _createCollection(name: string): Collection {
-    const persistor = this._options.persistor.create(name);
-    return new Collection(persistor);
+  // collectionsListKey
+  private get collectionsListKey(): string {
+    return `rxdata.${this.name}.collections`;
+  }
+
+  // get collectionsList
+  // collectionsList is stored in browser localStorage therefore the
+  // collections name list is created by parsing the stored JSON string.
+  private get collectionsList(): string[] {
+    const str = localStorage.getItem(this.collectionsListKey);
+    return JSON.parse(str || '[]');
+  }
+
+  // set collectionsList
+  // collectionsList is stored in browser localStorage therefore the
+  // collections name list is serialized into a JSON and stored.
+  private set collectionsList(arr: string[]) {
+    const str = JSON.stringify(arr);
+    localStorage.setItem(this.collectionsListKey, str);
+  }
+
+  // registerCollection
+  // registerCollection registers the collection with the database
+  // so that the database can know names of collections it has.
+  private registerCollection(name: string) {
+    const list = this.collectionsList;
+    if (list.indexOf(name) === -1) {
+      this.collectionsList = list.concat(name);
+    }
+  }
+
+  // createCollection
+  // createCollection creates a collection with given name and registers
+  // the collection with this database instance.
+  private createCollection<T>(name: string): Collection<T> {
+    this.registerCollection(name);
+    return new Collection<T>(name);
   }
 }

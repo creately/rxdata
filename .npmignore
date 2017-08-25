@@ -1,13 +1,6 @@
-node_modules
-
-.scripts
-examples
 src
-CHANGELOG.md
 __tests__
-__mocks__
+coverage
 
-.editorconfig
-.travis.yml
+karma.conf.js
 tsconfig.json
-tslint.json

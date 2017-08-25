@@ -1,231 +1,175 @@
-import { Observable, BehaviorSubject } from 'rxjs';
-import { IQuery, ICollection, ICollectionPersistor } from './';
-import { Query, SingleDocQuery } from './query';
-import { FilterOptions, createFilterFunction } from './doc-utilities/filter-documents';
-import { updateDocument } from './doc-utilities/update-documents';
+import mingo from 'mingo';
+import * as LocalForage from 'localforage';
+import * as isequal from 'lodash.isequal';
+import debounce from 'debounce-decorator';
+import { Observable, Subject } from 'rxjs';
+import { modify } from '@creately/mungo';
+import { Channel } from '@creately/lschannel';
 
-/**
- * Collection
- * Collection is a collection of documents.
- */
-export class Collection implements ICollection {
-  /**
-     * _documents
-     * _documents is a cached array of documents kept in memory.
-     * This field can have one of 2 states:
-     *  - null:  the collection has not completed initializing
-     *  - array: the collection is ready to perform operations
-     */
-  protected _documents: any[];
+// Selector
+// Selector is a mongo like selector used to filter documents.
+export type Selector = any;
 
-  /**
-     * _values
-     * _values is an observable which emits all documents in the
-     * collection when any of them change. This is a BehaviorSubject
-     * therefore it'll always emit the latest value when subscribed.
-     */
-  protected _values: BehaviorSubject<any[]>;
+// Modifier
+// Modifier is a mongo like modifier used to modify documents.
+export type Modifier = any;
 
-  /**
-     * _initp
-     * _initp promise resolves when the collection has completed loading
-     * data from the persistor. All change operations should wait until
-     * the collection has completed initialization.
-     */
-  protected _initp: Promise<any>;
+// FindOptions
+// FindOptions can be used to customized how documents are filtered.
+// Fields are optional. They are used in this order: query, sort, skip, limit.
+export type FindOptions = {
+  sort?: { [key: string]: 1 | -1 };
+  skip?: number;
+  limit?: number;
+};
 
-  /**
-     * constructor
-     * constructor creates a new Collection instance and initializes it.
-     *
-     * @param _persistor: A ICollectionPersistor instance to store and load data.
-     */
-  constructor(protected _persistor: ICollectionPersistor) {
-    this._documents = [];
-    this._resetValuesSubject();
-    this._initp = this._init();
+// DocumentChange
+// DocumentChange describes a change which has occurred in the collection.
+export type DocumentChange<T> = {
+  type: 'insert' | 'update' | 'remove';
+  docs: T[];
+};
+
+// Collection
+// Collection ...?
+export class Collection<T> {
+  // allDocs
+  // allDocs emits all documents in the collection when they get modified.
+  private allDocs: Subject<T[]>;
+
+  // storage
+  // storage stores documents in a suitable storage backend.
+  private storage: LocalForage;
+
+  // channel
+  // channel sends/receives messages between browser tabs.
+  private changes: Channel<DocumentChange<T>>;
+
+  // constructor
+  constructor(public name: string) {
+    this.allDocs = new Subject();
+    this.storage = LocalForage.createInstance({ name });
+    this.changes = Channel.create(`rxdata.${name}.channel`);
+    this.changes.subscribe(() => this.refresh());
   }
 
-  /**
-     * find
-     * find creates a query which will emit all matching documents.
-     *
-     * @param filter: A mongodb like filter object.
-     * @param filterOptions: An optional object to customize the filter.
-     */
-  public find(filter: any, filterOptions: FilterOptions = {}): IQuery {
-    const queryOptions = {
-      filter: filter,
-      filterOptions: filterOptions,
-      values: this._values,
-    };
-    return new Query(queryOptions);
-  }
-
-  /**
-     * findOne
-     * findOne creates a query which will emit the first matching document.
-     *
-     * @param filter: A mongodb like filter object.
-     * @param filterOptions: An optional object to customize the filter.
-     *  Note that the limit field will be set to 1 before it's used.
-     */
-  public findOne(filter: any, filterOptions: FilterOptions = {}): IQuery {
-    const findOneOptions = Object.assign(filterOptions, { limit: 1 });
-    const query = this.find(filter, findOneOptions);
-    return new SingleDocQuery(query);
-  }
-
-  /**
-     * insert
-     * insert adds a new document to the collection. If a document already
-     * exists in the collection with the same 'id', it'll be replaced.
-     *
-     * @param rawDocOrDocs: The document object. The only requirement is that
-     *  it should have an 'id' field to uniquely identify the document.
-     */
-  public insert(rawDocOrDocs: any): Observable<any[]> {
-    const promise = this._initp.then(() => {
-      const rawDocs = [].concat(rawDocOrDocs);
-      const docs = rawDocs.map(rawDoc => this._copyObject(rawDoc));
-      this._insertDocuments(docs);
-      this._sendValueEvent();
-      return this._persistor.store(docs).then(() => docs);
-    });
-    return Observable.fromPromise(promise);
-  }
-
-  /**
-     * update
-     * update updates all matching documents in the collection.
-     *
-     * @param filter: A mongodb like filter object.
-     * @param changes: A mongodb like changes object.
-     */
-  public update(filter: any, changes: any): Observable<any[]> {
-    const promise = this._initp.then(() => {
-      const filterFunction = createFilterFunction(filter);
-      const updatedDocuments = this._updateDocuments(filterFunction, changes);
-      this._sendValueEvent();
-      return this._persistor.store(updatedDocuments).then(() => updatedDocuments);
-    });
-    return Observable.fromPromise(promise);
-  }
-
-  /**
-     * remove
-     * remove removes all matching documents from the collection.
-     *
-     * @param filter: A mongodb like filter object.
-     */
-  public remove(filter: any): Observable<any[]> {
-    const promise = this._initp.then(() => {
-      const filterFunction = createFilterFunction(filter);
-      const removedDocuments = this._removeDocuments(filterFunction);
-      this._sendValueEvent();
-      return this._persistor.remove(removedDocuments).then(() => removedDocuments);
-    });
-    return Observable.fromPromise(promise);
-  }
-
-  /**
-     * unsub
-     * unsub closes all query subscriptions with a complete.
-     */
-  public unsub(): Observable<any> {
-    this._resetValuesSubject();
-    return Observable.of();
-  }
-
-  /**
-     * _init
-     * _init initializes the collection by loading available documents
-     * from the persistor. This function needs to run once before use.
-     */
-  protected _init(): Promise<any> {
-    return this._persistor.load().then(docs => {
-      this._documents = docs;
-      this._sendValueEvent();
-    });
-  }
-
-  /**
-     * _resetValuesSubject
-     * _resetValuesSubject closes all subscriptions and resets values subject.
-     */
-  protected _resetValuesSubject() {
-    if (this._values) {
-      this._values.complete();
+  // watch
+  // watch watches for modified documents in the collection and emits
+  // when they change. Accepts an optional selector to only watch changes
+  // made to documents which match the selector.
+  public watch(selector?: Selector): Observable<DocumentChange<T>> {
+    if (!selector) {
+      return this.changes;
     }
-    this._values = new BehaviorSubject(this._documents);
-  }
-
-  /**
-     * _copyObject
-     * _copyObject creates a deep copy of the object.
-     *
-     * @param doc: A document object to copy.
-     */
-  protected _copyObject(doc: any): any {
-    const str = JSON.stringify(doc);
-    return JSON.parse(str);
-  }
-
-  /**
-     * _insertDocument
-     * _insertDocument inserts a new document to the collection.
-     *
-     * @param doc: A document object to insert.
-     */
-  protected _insertDocuments(docs: any[]): void {
-    const docIds = docs.map(doc => doc.id);
-    this._removeDocuments(doc => docIds.indexOf(doc.id) >= 0);
-    this._documents.push(...docs);
-  }
-
-  /**
-     * _updateDocuments
-     * _updateDocuments updates matching documents in the collection.
-     *
-     * @param: filterFunction: Afunction to filter documents
-     * @param: changes: A mongodb like changes object.
-     */
-  protected _updateDocuments(filterFunction: Function, changes: any): any[] {
-    const updatedDocuments = [];
-    this._documents = this._documents.map(doc => {
-      if (!filterFunction(doc)) {
-        return doc;
+    const mq = new mingo.Query(selector);
+    return this.changes.flatMap(change => {
+      const docs = change.docs.filter(doc => mq.test(doc));
+      if (!docs.length) {
+        return Observable.of();
       }
-      const updated = updateDocument(doc, changes);
-      updatedDocuments.push(updated);
-      return updated;
+      return Observable.of(Object.assign({}, change, { docs }));
     });
-    return updatedDocuments;
   }
 
-  /**
-     * _removeDocuments
-     * _removeDocuments removes matching documents from the collection.
-     *
-     * @param: filterFunction: Afunction to filter documents
-     */
-  protected _removeDocuments(filterFunction: Function): any[] {
-    const removedDocuments = [];
-    this._documents = this._documents.filter(doc => {
-      if (filterFunction(doc)) {
-        removedDocuments.push(doc);
-        return false;
+  // find
+  // find returns an observable of documents which matches the given
+  // selector and filter options (both are optional). The observable
+  // re-emits whenever the result value changes.
+  public find(selector: Selector = {}, options: FindOptions = {}): Observable<T[]> {
+    if (Object.keys(selector).length === 0 && Object.keys(options).length === 0) {
+      return this.allDocs;
+    }
+    return Observable.fromPromise(this.load(selector))
+      .concat(this.allDocs)
+      .map(docs => this.filter(docs, selector, options))
+      .distinctUntilChanged(isequal);
+  }
+
+  // find
+  // find returns an observable of a document which matches the given
+  // selector and filter options (both are optional). The observable
+  // re-emits whenever the result value changes.
+  public findOne(selector: Selector = {}, options: FindOptions = {}): Observable<T> {
+    options.limit = 1;
+    return Observable.fromPromise(this.load(selector))
+      .concat(this.allDocs)
+      .map(docs => this.filter(docs, selector, options)[0] || null)
+      .distinctUntilChanged(isequal);
+  }
+
+  // insert
+  // insert inserts a new document into the collection. If a document
+  // with the id already exists in the collection, it will be replaced.
+  public async insert(docOrDocs: T | T[]): Promise<void> {
+    const docs = Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs];
+    await Promise.all(docs.map(doc => this.storage.setItem((doc as any).id, doc)));
+    this.changes.next({ type: 'insert', docs: docs });
+  }
+
+  // update
+  // update modifies existing documents in the collection which passes
+  // the given selector.
+  public async update(selector: Selector, modifier: Modifier): Promise<void> {
+    const docs = await this.load(selector);
+    docs.forEach(doc => modify(doc, modifier));
+    await Promise.all(docs.map(doc => this.storage.setItem((doc as any).id, doc)));
+    this.changes.next({ type: 'update', docs: docs });
+  }
+
+  // remove
+  // remove removes existing documents in the collection which passes
+  // the given selector.
+  public async remove(selector: Selector): Promise<void> {
+    const docs = await this.load(selector);
+    await Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
+    this.changes.next({ type: 'remove', docs: docs });
+  }
+
+  // filter
+  // filter returns an array of documents which match the selector and
+  // filter options. The selector, options and all option fields are optional.
+  private filter(docs: T[], selector: Selector, options: FindOptions): T[] {
+    let cursor = mingo.find(docs, selector);
+    if (options.sort) {
+      cursor = cursor.sort(options.sort);
+    }
+    if (options.skip) {
+      cursor = cursor.skip(options.skip);
+    }
+    if (options.limit) {
+      cursor = cursor.limit(options.limit);
+    }
+    return cursor.all();
+  }
+
+  // load
+  // load fetches a set of documents which belongs to a collection.
+  // If a filter is given, only return documents passing the filter.
+  // Returns a promise which resolves to an array of documents.
+  private async load(selector?: Selector): Promise<any[]> {
+    const docs: any[] = [];
+    let filter: Function;
+    if (selector) {
+      const mq = new mingo.Query(selector);
+      filter = (doc: any) => mq.test(doc);
+    }
+    await this.storage.iterate((doc: any) => {
+      if (!filter || filter(doc)) {
+        docs.push(doc);
       }
-      return true;
+      // If a non-undefined value is returned,
+      // the localforage iterator will stop.
+      return undefined;
     });
-    return removedDocuments;
+    return docs;
   }
 
-  /**
-     * _sendValueEvent
-     * _sendValueEvent sends a 'value' event to all active queries.
-     */
-  protected _sendValueEvent(): void {
-    this._values.next(this._documents.slice());
+  // refresh
+  // refresh loads all documents from localForage storage and emits it
+  // to all listening queries. Called when the collection gets changed.
+  @debounce(250)
+  private async refresh() {
+    const documents = await this.load();
+    this.allDocs.next(documents);
   }
 }
