@@ -174,7 +174,7 @@ export class Collection<T> {
     const filter = this.createFilter(selector);
     const doc = await this.storage.getItem<T>(selector.id);
     if (doc && filter(doc)) {
-      return [doc]
+      return [doc];
     }
     return [];
   }
