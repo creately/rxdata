@@ -38,6 +38,7 @@
   "dependencies": {
     "@creately/lschannel": "^1.1.1",
     "@creately/mungo": "^1.0.1",
+    "debounce-decorator": "^1.0.4",
     "localforage": "^1.5.0",
     "lodash.isequal": "^4.5.0",
     "mingo": "^2.0.0",

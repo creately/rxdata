@@ -180,6 +180,22 @@ describe('Collection', () => {
       const out = await promise;
       expect(out).toEqual([{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd113', x: 1, y: 1, z: 3, a: 2 }]);
     });
+
+    it('should only re-emit only once every 250 ms', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const promise = col.findOne({ z: 3 }).take(3).toArray().toPromise();
+      await col.update({ z: 3 }, { $set: { a: 1 } });
+      await col.update({ z: 3 }, { $set: { a: 2 } });
+      await new Promise(f => setTimeout(f, 300));
+      await col.update({ z: 3 }, { $set: { a: 3 } });
+      const out = await promise;
+      expect(out).toEqual([
+        { id: 'd113', x: 1, y: 1, z: 3 },
+        { id: 'd113', x: 1, y: 1, z: 3, a: 2 },
+        { id: 'd113', x: 1, y: 1, z: 3, a: 3 },
+      ]);
+    });
   });
 
   describe('insert', () => {
