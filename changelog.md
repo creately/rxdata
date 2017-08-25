@@ -1,3 +1,10 @@
+# 2017-08-25 - v4.1.0
+
+- Add missing `findOne` method on collection
+- Add missing exports on index.ts file
+- Fix watch method result to only include matched documents
+- Debounce refresh method calls to reduce data loads from IndexedDB
+
 # 2017-08-24 - v4.0.0
 
 - Change package name to `@creately/rxdata`.
