@@ -1,3 +1,7 @@
+# 2017-08-25 - v4.1.2
+
+- Add static `Database.create` method to create db with default settings.
+
 # 2017-08-25 - v4.1.1
 
 - Optimize loading documents from storage when the id is given.
