@@ -7,6 +7,12 @@ export class Database {
   // collections is a map of collections by their names.
   private collections: Map<string, Collection<any>>;
 
+  // create
+  // create creates a new Database instance with defaults.
+  public static create(): Database {
+    return new Database('default');
+  }
+
   // constructor
   // constructor creates a new Database instance.
   constructor(public name: string) {

@@ -11,6 +11,14 @@ describe('Database', () => {
     return { db };
   }
 
+  describe('create', () => {
+    it('should create a new Database instance', () => {
+      const out = Database.create();
+      expect(out).toEqual(jasmine.any(Database));
+      expect(out.name).toBe('default');
+    });
+  });
+
   describe('collection', () => {
     it('should return a Collection instance', () => {
       const { db } = prepare();
