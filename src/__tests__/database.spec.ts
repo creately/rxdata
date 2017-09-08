@@ -39,7 +39,10 @@ describe('Database', () => {
       const c1 = d1.collection('test');
       const c2 = d2.collection('test');
       await c1.insert({ id: 'd1' });
-      const out = await c2.find().take(1).toPromise();
+      const out = await c2
+        .find()
+        .take(1)
+        .toPromise();
       expect(out).toEqual([{ id: 'd1' }]);
     });
   });
@@ -55,9 +58,19 @@ describe('Database', () => {
       const { db } = prepare();
       const c1 = db.collection('test');
       await c1.insert([{ id: 'd1' }]);
-      expect(await c1.find().take(1).toPromise()).toEqual([{ id: 'd1' }]);
+      expect(
+        await c1
+          .find()
+          .take(1)
+          .toPromise()
+      ).toEqual([{ id: 'd1' }]);
       await db.drop();
-      expect(await c1.find().take(1).toPromise()).toEqual([]);
+      expect(
+        await c1
+          .find()
+          .take(1)
+          .toPromise()
+      ).toEqual([]);
     });
   });
 });

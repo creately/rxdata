@@ -25,7 +25,10 @@ describe('Collection', () => {
 
     it('should not emit any documents immediately', async () => {
       const { col } = await prepare();
-      const watchPromise = col.watch().take(1).toPromise();
+      const watchPromise = col
+        .watch()
+        .take(1)
+        .toPromise();
       const sleepPromise = new Promise(f => setTimeout(() => f('awake'), 100));
       const out = await Promise.race([watchPromise, sleepPromise]);
       expect(out).toBe('awake');
@@ -33,7 +36,10 @@ describe('Collection', () => {
 
     it('should not emit any documents immediately (with selector)', async () => {
       const { col } = await prepare();
-      const watchPromise = col.watch({ z: 3 }).take(1).toPromise();
+      const watchPromise = col
+        .watch({ z: 3 })
+        .take(1)
+        .toPromise();
       const sleepPromise = new Promise(f => setTimeout(() => f('awake'), 100));
       const out = await Promise.race([watchPromise, sleepPromise]);
       expect(out).toBe('awake');
@@ -42,7 +48,10 @@ describe('Collection', () => {
     describe('on change', () => {
       it('should emit modified documents if a selector is not given', async () => {
         const { col } = await prepare();
-        const promise = col.watch().take(1).toPromise();
+        const promise = col
+          .watch()
+          .take(1)
+          .toPromise();
         await col.insert(TEST_DOCS);
         const out = await promise;
         expect(out).toEqual({ type: 'insert', docs: TEST_DOCS });
@@ -50,7 +59,10 @@ describe('Collection', () => {
 
       it('should emit modified documents if they match the selector', async () => {
         const { col } = await prepare();
-        const promise = col.watch({ z: 3 }).take(1).toPromise();
+        const promise = col
+          .watch({ z: 3 })
+          .take(1)
+          .toPromise();
         await col.insert(TEST_DOCS);
         const out = await promise;
         expect(out).toEqual({ type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) });
@@ -58,7 +70,10 @@ describe('Collection', () => {
 
       it('should not emit modified documents if they do not match the selector', async () => {
         const { col } = await prepare();
-        const watchPromise = col.watch({ z: 5 }).take(1).toPromise();
+        const watchPromise = col
+          .watch({ z: 5 })
+          .take(1)
+          .toPromise();
         const sleepPromise = new Promise(f => setTimeout(() => f('awake'), 100));
         await col.insert(TEST_DOCS);
         const out = await Promise.race([watchPromise, sleepPromise]);
@@ -76,63 +91,95 @@ describe('Collection', () => {
     it('should emit all documents if a selector is not given', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find().take(1).toPromise();
+      const out = await col
+        .find()
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS);
     });
 
     it('should emit an empty array if no documents match selector', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ x: -1 }).take(1).toPromise();
+      const out = await col
+        .find({ x: -1 })
+        .take(1)
+        .toPromise();
       expect(out).toEqual([]);
     });
 
     it('should emit an empty array if no documents match selector (with id)', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ id: 'd000' }).take(1).toPromise();
+      const out = await col
+        .find({ id: 'd000' })
+        .take(1)
+        .toPromise();
       expect(out).toEqual([]);
     });
 
     it('should emit all matching document immediately', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ z: 3 }).take(1).toPromise();
+      const out = await col
+        .find({ z: 3 })
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.z === 3));
     });
 
     it('should emit all matching document immediately (with id)', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ id: 'd111' }).take(1).toPromise();
+      const out = await col
+        .find({ id: 'd111' })
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.id === 'd111'));
     });
 
     it('should sort matching documents if sort option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ y: 2 }, { sort: { z: -1 } }).take(1).toPromise();
+      const out = await col
+        .find({ y: 2 }, { sort: { z: -1 } })
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse());
     });
 
     it('should skip given number of matching documents if skip option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ y: 2 }, { sort: { z: -1 }, skip: 1 }).take(1).toPromise();
-      expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse().slice(1));
+      const out = await col
+        .find({ y: 2 }, { sort: { z: -1 }, skip: 1 })
+        .take(1)
+        .toPromise();
+      expect(out).toEqual(
+        TEST_DOCS.filter(doc => doc.y === 2)
+          .reverse()
+          .slice(1)
+      );
     });
 
     it('should limit result to given number of matching documents if limit option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({ y: 2 }, { limit: 2 }).take(1).toPromise();
+      const out = await col
+        .find({ y: 2 }, { limit: 2 })
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).slice(0, 2));
     });
 
     it('should not re-emit the same result if documents in the result did not change', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const promise = col.find({ z: 3 }).take(2).toArray().toPromise();
+      const promise = col
+        .find({ z: 3 })
+        .take(2)
+        .toArray()
+        .toPromise();
       await col.update({ z: 2 }, { $set: { a: 1 } });
       await col.update({ z: 3 }, { $set: { a: 2 } });
       const out = await promise;
@@ -161,21 +208,30 @@ describe('Collection', () => {
     it('should emit a document if a selector is not given', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.findOne().take(1).toPromise();
+      const out = await col
+        .findOne()
+        .take(1)
+        .toPromise();
       expect(TEST_DOCS.findIndex(doc => doc.id === out.id)).not.toBe(-1);
     });
 
     it('should emit null if no documents match the selector', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.findOne({ x: -1 }).take(1).toPromise();
+      const out = await col
+        .findOne({ x: -1 })
+        .take(1)
+        .toPromise();
       expect(out).toBe(null);
     });
 
     it('should a matching document immediately', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.findOne({ z: 3 }).take(1).toPromise();
+      const out = await col
+        .findOne({ z: 3 })
+        .take(1)
+        .toPromise();
       const matches = TEST_DOCS.filter(doc => doc.z === 3);
       expect(matches.findIndex(doc => doc.id === out.id)).not.toBe(-1);
     });
@@ -183,21 +239,31 @@ describe('Collection', () => {
     it('should sort and get the matching document if sort option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.findOne({ y: 2 }, { sort: { z: -1 } }).take(1).toPromise();
+      const out = await col
+        .findOne({ y: 2 }, { sort: { z: -1 } })
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[0]);
     });
 
     it('should skip given number of matching documents if skip option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.findOne({ y: 2 }, { sort: { z: -1 }, skip: 1 }).take(1).toPromise();
+      const out = await col
+        .findOne({ y: 2 }, { sort: { z: -1 }, skip: 1 })
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.y === 2).reverse()[1]);
     });
 
     it('should not re-emit the same result if documents in the result did not change', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const promise = col.findOne({ z: 3 }).take(2).toArray().toPromise();
+      const promise = col
+        .findOne({ z: 3 })
+        .take(2)
+        .toArray()
+        .toPromise();
       await col.update({ z: 2 }, { $set: { a: 1 } });
       await col.update({ z: 3 }, { $set: { a: 2 } });
       const out = await promise;
@@ -207,7 +273,11 @@ describe('Collection', () => {
     it('should only re-emit only once every 250 ms', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const promise = col.findOne({ z: 3 }).take(3).toArray().toPromise();
+      const promise = col
+        .findOne({ z: 3 })
+        .take(3)
+        .toArray()
+        .toPromise();
       await col.update({ z: 3 }, { $set: { a: 1 } });
       await col.update({ z: 3 }, { $set: { a: 2 } });
       await new Promise(f => setTimeout(f, 300));
@@ -240,20 +310,29 @@ describe('Collection', () => {
     it('should return inserted documents with new queries', async () => {
       const { col } = await prepare();
       await Promise.all(TEST_DOCS.map(doc => col.insert(doc)));
-      const out = await col.find({}).take(1).toPromise();
+      const out = await col
+        .find({})
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS);
     });
 
     it('should return inserted documents with new queries (insert array)', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const out = await col.find({}).take(1).toPromise();
+      const out = await col
+        .find({})
+        .take(1)
+        .toPromise();
       expect(out).toEqual(TEST_DOCS);
     });
 
     it('should emit the inserted document as a change (local)', async () => {
       const { col } = await prepare();
-      const promise = col.watch().take(1).toPromise();
+      const promise = col
+        .watch()
+        .take(1)
+        .toPromise();
       await col.insert(TEST_DOCS);
       const out = await promise;
       expect(out).toEqual({ type: 'insert', docs: TEST_DOCS });
@@ -273,7 +352,10 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       await col.update({ z: 3 }, { $set: { a: 1 } });
-      const out = await col.find({}).take(1).toPromise();
+      const out = await col
+        .find({})
+        .take(1)
+        .toPromise();
       expect(out).toEqual([
         { id: 'd111', x: 1, y: 1, z: 1 },
         { id: 'd112', x: 1, y: 1, z: 2 },
@@ -287,7 +369,10 @@ describe('Collection', () => {
     it('should emit the updated document as a change (local)', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const promise = col.watch().take(1).toPromise();
+      const promise = col
+        .watch()
+        .take(1)
+        .toPromise();
       await col.update({ z: 3 }, { $set: { a: 1 } });
       const out = await promise;
       expect(out).toEqual({
@@ -310,7 +395,10 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       await col.remove({ z: 3 });
-      const out = await col.find({}).take(1).toPromise();
+      const out = await col
+        .find({})
+        .take(1)
+        .toPromise();
       expect(out).toEqual([
         { id: 'd111', x: 1, y: 1, z: 1 },
         { id: 'd112', x: 1, y: 1, z: 2 },
@@ -322,7 +410,10 @@ describe('Collection', () => {
     it('should emit the removed document as a change (local)', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
-      const promise = col.watch().take(1).toPromise();
+      const promise = col
+        .watch()
+        .take(1)
+        .toPromise();
       await col.remove({ z: 3 });
       const out = await promise;
       expect(out).toEqual({
