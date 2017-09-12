@@ -3,7 +3,6 @@
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import * as isequal from 'lodash.isequal';
-import debounce from 'debounce-decorator';
 import { Observable, Subject } from 'rxjs';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
@@ -208,7 +207,6 @@ export class Collection<T> {
   // refresh
   // refresh loads all documents from localForage storage and emits it
   // to all listening queries. Called when the collection gets changed.
-  @debounce(250)
   protected async refresh() {
     const documents = await this.load();
     this.allDocs.next(documents);
