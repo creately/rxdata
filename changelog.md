@@ -1,3 +1,8 @@
+# 2017-08-25 - v4.1.3
+
+- Add mock classes for Database and Collection
+- Exclude test files from transpiled output
+
 # 2017-08-25 - v4.1.2
 
 - Add static `Database.create` method to create db with default settings.
