@@ -1,4 +1,8 @@
-# 2017-08-25 - v4.1.3
+# 2017-09-12 - v4.1.4
+
+- Remove debounce-decorator module.
+
+# 2017-09-12 - v4.1.3
 
 - Add mock classes for Database and Collection
 - Exclude test files from transpiled output
