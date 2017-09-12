@@ -35,15 +35,15 @@ export type DocumentChange<T> = {
 export class Collection<T> {
   // allDocs
   // allDocs emits all documents in the collection when they get modified.
-  private allDocs: Subject<T[]>;
+  protected allDocs: Subject<T[]>;
 
   // storage
   // storage stores documents in a suitable storage backend.
-  private storage: LocalForage;
+  protected storage: LocalForage;
 
   // channel
   // channel sends/receives messages between browser tabs.
-  private changes: Channel<DocumentChange<T>>;
+  protected changes: Channel<DocumentChange<T>>;
 
   // constructor
   constructor(public name: string) {
@@ -125,7 +125,7 @@ export class Collection<T> {
   // filter
   // filter returns an array of documents which match the selector and
   // filter options. The selector, options and all option fields are optional.
-  private filter(docs: T[], selector: Selector, options: FindOptions): T[] {
+  protected filter(docs: T[], selector: Selector, options: FindOptions): T[] {
     let cursor = mingo.find(docs, selector);
     if (options.sort) {
       cursor = cursor.sort(options.sort);
@@ -142,7 +142,7 @@ export class Collection<T> {
   // load
   // load loads documents which match the selector from storage.
   // Returns a promise which resolves to an array of documents.
-  private async load(selector?: Selector): Promise<T[]> {
+  protected async load(selector?: Selector): Promise<T[]> {
     if (!selector || Object.keys(selector).length === 0) {
       return await this.loadAll();
     }
@@ -155,7 +155,7 @@ export class Collection<T> {
   // loadAll
   // loadAll loads all documents from storage without filtering.
   // Returns a promise which resolves to an array of documents.
-  private async loadAll(): Promise<T[]> {
+  protected async loadAll(): Promise<T[]> {
     const docs: any[] = [];
     await this.storage.iterate((doc: any) => {
       docs.push(doc);
@@ -170,7 +170,7 @@ export class Collection<T> {
   // loadWithId loads the document which matches the selector
   // from storage. It will use the document id to fetch it.
   // Returns a promise which resolves to an array of documents.
-  private async loadWithId(selector: Selector): Promise<T[]> {
+  protected async loadWithId(selector: Selector): Promise<T[]> {
     const filter = this.createFilter(selector);
     const doc = await this.storage.getItem<T>(selector.id);
     if (doc && filter(doc)) {
@@ -182,7 +182,7 @@ export class Collection<T> {
   // loadWithFilter
   // loadWithFilter loads documents which match the selector from storage.
   // Returns a promise which resolves to an array of documents.
-  private async loadWithFilter(selector: Selector): Promise<T[]> {
+  protected async loadWithFilter(selector: Selector): Promise<T[]> {
     const docs: any[] = [];
     const filter = this.createFilter(selector);
     await this.storage.iterate((doc: any) => {
@@ -198,7 +198,7 @@ export class Collection<T> {
 
   // createFilter
   // createFilter creates a document filter function from a selector.
-  private createFilter(selector: Selector): (doc: T) => boolean {
+  protected createFilter(selector: Selector): (doc: T) => boolean {
     const mq = new mingo.Query(selector);
     return (doc: T) => mq.test(doc);
   }
@@ -207,7 +207,7 @@ export class Collection<T> {
   // refresh loads all documents from localForage storage and emits it
   // to all listening queries. Called when the collection gets changed.
   @debounce(250)
-  private async refresh() {
+  protected async refresh() {
     const documents = await this.load();
     this.allDocs.next(documents);
   }

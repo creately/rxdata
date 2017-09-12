@@ -5,7 +5,7 @@ import { Collection } from './collection';
 export class Database {
   // collections
   // collections is a map of collections by their names.
-  private collections: Map<string, Collection<any>>;
+  protected collections: Map<string, Collection<any>>;
 
   // create
   // create creates a new Database instance with defaults.
@@ -44,14 +44,14 @@ export class Database {
   }
 
   // collectionsListKey
-  private get collectionsListKey(): string {
+  protected get collectionsListKey(): string {
     return `rxdata.${this.name}.collections`;
   }
 
   // get collectionsList
   // collectionsList is stored in browser localStorage therefore the
   // collections name list is created by parsing the stored JSON string.
-  private get collectionsList(): string[] {
+  protected get collectionsList(): string[] {
     const str = localStorage.getItem(this.collectionsListKey);
     return JSON.parse(str || '[]');
   }
@@ -59,7 +59,7 @@ export class Database {
   // set collectionsList
   // collectionsList is stored in browser localStorage therefore the
   // collections name list is serialized into a JSON and stored.
-  private set collectionsList(arr: string[]) {
+  protected set collectionsList(arr: string[]) {
     const str = JSON.stringify(arr);
     localStorage.setItem(this.collectionsListKey, str);
   }
@@ -67,7 +67,7 @@ export class Database {
   // registerCollection
   // registerCollection registers the collection with the database
   // so that the database can know names of collections it has.
-  private registerCollection(name: string) {
+  protected registerCollection(name: string) {
     const list = this.collectionsList;
     if (list.indexOf(name) === -1) {
       this.collectionsList = list.concat(name);
@@ -77,7 +77,7 @@ export class Database {
   // createCollection
   // createCollection creates a collection with given name and registers
   // the collection with this database instance.
-  private createCollection<T>(name: string): Collection<T> {
+  protected createCollection<T>(name: string): Collection<T> {
     this.registerCollection(name);
     return new Collection<T>(name);
   }
