@@ -1,3 +1,5 @@
+/// <reference types="localforage" />
+
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import * as isequal from 'lodash.isequal';
