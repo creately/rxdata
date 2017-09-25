@@ -1,3 +1,7 @@
+# 2017-09-25 - v4.2.0
+
+- Support updating nested document fields.
+
 # 2017-09-12 - v4.1.4
 
 - Remove debounce-decorator module.
