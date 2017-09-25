@@ -346,6 +346,24 @@ describe('Collection', () => {
       ]);
     });
 
+    it('should return updated document with new queries (nested)', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      await col.update({ z: 3 }, { $set: { 'a.b': 1 } });
+      const out = await col
+        .find({})
+        .take(1)
+        .toPromise();
+      expect(out).toEqual([
+        { id: 'd111', x: 1, y: 1, z: 1 },
+        { id: 'd112', x: 1, y: 1, z: 2 },
+        { id: 'd113', x: 1, y: 1, z: 3, a: { b: 1 } },
+        { id: 'd121', x: 1, y: 2, z: 1 },
+        { id: 'd122', x: 1, y: 2, z: 2 },
+        { id: 'd123', x: 1, y: 2, z: 3, a: { b: 1 } },
+      ]);
+    });
+
     it('should emit the updated document as a change (local)', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
