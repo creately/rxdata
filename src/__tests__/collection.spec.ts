@@ -270,26 +270,6 @@ describe('Collection', () => {
       expect(out).toEqual([{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd113', x: 1, y: 1, z: 3, a: 2 }]);
     });
 
-    it('should only re-emit only once every 250 ms', async () => {
-      const { col } = await prepare();
-      await col.insert(TEST_DOCS);
-      const promise = col
-        .findOne({ z: 3 })
-        .take(3)
-        .toArray()
-        .toPromise();
-      await col.update({ z: 3 }, { $set: { a: 1 } });
-      await col.update({ z: 3 }, { $set: { a: 2 } });
-      await new Promise(f => setTimeout(f, 300));
-      await col.update({ z: 3 }, { $set: { a: 3 } });
-      const out = await promise;
-      expect(out).toEqual([
-        { id: 'd113', x: 1, y: 1, z: 3 },
-        { id: 'd113', x: 1, y: 1, z: 3, a: 2 },
-        { id: 'd113', x: 1, y: 1, z: 3, a: 3 },
-      ]);
-    });
-
     it('should not call the load method until user subscribes to the observable', async () => {
       const { col } = await prepare();
       spyOn(col as any, 'load').and.returnValue(Promise.resolve([]));
