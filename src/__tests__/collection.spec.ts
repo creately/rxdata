@@ -376,6 +376,7 @@ describe('Collection', () => {
       expect(out).toEqual({
         type: 'update',
         docs: [{ id: 'd113', x: 1, y: 1, z: 3, a: 1 }, { id: 'd123', x: 1, y: 2, z: 3, a: 1 }],
+        modifier: { $set: { a: 1 } },
       });
     });
 
