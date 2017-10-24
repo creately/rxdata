@@ -37,20 +37,17 @@ export type FindOptions = {
 export type InsertDocumentChange<T> = {
   type: 'insert';
   docs: T[];
-}
+};
 export type RemoveDocumentChange<T> = {
   type: 'remove';
   docs: T[];
-}
+};
 export type UpdateDocumentChange<T> = {
   type: 'update';
   docs: T[];
   modifier?: Modifier;
-}
-export type DocumentChange<T> =
-  InsertDocumentChange<T> |
-  RemoveDocumentChange<T> |
-  UpdateDocumentChange<T>;
+};
+export type DocumentChange<T> = InsertDocumentChange<T> | RemoveDocumentChange<T> | UpdateDocumentChange<T>;
 
 // Collection
 // Collection ...?
