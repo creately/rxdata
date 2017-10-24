@@ -1,62 +1,173 @@
-import { Database } from '../';
+// tslint:disable
+
+import { Database } from '../src/database';
 
 export class MockDatabase extends Database {
+    /**
+     * Static Helpers
+     */
+
+    private static $spies: any = {};
+    private static get $class(): any {
+        return Database;
+    }
+    public static $get( field: string ): any {
+        return this.$class[field];
+    }
+    public static $call( field: string, ...args: any[]): any {
+        return this.$class[field].call( this, ...args );
+    }
+    public static $createGetterFor( field: string ): jasmine.Spy {
+        this.$spies[field] = spyOnProperty( this.$class, field, 'get' );
+        return this.$spies[field];
+    }
+    public static $createSetterFor( field: string ): jasmine.Spy {
+        this.$spies[field] = spyOnProperty( this.$class, field, 'set' );
+        return this.$spies[field];
+    }
+    public static $createSpyFor( field: string ): jasmine.Spy {
+        this.$spies[field] = spyOn( this.$class, field );
+        return this.$spies[field];
+    }
+    public static $getSpyFor( field: string ): jasmine.Spy {
+        return this.$spies[field];
+    }
+
+    /**
+     * Instance Helpers
+     */
+
+    private $spies: any = {};
+    private get $instance(): any {
+        return this;
+    }
+    private get $prototype(): any {
+        return Database.prototype;
+    }
+    public $get( field: string ): any {
+        return this.$instance[field];
+    }
+    public $call( field: string, ...args: any[]): any {
+        return this.$prototype[field].call( this, ...args );
+    }
+    public $createGetterFor( field: string ): jasmine.Spy {
+        this.$spies[field] = spyOnProperty( this.$instance, field, 'get' );
+        return this.$spies[field];
+    }
+    public $createSetterFor( field: string ): jasmine.Spy {
+        this.$spies[field] = spyOnProperty( this.$instance, field, 'set' );
+        return this.$spies[field];
+    }
+    public $createSpyFor( field: string ): jasmine.Spy {
+        this.$spies[field] = spyOn( this.$instance, field );
+        return this.$spies[field];
+    }
+    public $getSpyFor( field: string ): jasmine.Spy {
+        return this.$spies[field];
+    }
+
+    /**
+     * collections
+     */
     public $getCollections() {
-        return ( this as any ).collections;
+        return this.$get( 'collections' );
     }
     public $createGetterForCollections() {
-        return spyOnProperty( this as any, 'collections', 'get' );
+        return this.$createGetterFor( 'collections' );
     }
-    private $spyForCollection: jasmine.Spy;
+    public $getSpyForCollections() {
+        return this.$getSpyFor( 'collections' );
+    }
+
+    /**
+     * create
+     */
+    public static $createSpyForCreate() {
+        return this.$createSpyFor( 'create' );
+    }
+    public static $getSpyForCreate() {
+        return this.$getSpyFor( 'create' );
+    }
+
+    /**
+     * name
+     */
+    public $createGetterForName() {
+        return this.$createGetterFor( 'name' );
+    }
+    public $getSpyForName() {
+        return this.$getSpyFor( 'name' );
+    }
+
+    /**
+     * collection
+     */
     public $createSpyForCollection() {
-        if ( !this.$spyForCollection ) {
-            this.$spyForCollection = spyOn( this as any, 'collection' );
-        }
-        return this.$spyForCollection;
+        return this.$createSpyFor( 'collection' );
     }
-    private $spyForDrop: jasmine.Spy;
+    public $getSpyForCollection() {
+        return this.$getSpyFor( 'collection' );
+    }
+
+    /**
+     * drop
+     */
     public $createSpyForDrop() {
-        if ( !this.$spyForDrop ) {
-            this.$spyForDrop = spyOn( this as any, 'drop' );
-        }
-        return this.$spyForDrop;
+        return this.$createSpyFor( 'drop' );
     }
+    public $getSpyForDrop() {
+        return this.$getSpyFor( 'drop' );
+    }
+
+    /**
+     * collectionsListKey
+     */
     public $getCollectionsListKey() {
-        return ( this as any ).collectionsListKey;
+        return this.$get( 'collectionsListKey' );
     }
     public $createGetterForCollectionsListKey() {
-        return spyOnProperty( this as any, 'collectionsListKey', 'get' );
+        return this.$createGetterFor( 'collectionsListKey' );
     }
+    public $getSpyForCollectionsListKey() {
+        return this.$getSpyFor( 'collectionsListKey' );
+    }
+
+    /**
+     * collectionsList
+     */
     public $getCollectionsList() {
-        return ( this as any ).collectionsList;
+        return this.$get( 'collectionsList' );
     }
     public $createGetterForCollectionsList() {
-        return spyOnProperty( this as any, 'collectionsList', 'get' );
+        return this.$createGetterFor( 'collectionsList' );
     }
-    public $createSetterForCollectionsList() {
-        return spyOnProperty( this as any, 'collectionsList', 'set' );
+    public $getSpyForCollectionsList() {
+        return this.$getSpyFor( 'collectionsList' );
     }
-    public registerCollection( ...args: any[] ) {
-        return super.registerCollection.call( this, ...args );
+
+    /**
+     * registerCollection
+     */
+    public registerCollection( ...args: any[]) {
+        return this.$call( 'registerCollection', ...args );
     }
-    private $spyForRegisterCollection: jasmine.Spy;
     public $createSpyForRegisterCollection() {
-        if ( !this.$spyForRegisterCollection ) {
-            this.$spyForRegisterCollection = spyOn( this as any, 'registerCollection' );
-        }
-        return this.$spyForRegisterCollection;
+        return this.$createSpyFor( 'registerCollection' );
     }
-    public createCollection( ...args: any[] ) {
-        return super.createCollection.call( this, ...args );
+    public $getSpyForRegisterCollection() {
+        return this.$getSpyFor( 'registerCollection' );
     }
-    private $spyForCreateCollection: jasmine.Spy;
+
+    /**
+     * createCollection
+     */
+    public createCollection( ...args: any[]) {
+        return this.$call( 'createCollection', ...args );
+    }
     public $createSpyForCreateCollection() {
-        if ( !this.$spyForCreateCollection ) {
-            this.$spyForCreateCollection = spyOn( this as any, 'createCollection' );
-        }
-        return this.$spyForCreateCollection;
+        return this.$createSpyFor( 'createCollection' );
     }
-    public $createGetterForName() {
-        return spyOnProperty( this as any, 'name', 'get' );
+    public $getSpyForCreateCollection() {
+        return this.$getSpyFor( 'createCollection' );
     }
 }
