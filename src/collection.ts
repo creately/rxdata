@@ -26,10 +26,23 @@ export type FindOptions = {
 
 // DocumentChange
 // DocumentChange describes a change which has occurred in the collection.
-export type DocumentChange<T> = {
-  type: 'insert' | 'update' | 'remove';
+export type InsertDocumentChange<T> = {
+  type: 'insert';
   docs: T[];
-};
+}
+export type RemoveDocumentChange<T> = {
+  type: 'remove';
+  docs: T[];
+}
+export type UpdateDocumentChange<T> = {
+  type: 'update';
+  docs: T[];
+  modifier?: Modifier;
+}
+export type DocumentChange<T> =
+  InsertDocumentChange<T> |
+  RemoveDocumentChange<T> |
+  UpdateDocumentChange<T>;
 
 // Collection
 // Collection ...?
@@ -111,7 +124,7 @@ export class Collection<T> {
     const docs = await this.load(selector);
     docs.forEach(doc => modify(doc, modifier));
     await Promise.all(docs.map(doc => this.storage.setItem((doc as any).id, doc)));
-    this.changes.next({ type: 'update', docs: docs });
+    this.changes.next({ type: 'update', docs: docs, modifier: modifier });
   }
 
   // remove
