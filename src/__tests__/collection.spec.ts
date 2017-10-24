@@ -1,5 +1,8 @@
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/toArray';
+import 'rxjs/add/operator/toPromise';
+import { Observable } from 'rxjs/Observable';
 import { Collection } from '../collection';
-import { Observable } from 'rxjs';
 
 describe('Collection', () => {
   async function prepare() {

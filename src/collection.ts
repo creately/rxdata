@@ -1,9 +1,17 @@
 /// <reference types="localforage" />
 
+import 'rxjs/add/observable/defer';
+import 'rxjs/add/observable/fromPromise';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/concat';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import * as isequal from 'lodash.isequal';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
 
@@ -73,10 +81,10 @@ export class Collection<T> {
   // made to documents which match the selector.
   public watch(selector?: Selector): Observable<DocumentChange<T>> {
     if (!selector) {
-      return this.changes;
+      return this.changes.asObservable();
     }
     const mq = new mingo.Query(selector);
-    return this.changes.flatMap(change => {
+    return this.changes.switchMap(change => {
       const docs = change.docs.filter(doc => mq.test(doc));
       if (!docs.length) {
         return Observable.of();
