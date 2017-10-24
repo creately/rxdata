@@ -1,3 +1,7 @@
+# 2017-10-24 - v4.3.0
+
+- Emit the modifier with update document changes.
+
 # 2017-09-25 - v4.2.0
 
 - Support updating nested document fields.
