@@ -1,7 +1,4 @@
-import 'rxjs/add/operator/take';
-import 'rxjs/add/operator/toArray';
-import 'rxjs/add/operator/toPromise';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs/Rx';
 import { Collection } from '../collection';
 
 describe('Collection', () => {

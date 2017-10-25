@@ -1,17 +1,10 @@
 /// <reference types="localforage" />
 
-import 'rxjs/add/observable/defer';
-import 'rxjs/add/observable/fromPromise';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/concat';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import * as isequal from 'lodash.isequal';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
 
