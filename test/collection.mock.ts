@@ -1,6 +1,6 @@
 // tslint:disable
 
-import { Collection } from '../src/collection';
+import { Collection } from '../';
 
 export class MockCollection extends Collection<any> {
     /**

@@ -1,6 +1,6 @@
 // tslint:disable
 
-import { Database } from '../src/database';
+import { Database } from '../';
 
 export class MockDatabase extends Database {
     /**
