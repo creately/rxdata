@@ -21,26 +21,26 @@
   "author": "Muhammed Thanish <mnmtanish@gmail.com> (http://thanish.me/)",
   "license": "MIT",
   "devDependencies": {
-    "@types/jasmine": "^2.6.1",
+    "@types/jasmine": "^2.8.5",
     "istanbul-instrumenter-loader": "^3.0.0",
-    "jasmine-core": "^2.8.0",
+    "jasmine-core": "^2.9.1",
     "karma": "^1.7.1",
     "karma-chrome-launcher": "^2.2.0",
-    "karma-coverage-istanbul-reporter": "^1.3.0",
-    "karma-jasmine": "^1.1.0",
-    "karma-webpack": "^2.0.5",
-    "prettier": "^1.7.4",
+    "karma-coverage-istanbul-reporter": "^1.4.0",
+    "karma-jasmine": "^1.1.1",
+    "karma-webpack": "^2.0.9",
+    "prettier": "^1.10.2",
     "rimraf": "^2.6.2",
     "ts-loader": "^2.3.7",
-    "typescript": "^2.5.3",
-    "webpack": "^3.8.1"
+    "typescript": "^2.6.2",
+    "webpack": "^3.10.0"
   },
   "dependencies": {
     "@creately/lschannel": "^1.1.3",
-    "@creately/mungo": "^1.1.0",
-    "localforage": "^1.5.2",
+    "@creately/mungo": "^1.2.0",
+    "localforage": "^1.5.6",
     "lodash.isequal": "^4.5.0",
-    "mingo": "^2.0.4",
-    "rxjs": "^5.5.1"
+    "mingo": "^2.1.1",
+    "rxjs": "^5.5.6"
   }
 }
