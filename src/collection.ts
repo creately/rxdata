@@ -6,7 +6,7 @@ import * as isequal from 'lodash.isequal';
 import { Observable } from 'rxjs/Rx';
 import { Subject } from 'rxjs/Rx';
 import { modify } from '@creately/mungo';
-import { Channel } from '@creately/lschannel';
+import { Channel } from '@creately/lschannel-es6';
 
 // Selector
 // Selector is a mongo like selector used to filter documents.
