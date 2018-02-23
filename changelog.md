@@ -1,4 +1,4 @@
-# 2018-02-23 - v4.3.0
+# 2018-02-23 - v4.3.4
 
 - Allow the use of filters for fields named 'id'.
 
