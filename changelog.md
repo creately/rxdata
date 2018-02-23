@@ -1,3 +1,7 @@
+# 2018-02-23 - v4.3.0
+
+- Allow the use of filters for fields named 'id'.
+
 # 2017-10-24 - v4.3.0
 
 - Emit the modifier with update document changes.
