@@ -158,7 +158,7 @@ export class Collection<T> {
     if (!selector || Object.keys(selector).length === 0) {
       return await this.loadAll();
     }
-    if (selector.id && ( typeof selector.id === 'string')) {
+    if (selector.id && typeof selector.id === 'string') {
       return await this.loadWithId(selector);
     }
     return await this.loadWithFilter(selector);
