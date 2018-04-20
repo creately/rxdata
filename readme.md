@@ -13,7 +13,7 @@ npm install @creately/rxdata
 Create a new database. Also create some collections to group similar data.
 
 ```js
-import { Database } from 'rxdata'
+import { Database } from '@creately/rxdata'
 
 const db = new Database('test-db')
 const vehicles = db.collection('vehicles')
