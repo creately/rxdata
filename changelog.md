@@ -1,3 +1,7 @@
+# 2018-02-23 - v5.0.0
+
+- Update RxJS to v6 ( uses rxjs-compat module ).
+
 # 2018-02-23 - v4.3.5
 
 - Allow the use of filters for fields named 'id'.
