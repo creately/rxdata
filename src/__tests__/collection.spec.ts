@@ -138,6 +138,16 @@ describe('Collection', () => {
       expect(out).toEqual(TEST_DOCS.filter(doc => doc.id === 'd111'));
     });
 
+    it('should be possible to use a filter set for the id field', async () => {
+      const { col } = await prepare();
+      await col.insert(TEST_DOCS);
+      const out = await col
+        .find({ id: { $in: ['d111', 'd112'] } })
+        .take(1)
+        .toPromise();
+      expect(out).toEqual(TEST_DOCS.filter(doc => doc.id === 'd111' || doc.id === 'd112'));
+    });
+
     it('should sort matching documents if sort option is set', async () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
