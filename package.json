@@ -6,7 +6,8 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf coverage dist",
-    "build": "tsc",
+    "build": "tsc && npm run build:mock",
+    "build:mock": "tsc --p tsconfig.spec.json",
     "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\"",
     "test": "karma start karma.conf.js --single-run",
     "test:watch": "karma start karma.conf.js",
