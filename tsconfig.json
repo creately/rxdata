@@ -18,11 +18,8 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "es5",
-    "typeRoots": [ "node_modules/@types" ],
-
-    // https://github.com/ReactiveX/rxjs/issues/3031
-    "strictFunctionTypes": false,
+    "target": "es6",
+    "typeRoots": [ "node_modules/@types" ]
   },
   "include": [
     "./src"
