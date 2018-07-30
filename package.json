@@ -24,18 +24,18 @@
   "author": "Muhammed Thanish <mnmtanish@gmail.com> (http://thanish.me/)",
   "license": "MIT",
   "devDependencies": {
-    "@types/jasmine": "^2.8.6",
+    "@types/jasmine": "^2.8.8",
     "istanbul-instrumenter-loader": "^3.0.0",
-    "jasmine-core": "^2.99.1",
-    "karma": "^1.7.1",
+    "jasmine-core": "^3.1.0",
+    "karma": "^2.0.5",
     "karma-chrome-launcher": "^2.2.0",
-    "karma-coverage-istanbul-reporter": "^1.4.2",
-    "karma-jasmine": "^1.1.1",
-    "karma-webpack": "^2.0.13",
-    "prettier": "^1.11.1",
+    "karma-coverage-istanbul-reporter": "^2.0.1",
+    "karma-jasmine": "^1.1.2",
+    "karma-webpack": "^3.0.0",
+    "prettier": "^1.14.0",
     "rimraf": "^2.6.2",
-    "ts-loader": "^2.3.7",
-    "typescript": "^2.7.2",
-    "webpack": "^3.11.0"
+    "ts-loader": "^4.4.2",
+    "typescript": "^2.9.2",
+    "webpack": "^4.16.3"
   }
 }

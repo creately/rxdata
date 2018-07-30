@@ -20,6 +20,7 @@ module.exports = function(config) {
       'src/**/*.ts': ['webpack'],
     },
     webpack: {
+      mode: 'development',
       resolve: {
         extensions: ['.ts', '.js']
       },
