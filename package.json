@@ -25,17 +25,17 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
-    "istanbul-instrumenter-loader": "^3.0.0",
-    "jasmine-core": "^3.1.0",
-    "karma": "^2.0.5",
+    "istanbul-instrumenter-loader": "^3.0.1",
+    "jasmine-core": "^3.2.1",
+    "karma": "^3.0.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage-istanbul-reporter": "^2.0.1",
     "karma-jasmine": "^1.1.2",
     "karma-webpack": "^3.0.0",
-    "prettier": "^1.14.0",
+    "prettier": "^1.14.2",
     "rimraf": "^2.6.2",
-    "ts-loader": "^4.4.2",
-    "typescript": "^2.9.2",
-    "webpack": "^4.16.3"
+    "ts-loader": "^4.5.0",
+    "typescript": "^3.0.1",
+    "webpack": "^4.16.5"
   }
 }
