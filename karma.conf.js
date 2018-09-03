@@ -20,6 +20,7 @@ module.exports = function(config) {
       'src/**/*.ts': ['webpack'],
     },
     webpack: {
+      mode: 'development',
       resolve: {
         extensions: ['.ts', '.js']
       },
@@ -32,7 +33,7 @@ module.exports = function(config) {
           {
             test: /\.ts$/,
             loader: 'istanbul-instrumenter-loader',
-            exclude: /node_modules|\.spec\.ts$/,
+            exclude: /node_modules|\.spec\.ts$|\.mock\.ts$|__tests\.ts$/,
             enforce: 'post',
           }
         ],
