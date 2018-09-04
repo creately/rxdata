@@ -2,6 +2,7 @@
 
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
+import 'localforage-setitems';
 import * as isequal from 'lodash.isequal';
 import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
 import { switchMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
@@ -151,7 +152,7 @@ export class Collection<T> {
   // with the id already exists in the collection, it will be replaced.
   public async insert(docOrDocs: T | T[]): Promise<void> {
     const docs = Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs];
-    await Promise.all(docs.map(doc => this.storage.setItem((doc as any).id, doc)));
+    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
     this.changes.next({ type: 'insert', docs: docs });
   }
 
@@ -161,7 +162,7 @@ export class Collection<T> {
   public async update(selector: Selector, modifier: Modifier): Promise<void> {
     const docs = await this.load(selector);
     docs.forEach(doc => modify(doc, modifier));
-    await Promise.all(docs.map(doc => this.storage.setItem((doc as any).id, doc)));
+    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
     this.changes.next({ type: 'update', docs: docs, modifier: modifier });
   }
 
