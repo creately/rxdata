@@ -1,22 +1,62 @@
-import { Database } from '../database';
-import { Collection } from '../collection';
+import { Database, ErrDatabaseClosed } from '../database';
+import { Collection, ErrCollectionClosed } from '../collection';
 import { findN } from './utils';
 
 describe('Database', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  let database: Database;
 
   function prepare() {
-    const db = new Database('test-db');
+    const db = database = new Database('test-db');
     return { db };
   }
+
+  afterEach(() => {
+    try {
+      database.close();
+    } catch (err) {
+      // ...
+    }
+    localStorage.clear();
+  });
 
   describe('create', () => {
     it('should create a new Database instance', () => {
       const out = Database.create();
       expect(out).toEqual(jasmine.any(Database));
       expect(out.name).toBe('default');
+    });
+  });
+
+  describe( 'close', () => {
+    it( 'should disable all public methods', async done => {
+      const { db } = await prepare();
+      db.close();
+      [
+        () => db.close(),
+        () => db.collection('c1'),
+        () => db.drop(),
+      ].forEach( fn => {
+        try {
+          fn();
+          fail();
+        } catch (err) {
+          expect( err ).toBe( ErrDatabaseClosed );
+        }
+      });
+      done();
+    });
+
+    it( 'should close all collections', async done => {
+      const { db } = await prepare();
+      const col = db.collection('test');
+      db.close();
+      try {
+        col.close();
+        fail();
+      } catch (err) {
+        expect( err ).toBe( ErrCollectionClosed );
+      }
+      done();
     });
   });
 

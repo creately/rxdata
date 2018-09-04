@@ -3,7 +3,7 @@
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import * as isequal from 'lodash.isequal';
-import { Observable, Subject, empty, of, defer, from } from 'rxjs';
+import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
 import { switchMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
@@ -25,21 +25,37 @@ export type FindOptions = {
   limit?: number;
 };
 
-// DocumentChange
-// DocumentChange describes a change which has occurred in the collection.
+// ErrCollectionClosed
+// ErrCollectionClosed is thrown when an operation is attempted when the collection is closed.
+export const ErrCollectionClosed = new Error('collection is closed');
+
+// InsertDocumentChange
+// InsertDocumentChange describes an insert operation performed on the collection.
+// This includes an array of all inserted documents.
 export type InsertDocumentChange<T> = {
   type: 'insert';
   docs: T[];
 };
+
+// RemoveDocumentChange
+// RemoveDocumentChange describes an remove operation performed on the collection.
+// This includes an array of all removed documents.
 export type RemoveDocumentChange<T> = {
   type: 'remove';
   docs: T[];
 };
+
+// UpdateDocumentChange
+// UpdateDocumentChange describes an update operation performed on the collection.
+// This includes the update modifier and an array of all updated documents.
 export type UpdateDocumentChange<T> = {
   type: 'update';
   docs: T[];
   modifier?: Modifier;
 };
+
+// DocumentChange
+// DocumentChange describes a change which has occurred in the collection.
 export type DocumentChange<T> = InsertDocumentChange<T> | RemoveDocumentChange<T> | UpdateDocumentChange<T>;
 
 // Collection
@@ -57,12 +73,26 @@ export class Collection<T> {
   // channel sends/receives messages between browser tabs.
   protected changes: Channel<DocumentChange<T>>;
 
+  // changesSub
+  // changesSub is the subscription created to listen to changes.
+  protected changesSub: Subscription;
+
   // constructor
   constructor(public name: string) {
     this.allDocs = new Subject();
     this.storage = LocalForage.createInstance({ name });
     this.changes = Channel.create(`rxdata.${name}.channel`);
-    this.changes.subscribe(() => this.refresh());
+    this.changesSub = this.changes.subscribe(() => this.refresh());
+  }
+
+  // close
+  // close stops all collection activities and disables all public methods.
+  public close() {
+    this.allDocs.error( ErrCollectionClosed );
+    this.changesSub.unsubscribe();
+    ['close', 'watch', 'find', 'findOne', 'insert', 'update', 'remove'].forEach( name => {
+      (this as any)[name] = () => { throw ErrCollectionClosed };
+    });
   }
 
   // watch
