@@ -88,10 +88,12 @@ export class Collection<T> {
   // close
   // close stops all collection activities and disables all public methods.
   public close() {
-    this.allDocs.error( ErrCollectionClosed );
+    this.allDocs.error(ErrCollectionClosed);
     this.changesSub.unsubscribe();
-    ['close', 'watch', 'find', 'findOne', 'insert', 'update', 'remove'].forEach( name => {
-      (this as any)[name] = () => { throw ErrCollectionClosed };
+    ['close', 'watch', 'find', 'findOne', 'insert', 'update', 'remove'].forEach(name => {
+      (this as any)[name] = () => {
+        throw ErrCollectionClosed;
+      };
     });
   }
 

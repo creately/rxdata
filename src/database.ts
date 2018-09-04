@@ -27,9 +27,11 @@ export class Database {
   // close stops all database activities and disables all public methods.
   // This also closes all collection instances created by this database.
   public close() {
-    this.collections.forEach( col => col.close());
-    ['close', 'drop', 'collection'].forEach( name => {
-      (this as any)[name] = () => { throw ErrDatabaseClosed };
+    this.collections.forEach(col => col.close());
+    ['close', 'drop', 'collection'].forEach(name => {
+      (this as any)[name] = () => {
+        throw ErrDatabaseClosed;
+      };
     });
   }
 

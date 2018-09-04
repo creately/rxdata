@@ -31,40 +31,38 @@ describe('Collection', () => {
     { id: 'd123', x: 1, y: 2, z: 3 },
   ];
 
-  describe( 'close', () => {
-      it( 'should throw an error on active queries', async done => {
-        const { col } = await prepare();
-        const promise = findN(col, 2);
-        promise
-          .then(() => fail())
-          .catch(err => {
-            expect( err ).toBe( ErrCollectionClosed );
-            done();
-          });
-        col.close();
-      });
-
-      it( 'should disable all public methods', async done => {
-        const { col } = await prepare();
-        col.close();
-        [
-          () => col.close(),
-          () => col.watch(),
-          () => col.find(),
-          () => col.findOne(),
-          () => col.insert([]),
-          () => col.update({}, { $set: { foo: 'bar' } }),
-          () => col.remove({}),
-        ].forEach( fn => {
-          try {
-            fn();
-            fail();
-          } catch (err) {
-            expect( err ).toBe( ErrCollectionClosed );
-          }
-        });
+  describe('close', () => {
+    it('should throw an error on active queries', async done => {
+      const { col } = await prepare();
+      const promise = findN(col, 2);
+      promise.then(() => fail()).catch(err => {
+        expect(err).toBe(ErrCollectionClosed);
         done();
       });
+      col.close();
+    });
+
+    it('should disable all public methods', async done => {
+      const { col } = await prepare();
+      col.close();
+      [
+        () => col.close(),
+        () => col.watch(),
+        () => col.find(),
+        () => col.findOne(),
+        () => col.insert([]),
+        () => col.update({}, { $set: { foo: 'bar' } }),
+        () => col.remove({}),
+      ].forEach(fn => {
+        try {
+          fn();
+          fail();
+        } catch (err) {
+          expect(err).toBe(ErrCollectionClosed);
+        }
+      });
+      done();
+    });
   });
 
   describe('watch', () => {

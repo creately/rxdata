@@ -6,7 +6,7 @@ describe('Database', () => {
   let database: Database;
 
   function prepare() {
-    const db = database = new Database('test-db');
+    const db = (database = new Database('test-db'));
     return { db };
   }
 
@@ -27,26 +27,22 @@ describe('Database', () => {
     });
   });
 
-  describe( 'close', () => {
-    it( 'should disable all public methods', async done => {
+  describe('close', () => {
+    it('should disable all public methods', async done => {
       const { db } = await prepare();
       db.close();
-      [
-        () => db.close(),
-        () => db.collection('c1'),
-        () => db.drop(),
-      ].forEach( fn => {
+      [() => db.close(), () => db.collection('c1'), () => db.drop()].forEach(fn => {
         try {
           fn();
           fail();
         } catch (err) {
-          expect( err ).toBe( ErrDatabaseClosed );
+          expect(err).toBe(ErrDatabaseClosed);
         }
       });
       done();
     });
 
-    it( 'should close all collections', async done => {
+    it('should close all collections', async done => {
       const { db } = await prepare();
       const col = db.collection('test');
       db.close();
@@ -54,7 +50,7 @@ describe('Database', () => {
         col.close();
         fail();
       } catch (err) {
-        expect( err ).toBe( ErrCollectionClosed );
+        expect(err).toBe(ErrCollectionClosed);
       }
       done();
     });
