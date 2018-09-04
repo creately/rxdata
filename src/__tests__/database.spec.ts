@@ -3,14 +3,21 @@ import { Collection, ErrCollectionClosed } from '../collection';
 import { findN } from './utils';
 
 describe('Database', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  let database: Database;
 
   function prepare() {
-    const db = new Database('test-db');
+    const db = database = new Database('test-db');
     return { db };
   }
+
+  afterEach(() => {
+    try {
+      database.close();
+    } catch (err) {
+      // ...
+    }
+    localStorage.clear();
+  });
 
   describe('create', () => {
     it('should create a new Database instance', () => {
