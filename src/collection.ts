@@ -3,8 +3,8 @@
 import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import * as isequal from 'lodash.isequal';
-import { Observable } from 'rxjs/Rx';
-import { Subject } from 'rxjs/Rx';
+import { Observable, Subject, empty, of, defer, from } from 'rxjs';
+import { switchMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
 
@@ -74,13 +74,15 @@ export class Collection<T> {
       return this.changes.asObservable();
     }
     const mq = new mingo.Query(selector);
-    return this.changes.switchMap(change => {
-      const docs = change.docs.filter(doc => mq.test(doc));
-      if (!docs.length) {
-        return Observable.of();
-      }
-      return Observable.of(Object.assign({}, change, { docs }));
-    });
+    return this.changes.pipe(
+      switchMap(change => {
+        const docs = change.docs.filter(doc => mq.test(doc));
+        if (!docs.length) {
+          return empty();
+        }
+        return of(Object.assign({}, change, { docs }));
+      })
+    );
   }
 
   // find
@@ -88,10 +90,13 @@ export class Collection<T> {
   // selector and filter options (both are optional). The observable
   // re-emits whenever the result value changes.
   public find(selector: Selector = {}, options: FindOptions = {}): Observable<T[]> {
-    return Observable.defer(() => Observable.fromPromise(this.load(selector)))
-      .concat(this.allDocs)
-      .map(docs => this.filter(docs, selector, options))
-      .distinctUntilChanged(isequal);
+    return defer(() =>
+      from(this.load(selector)).pipe(
+        concat(this.allDocs),
+        map(docs => this.filter(docs, selector, options)),
+        distinctUntilChanged(isequal)
+      )
+    );
   }
 
   // find
@@ -100,10 +105,13 @@ export class Collection<T> {
   // re-emits whenever the result value changes.
   public findOne(selector: Selector = {}, options: FindOptions = {}): Observable<T> {
     options.limit = 1;
-    return Observable.defer(() => Observable.fromPromise(this.load(selector)))
-      .concat(this.allDocs)
-      .map(docs => this.filter(docs, selector, options)[0] || null)
-      .distinctUntilChanged(isequal);
+    return defer(() =>
+      from(this.load(selector)).pipe(
+        concat(this.allDocs),
+        map(docs => this.filter(docs, selector, options)[0] || null),
+        distinctUntilChanged(isequal)
+      )
+    );
   }
 
   // insert
