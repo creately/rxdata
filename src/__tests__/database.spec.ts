@@ -1,5 +1,6 @@
 import { Database } from '../database';
 import { Collection } from '../collection';
+import { findN } from './utils';
 
 describe('Database', () => {
   beforeEach(() => {
@@ -33,44 +34,34 @@ describe('Database', () => {
       expect(c1).toBe(c2);
     });
 
-    it('should sync collection documents in different database instances', async () => {
+    it('should sync collection documents in different database instances', async done => {
       const { db: d1 } = prepare();
       const d2 = new Database(d1.name);
       const c1 = d1.collection('test');
       const c2 = d2.collection('test');
       await c1.insert({ id: 'd1' });
-      const out = await c2
-        .find()
-        .take(1)
-        .toPromise();
-      expect(out).toEqual([{ id: 'd1' }]);
+      const out = await findN(c2, 1);
+      expect(out).toEqual([[{ id: 'd1' }]]);
+      done();
     });
   });
 
   describe('drop', () => {
-    it('should return a promise which resolves to undefined', async () => {
+    it('should return a promise which resolves to undefined', async done => {
       const { db } = prepare();
       const out = await db.drop();
       expect(out).toBe(undefined);
+      done();
     });
 
-    it('should remove all documents in all collections in the database', async () => {
+    it('should remove all documents in all collections in the database', async done => {
       const { db } = prepare();
       const c1 = db.collection('test');
       await c1.insert([{ id: 'd1' }]);
-      expect(
-        await c1
-          .find()
-          .take(1)
-          .toPromise()
-      ).toEqual([{ id: 'd1' }]);
+      expect(await findN(c1, 1)).toEqual([[{ id: 'd1' }]]);
       await db.drop();
-      expect(
-        await c1
-          .find()
-          .take(1)
-          .toPromise()
-      ).toEqual([]);
+      expect(await findN(c1, 1)).toEqual([[]]);
+      done();
     });
   });
 });
