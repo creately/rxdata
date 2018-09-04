@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { Collection } from '../collection';
+import { Collection, ErrCollectionClosed } from '../collection';
 import { watchN, findN, find1N } from './utils';
 import { take } from 'rxjs/operators';
 
@@ -18,6 +18,42 @@ describe('Collection', () => {
     { id: 'd122', x: 1, y: 2, z: 2 },
     { id: 'd123', x: 1, y: 2, z: 3 },
   ];
+
+  describe( 'close', () => {
+      it( 'should throw an error on active queries', async done => {
+        const { col } = await prepare();
+        const promise = findN(col, 2);
+        promise
+          .then(() => fail())
+          .catch(err => {
+            expect( err ).toBe( ErrCollectionClosed );
+            done();
+          });
+        col.close();
+      });
+
+      it( 'should disable all public methods', async done => {
+        const { col } = await prepare();
+        col.close();
+        [
+          () => col.close(),
+          () => col.watch(),
+          () => col.find(),
+          () => col.findOne(),
+          () => col.insert([]),
+          () => col.update({}, { $set: { foo: 'bar' } }),
+          () => col.remove({}),
+        ].forEach( fn => {
+          try {
+            fn();
+            fail();
+          } catch (err) {
+            expect( err ).toBe( ErrCollectionClosed );
+          }
+        });
+        done();
+      });
+  });
 
   describe('watch', () => {
     it('should return an observable', async () => {
