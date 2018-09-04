@@ -19,132 +19,140 @@ async function bench<T>(desc: string, params: IBenchmark<T>) {
   });
 }
 
-describe('Benchmarks', () => {
-  let database: Database;
-  let subscriptions: Subscription[] = [];
+[
+  { optimistic: false },
+  { optimistic: true },
+].forEach( opts => {
+  describe(`Benchmarks (optimistic=${opts.optimistic})`, () => {
+    let database: Database;
+    let subscriptions: Subscription[] = [];
 
-  async function prepare() {
-    database = new Database('test-db');
-    const name = `col-${Math.random()}`;
-    const col = new Collection<any>(name);
-    return { name, col };
-  }
-
-  afterEach(() => {
-    try {
-      subscriptions.forEach(s => s.unsubscribe());
-      subscriptions = [];
-      database.close();
-    } catch (err) {
-      // ...
+    async function prepare() {
+      database = new Database('test-db');
+      const name = `col-${Math.random()}`;
+      const col = new Collection<any>(name);
+      if ( opts.optimistic ) {
+        col.optimistic = true;
+      }
+      return { name, col };
     }
-  });
 
-  beforeEach(() => {
-    // set the timeout interval to 10 seconds
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10 * 1000;
-  });
+    afterEach(() => {
+      try {
+        subscriptions.forEach(s => s.unsubscribe());
+        subscriptions = [];
+        database.close();
+      } catch (err) {
+        // ...
+      }
+    });
 
-  describe('inserting documents', () => {
-    [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
-      bench(`insert ${x} docs with ${y}x${z} queries`, {
-        async prepare() {
-          const { col } = await prepare();
+    beforeEach(() => {
+      // set the timeout interval to 10 seconds
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 10 * 1000;
+    });
 
-          // prepare documents
-          const docs = [];
-          for (let i = 0; i < x; ++i) {
-            docs[i] = { id: 'd' + i, a: i, b: i % 10 };
-          }
+    describe('inserting documents', () => {
+      [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
+        bench(`insert ${x} docs with ${y}x${z} queries (optimistic=${opts.optimistic})`, {
+          async prepare() {
+            const { col } = await prepare();
 
-          // prepare listeners
-          for (let i = 0; i < y; ++i) {
-            const sel = { b: i };
-            for (let j = 0; j < z; ++j) {
-              const sub = col
-                .find(sel)
-                .pipe(catchError(() => empty()))
-                .subscribe();
-              subscriptions.push(sub);
+            // prepare documents
+            const docs = [];
+            for (let i = 0; i < x; ++i) {
+              docs[i] = { id: 'd' + i, a: i, b: i % 10 };
             }
-          }
 
-          return { col, docs };
-        },
-        async execute(data: any) {
-          const { col, docs } = data;
-          await col.insert(docs);
-        },
+            // prepare listeners
+            for (let i = 0; i < y; ++i) {
+              const sel = { b: i };
+              for (let j = 0; j < z; ++j) {
+                const sub = col
+                  .find(sel)
+                  .pipe(catchError(() => empty()))
+                  .subscribe();
+                subscriptions.push(sub);
+              }
+            }
+
+            return { col, docs };
+          },
+          async execute(data: any) {
+            const { col, docs } = data;
+            await col.insert(docs);
+          },
+        });
       });
     });
-  });
 
-  describe('updating documents', () => {
-    [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
-      bench(`update ${x} docs with ${y}x${z} queries`, {
-        async prepare() {
-          const { col } = await prepare();
+    describe('updating documents', () => {
+      [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
+        bench(`update ${x} docs with ${y}x${z} queries (optimistic=${opts.optimistic})`, {
+          async prepare() {
+            const { col } = await prepare();
 
-          // prepare documents
-          const docs = [];
-          for (let i = 0; i < x; ++i) {
-            docs[i] = { id: 'd' + i, a: i, b: i % 10 };
-          }
-          await col.insert(docs);
-
-          // prepare listeners
-          for (let i = 0; i < y; ++i) {
-            const sel = { b: i };
-            for (let j = 0; j < z; ++j) {
-              const sub = col
-                .find(sel)
-                .pipe(catchError(() => empty()))
-                .subscribe();
-              subscriptions.push(sub);
+            // prepare documents
+            const docs = [];
+            for (let i = 0; i < x; ++i) {
+              docs[i] = { id: 'd' + i, a: i, b: i % 10 };
             }
-          }
+            await col.insert(docs);
 
-          return { col };
-        },
-        async execute(data: any) {
-          const { col } = data;
-          await col.update({}, { foo: 'bar' });
-        },
+            // prepare listeners
+            for (let i = 0; i < y; ++i) {
+              const sel = { b: i };
+              for (let j = 0; j < z; ++j) {
+                const sub = col
+                  .find(sel)
+                  .pipe(catchError(() => empty()))
+                  .subscribe();
+                subscriptions.push(sub);
+              }
+            }
+
+            return { col };
+          },
+          async execute(data: any) {
+            const { col } = data;
+            await col.update({}, { foo: 'bar' });
+          },
+        });
       });
     });
-  });
 
-  describe('removing documents', () => {
-    [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
-      bench(`remove ${x} docs with ${y}x${z} queries`, {
-        async prepare() {
-          const { col } = await prepare();
+    describe('removing documents', () => {
+      [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
+        bench(`remove ${x} docs with ${y}x${z} queries (optimistic=${opts.optimistic})`, {
+          async prepare() {
+            const { col } = await prepare();
 
-          // prepare documents
-          const docs = [];
-          for (let i = 0; i < x; ++i) {
-            docs[i] = { id: 'd' + i, a: i, b: i % 10 };
-          }
-          await col.insert(docs);
-
-          // prepare listeners
-          for (let i = 0; i < y; ++i) {
-            const sel = { b: i };
-            for (let j = 0; j < z; ++j) {
-              const sub = col
-                .find(sel)
-                .pipe(catchError(() => empty()))
-                .subscribe();
-              subscriptions.push(sub);
+            // prepare documents
+            const docs = [];
+            for (let i = 0; i < x; ++i) {
+              docs[i] = { id: 'd' + i, a: i, b: i % 10 };
             }
-          }
+            await col.insert(docs);
 
-          return { col };
-        },
-        async execute(data: any) {
-          const { col } = data;
-          await col.remove({});
-        },
+            // prepare listeners
+            for (let i = 0; i < y; ++i) {
+              const sel = { b: i };
+              for (let j = 0; j < z; ++j) {
+                const sub = col
+                  .find(sel)
+                  .pipe(catchError(() => empty()))
+                  .subscribe();
+                subscriptions.push(sub);
+              }
+            }
+
+            return { col };
+          },
+          async execute(data: any) {
+            const { col } = data;
+            await col.remove({});
+          },
+        });
       });
     });
   });
