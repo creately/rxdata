@@ -1,4 +1,4 @@
-import { Collection } from './collection';
+import { Collection, IDocument } from './collection';
 
 // ErrDatabaseClosed
 // ErrDatabaseClosed is thrown when an operation is attempted when the database is closed.
@@ -39,7 +39,7 @@ export class Database {
   // collection will return a collection for a given collection name.
   // If a collection does not already exists with the given name,
   // a new collection will be created.
-  public collection<T>(cname: string): Collection<T> {
+  public collection<T extends IDocument>(cname: string): Collection<T> {
     const name = `rxdata.${this.name}.${cname}`;
     if (this.collections.has(name)) {
       return this.collections.get(name) as Collection<T>;
@@ -93,7 +93,7 @@ export class Database {
   // createCollection
   // createCollection creates a collection with given name and registers
   // the collection with this database instance.
-  protected createCollection<T>(name: string): Collection<T> {
+  protected createCollection<T extends IDocument>(name: string): Collection<T> {
     this.registerCollection(name);
     return new Collection<T>(name);
   }

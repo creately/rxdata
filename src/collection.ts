@@ -4,8 +4,9 @@ import mingo from 'mingo';
 import * as LocalForage from 'localforage';
 import 'localforage-setitems';
 import * as isequal from 'lodash.isequal';
+import * as cloneDeep from 'lodash.clonedeep';
 import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
-import { switchMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
+import { switchMap, concatMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
 import { modify } from '@creately/mungo';
 import { Channel } from '@creately/lschannel';
 
@@ -16,6 +17,12 @@ export type Selector = any;
 // Modifier
 // Modifier is a mongo like modifier used to modify documents.
 export type Modifier = any;
+
+// IDocument
+// IDocument is the base type for all documents stored in the database.
+export interface IDocument {
+  id: string;
+}
 
 // FindOptions
 // FindOptions can be used to customized how documents are filtered.
@@ -61,7 +68,7 @@ export type DocumentChange<T> = InsertDocumentChange<T> | RemoveDocumentChange<T
 
 // Collection
 // Collection ...?
-export class Collection<T> {
+export class Collection<T extends IDocument> {
   // allDocs
   // allDocs emits all documents in the collection when they get modified.
   protected allDocs: Subject<T[]>;
@@ -69,6 +76,10 @@ export class Collection<T> {
   // storage
   // storage stores documents in a suitable storage backend.
   protected storage: LocalForage;
+
+  // cachedDocs
+  // cachedDocs is an in memory cache of all documents in the database.
+  protected cachedDocs: T[] | null = null;
 
   // channel
   // channel sends/receives messages between browser tabs.
@@ -78,12 +89,16 @@ export class Collection<T> {
   // changesSub is the subscription created to listen to changes.
   protected changesSub: Subscription;
 
+  // loadPromise
+  // loadPromise is the promise which loads all documents form indexed db.
+  protected loadPromise: Promise<T[]> | null = null;
+
   // constructor
   constructor(public name: string) {
     this.allDocs = new Subject();
     this.storage = LocalForage.createInstance({ name });
     this.changes = Channel.create(`rxdata.${name}.channel`);
-    this.changesSub = this.changes.subscribe(() => this.refresh());
+    this.changesSub = this.changes.pipe(concatMap(change => from(this.apply(change)))).subscribe();
   }
 
   // close
@@ -124,7 +139,7 @@ export class Collection<T> {
   // re-emits whenever the result value changes.
   public find(selector: Selector = {}, options: FindOptions = {}): Observable<T[]> {
     return defer(() =>
-      from(this.load(selector)).pipe(
+      from(this.load()).pipe(
         concat(this.allDocs),
         map(docs => this.filter(docs, selector, options)),
         distinctUntilChanged(isequal)
@@ -139,7 +154,7 @@ export class Collection<T> {
   public findOne(selector: Selector = {}, options: FindOptions = {}): Observable<T> {
     options.limit = 1;
     return defer(() =>
-      from(this.load(selector)).pipe(
+      from(this.load()).pipe(
         concat(this.allDocs),
         map(docs => this.filter(docs, selector, options)[0] || null),
         distinctUntilChanged(isequal)
@@ -151,7 +166,7 @@ export class Collection<T> {
   // insert inserts a new document into the collection. If a document
   // with the id already exists in the collection, it will be replaced.
   public async insert(docOrDocs: T | T[]): Promise<void> {
-    const docs = Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs];
+    const docs: T[] = cloneDeep(Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs]);
     await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
     this.changes.next({ type: 'insert', docs: docs });
   }
@@ -159,8 +174,10 @@ export class Collection<T> {
   // update
   // update modifies existing documents in the collection which passes
   // the given selector.
-  public async update(selector: Selector, modifier: Modifier): Promise<void> {
-    const docs = await this.load(selector);
+  public async update(selector: Selector, _modifier: Modifier): Promise<void> {
+    const modifier = cloneDeep(_modifier);
+    const filter = this.createFilter(selector);
+    const docs: T[] = cloneDeep((await this.load()).filter(doc => filter(doc)));
     docs.forEach(doc => modify(doc, modifier));
     await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
     this.changes.next({ type: 'update', docs: docs, modifier: modifier });
@@ -170,7 +187,8 @@ export class Collection<T> {
   // remove removes existing documents in the collection which passes
   // the given selector.
   public async remove(selector: Selector): Promise<void> {
-    const docs = await this.load(selector);
+    const filter = this.createFilter(selector);
+    const docs = (await this.load()).filter(doc => filter(doc));
     await Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
     this.changes.next({ type: 'remove', docs: docs });
   }
@@ -192,25 +210,28 @@ export class Collection<T> {
     return cursor.all();
   }
 
+  // createFilter
+  // createFilter creates a document filter function from a selector.
+  protected createFilter(selector: Selector): (doc: T) => boolean {
+    const mq = new mingo.Query(selector);
+    return (doc: T) => mq.test(doc);
+  }
+
   // load
-  // load loads documents which match the selector from storage.
-  // Returns a promise which resolves to an array of documents.
-  protected async load(selector?: Selector): Promise<T[]> {
-    if (!selector || Object.keys(selector).length === 0) {
-      return await this.loadAll();
+  // load loads all documents from the database to the in-memory cache.
+  protected load(): Promise<T[]> {
+    if (!this.loadPromise) {
+      this.loadPromise = this.loadAll();
     }
-    if (selector.id && typeof selector.id === 'string') {
-      return await this.loadWithId(selector);
-    }
-    return await this.loadWithFilter(selector);
+    return this.loadPromise;
   }
 
   // loadAll
   // loadAll loads all documents from storage without filtering.
   // Returns a promise which resolves to an array of documents.
   protected async loadAll(): Promise<T[]> {
-    const docs: any[] = [];
-    await this.storage.iterate((doc: any) => {
+    const docs: T[] = [];
+    await this.storage.iterate((doc: T) => {
       docs.push(doc);
       // If a non-undefined value is returned,
       // the localforage iterator will stop.
@@ -219,48 +240,30 @@ export class Collection<T> {
     return docs;
   }
 
-  // loadWithId
-  // loadWithId loads the document which matches the selector
-  // from storage. It will use the document id to fetch it.
-  // Returns a promise which resolves to an array of documents.
-  protected async loadWithId(selector: Selector): Promise<T[]> {
-    const filter = this.createFilter(selector);
-    const doc = await this.storage.getItem<T>(selector.id);
-    if (doc && filter(doc)) {
-      return [doc];
-    }
-    return [];
-  }
-
-  // loadWithFilter
-  // loadWithFilter loads documents which match the selector from storage.
-  // Returns a promise which resolves to an array of documents.
-  protected async loadWithFilter(selector: Selector): Promise<T[]> {
-    const docs: any[] = [];
-    const filter = this.createFilter(selector);
-    await this.storage.iterate((doc: any) => {
-      if (filter(doc)) {
-        docs.push(doc);
-      }
-      // If a non-undefined value is returned,
-      // the localforage iterator will stop.
-      return undefined;
-    });
-    return docs;
-  }
-
-  // createFilter
-  // createFilter creates a document filter function from a selector.
-  protected createFilter(selector: Selector): (doc: T) => boolean {
-    const mq = new mingo.Query(selector);
-    return (doc: T) => mq.test(doc);
-  }
-
   // refresh
   // refresh loads all documents from localForage storage and emits it
   // to all listening queries. Called when the collection gets changed.
-  protected async refresh() {
-    const documents = await this.load();
-    this.allDocs.next(documents);
+  protected async apply(change: DocumentChange<T>) {
+    if (!this.cachedDocs) {
+      this.cachedDocs = await this.load();
+    }
+    if (change.type === 'insert' || change.type === 'update') {
+      for (const doc of change.docs) {
+        const index = this.cachedDocs.findIndex(d => d.id === doc.id);
+        if (index === -1) {
+          this.cachedDocs.push(doc);
+        } else {
+          this.cachedDocs[index] = doc;
+        }
+      }
+    } else if (change.type === 'remove') {
+      for (const doc of change.docs) {
+        const index = this.cachedDocs.findIndex(d => d.id === doc.id);
+        if (index !== -1) {
+          this.cachedDocs.splice(index, 1);
+        }
+      }
+    }
+    this.allDocs.next(this.cachedDocs);
   }
 }
