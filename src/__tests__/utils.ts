@@ -1,7 +1,7 @@
 import { take, toArray } from 'rxjs/operators';
-import { Collection, DocumentChange } from '../collection';
+import { Collection, DocumentChange, IDocument } from '../collection';
 
-export function findN<T>(c: Collection<T>, n: number, ...args: any[]): Promise<T[][]> {
+export function findN<T extends IDocument>(c: Collection<T>, n: number, ...args: any[]): Promise<T[][]> {
   return c
     .find(...args)
     .pipe(
@@ -11,7 +11,7 @@ export function findN<T>(c: Collection<T>, n: number, ...args: any[]): Promise<T
     .toPromise();
 }
 
-export function find1N<T>(c: Collection<T>, n: number, ...args: any[]): Promise<T[]> {
+export function find1N<T extends IDocument>(c: Collection<T>, n: number, ...args: any[]): Promise<T[]> {
   return c
     .findOne(...args)
     .pipe(
@@ -21,7 +21,7 @@ export function find1N<T>(c: Collection<T>, n: number, ...args: any[]): Promise<
     .toPromise();
 }
 
-export function watchN<T>(c: Collection<T>, n: number, ...args: any[]): Promise<DocumentChange<T>[]> {
+export function watchN<T extends IDocument>(c: Collection<T>, n: number, ...args: any[]): Promise<DocumentChange<T>[]> {
   return c
     .watch(...args)
     .pipe(

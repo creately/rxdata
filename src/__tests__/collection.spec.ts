@@ -22,14 +22,14 @@ describe('Collection', () => {
     }
   });
 
-  const TEST_DOCS = [
-    { id: 'd111', x: 1, y: 1, z: 1 },
-    { id: 'd112', x: 1, y: 1, z: 2 },
-    { id: 'd113', x: 1, y: 1, z: 3 },
-    { id: 'd121', x: 1, y: 2, z: 1 },
-    { id: 'd122', x: 1, y: 2, z: 2 },
-    { id: 'd123', x: 1, y: 2, z: 3 },
-  ];
+  const TEST_DOCS = Object.freeze([
+    Object.freeze({ id: 'd111', x: 1, y: 1, z: 1 }),
+    Object.freeze({ id: 'd112', x: 1, y: 1, z: 2 }),
+    Object.freeze({ id: 'd113', x: 1, y: 1, z: 3 }),
+    Object.freeze({ id: 'd121', x: 1, y: 2, z: 1 }),
+    Object.freeze({ id: 'd122', x: 1, y: 2, z: 2 }),
+    Object.freeze({ id: 'd123', x: 1, y: 2, z: 3 }),
+  ]);
 
   describe('close', () => {
     it('should throw an error on active queries', async done => {
@@ -96,7 +96,7 @@ describe('Collection', () => {
         const promise = watchN(col, 1);
         await col.insert(TEST_DOCS);
         const out = await promise;
-        expect(out).toEqual([{ type: 'insert', docs: TEST_DOCS }]);
+        expect(out).toEqual([{ type: 'insert', docs: [...TEST_DOCS] }]);
         done();
       });
 
@@ -132,7 +132,7 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1);
-      expect(out).toEqual([TEST_DOCS]);
+      expect(out).toEqual([[...TEST_DOCS]]);
       done();
     });
 
@@ -311,7 +311,7 @@ describe('Collection', () => {
       const { col } = await prepare();
       await Promise.all(TEST_DOCS.map(doc => col.insert(doc)));
       const out = await findN(col, 1, {});
-      expect(out).toEqual([TEST_DOCS]);
+      expect(out).toEqual([[...TEST_DOCS]]);
       done();
     });
 
@@ -319,7 +319,7 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, {});
-      expect(out).toEqual([TEST_DOCS]);
+      expect(out).toEqual([[...TEST_DOCS]]);
       done();
     });
 
@@ -328,7 +328,7 @@ describe('Collection', () => {
       const promise = watchN(col, 1);
       await col.insert(TEST_DOCS);
       const out = await promise;
-      expect(out).toEqual([{ type: 'insert', docs: TEST_DOCS }]);
+      expect(out).toEqual([{ type: 'insert', docs: [...TEST_DOCS] }]);
       done();
     });
 
@@ -362,21 +362,25 @@ describe('Collection', () => {
     });
 
     it('should return updated document with new queries (nested)', async done => {
-      const { col } = await prepare();
-      await col.insert(TEST_DOCS);
-      await col.update({ z: 3 }, { $set: { 'a.b': 1 } });
-      const out = await findN(col, 1, {});
-      expect(out).toEqual([
-        [
-          { id: 'd111', x: 1, y: 1, z: 1 },
-          { id: 'd112', x: 1, y: 1, z: 2 },
-          { id: 'd113', x: 1, y: 1, z: 3, a: { b: 1 } },
-          { id: 'd121', x: 1, y: 2, z: 1 },
-          { id: 'd122', x: 1, y: 2, z: 2 },
-          { id: 'd123', x: 1, y: 2, z: 3, a: { b: 1 } },
-        ],
-      ]);
-      done();
+      try {
+        const { col } = await prepare();
+        await col.insert(TEST_DOCS);
+        await col.update({ z: 3 }, { $set: { 'a.b': 1 } });
+        const out = await findN(col, 1, {});
+        expect(out).toEqual([
+          [
+            { id: 'd111', x: 1, y: 1, z: 1 },
+            { id: 'd112', x: 1, y: 1, z: 2 },
+            { id: 'd113', x: 1, y: 1, z: 3, a: { b: 1 } },
+            { id: 'd121', x: 1, y: 2, z: 1 },
+            { id: 'd122', x: 1, y: 2, z: 2 },
+            { id: 'd123', x: 1, y: 2, z: 3, a: { b: 1 } },
+          ],
+        ]);
+        done();
+      } catch (err) {
+        console.error(err);
+      }
     });
 
     it('should emit the updated document as a change (local)', async done => {
