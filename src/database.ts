@@ -1,5 +1,9 @@
 import { Collection } from './collection';
 
+// ErrDatabaseClosed
+// ErrDatabaseClosed is thrown when an operation is attempted when the database is closed.
+export const ErrDatabaseClosed = new Error('database is closed');
+
 // Database
 // Database is a collection of collections.
 export class Database {
@@ -17,6 +21,18 @@ export class Database {
   // constructor creates a new Database instance.
   constructor(public name: string) {
     this.collections = new Map();
+  }
+
+  // close
+  // close stops all database activities and disables all public methods.
+  // This also closes all collection instances created by this database.
+  public close() {
+    this.collections.forEach(col => col.close());
+    ['close', 'drop', 'collection'].forEach(name => {
+      (this as any)[name] = () => {
+        throw ErrDatabaseClosed;
+      };
+    });
   }
 
   // collection

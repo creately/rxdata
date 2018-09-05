@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:10-browsers
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - node-dependencies-{{ checksum "package-lock.json" }}
+          - node-dependencies-
+      - run: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: node-dependencies-{{ checksum "package-lock.json" }}
+      - run: npm test
