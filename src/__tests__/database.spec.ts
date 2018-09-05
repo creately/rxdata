@@ -96,6 +96,7 @@ describe('Database', () => {
       await c1.insert([{ id: 'd1' }]);
       expect(await findN(c1, 1)).toEqual([[{ id: 'd1' }]]);
       await db.drop();
+      await new Promise(res => setTimeout(res, 100));
       expect(await findN(c1, 1)).toEqual([[]]);
       done();
     });

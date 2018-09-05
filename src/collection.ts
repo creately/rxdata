@@ -69,6 +69,10 @@ export type DocumentChange<T> = InsertDocumentChange<T> | RemoveDocumentChange<T
 // Collection
 // Collection ...?
 export class Collection<T extends IDocument> {
+  // optimistic
+  // optimistic indicates that it should not wait until db operations commit.
+  public optimistic: boolean = false;
+
   // allDocs
   // allDocs emits all documents in the collection when they get modified.
   protected allDocs: Subject<T[]>;
@@ -167,7 +171,10 @@ export class Collection<T extends IDocument> {
   // with the id already exists in the collection, it will be replaced.
   public async insert(docOrDocs: T | T[]): Promise<void> {
     const docs: T[] = cloneDeep(Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs]);
-    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    const promise = this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    if ( !this.optimistic ) {
+      await promise;
+    }
     this.changes.next({ type: 'insert', docs: docs });
   }
 
@@ -179,7 +186,10 @@ export class Collection<T extends IDocument> {
     const filter = this.createFilter(selector);
     const docs: T[] = cloneDeep((await this.load()).filter(doc => filter(doc)));
     docs.forEach(doc => modify(doc, modifier));
-    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    const promise = this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    if ( !this.optimistic ) {
+      await promise;
+    }
     this.changes.next({ type: 'update', docs: docs, modifier: modifier });
   }
 
@@ -189,7 +199,10 @@ export class Collection<T extends IDocument> {
   public async remove(selector: Selector): Promise<void> {
     const filter = this.createFilter(selector);
     const docs = (await this.load()).filter(doc => filter(doc));
-    await Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
+    const promise = Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
+    if ( !this.optimistic ) {
+      await promise;
+    }
     this.changes.next({ type: 'remove', docs: docs });
   }
 
