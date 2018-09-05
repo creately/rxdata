@@ -1,3 +1,10 @@
+# 2018-02-23 - v5.1.0
+
+- Remove rxjs-compat dependency
+- Add 'close' method on database and collection
+- Use localforage-setitems to improve batch insert speed
+- Use an in-memory document cache to improve update speed
+
 # 2018-02-23 - v5.0.0
 
 - Update RxJS to v6 ( uses rxjs-compat module ).
