@@ -224,11 +224,9 @@ export class Collection<T extends IDocument> {
       return Promise.resolve(this.cachedDocs);
     }
     if (!this.loadPromise) {
-      this.loadPromise = this.loadAll()
-        .then(docs => this.cachedDocs = docs)
+      this.loadPromise = this.loadAll().then(docs => (this.cachedDocs = docs));
     }
-    return this.loadPromise
-      .then(() => this.cachedDocs as T[]);
+    return this.loadPromise.then(() => this.cachedDocs as T[]);
   }
 
   // loadAll
