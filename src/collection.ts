@@ -220,10 +220,15 @@ export class Collection<T extends IDocument> {
   // load
   // load loads all documents from the database to the in-memory cache.
   protected load(): Promise<T[]> {
-    if (!this.loadPromise) {
-      this.loadPromise = this.loadAll();
+    if (this.cachedDocs) {
+      return Promise.resolve(this.cachedDocs);
     }
-    return this.loadPromise;
+    if (!this.loadPromise) {
+      this.loadPromise = this.loadAll()
+        .then(docs => this.cachedDocs = docs)
+    }
+    return this.loadPromise
+      .then(() => this.cachedDocs as T[]);
   }
 
   // loadAll
