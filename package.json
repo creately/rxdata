@@ -40,6 +40,7 @@
     "@creately/lschannel": "^2.0.2",
     "@creately/mungo": "^1.2.1",
     "localforage": "^1.7.2",
+    "localforage-setitems": "^1.4.0",
     "lodash.isequal": "^4.5.0",
     "mingo": "^2.2.3",
     "rxjs": "^6.0.0"
