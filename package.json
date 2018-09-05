@@ -37,7 +37,7 @@
     "webpack": "^4.16.5"
   },
   "dependencies": {
-    "@creately/lschannel-es6": "^2.0.0",
+    "@creately/lschannel-es6": "^2.0.2",
     "@creately/mungo": "^1.2.1",
     "localforage": "^1.7.2",
     "lodash.isequal": "^4.5.0",
