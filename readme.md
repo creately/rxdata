@@ -1,5 +1,7 @@
 # RxData
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/creately/rxdata.svg)](https://greenkeeper.io/)
+
 RxData is a schemaless reactive document database for web browsers. It is inspired by rxdb but uses localForage instead of pouchdb to store data.
 
 ## Getting Started
