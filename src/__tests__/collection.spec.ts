@@ -35,10 +35,12 @@ describe('Collection', () => {
     it('should throw an error on active queries', async done => {
       const { col } = await prepare();
       const promise = findN(col, 2);
-      promise.then(() => fail()).catch(err => {
-        expect(err).toBe(ErrCollectionClosed);
-        done();
-      });
+      promise
+        .then(() => fail())
+        .catch(err => {
+          expect(err).toBe(ErrCollectionClosed);
+          done();
+        });
       col.close();
     });
 
