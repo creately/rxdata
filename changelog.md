@@ -1,3 +1,7 @@
+# 2018-11-27 - v5.1.1
+
+- Fixed a bug with dependencies list on package.json
+
 # 2018-02-23 - v5.1.0
 
 - Remove rxjs-compat dependency
