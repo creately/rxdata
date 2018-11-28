@@ -98,7 +98,7 @@ describe('Collection', () => {
         const promise = watchN(col, 1);
         await col.insert(TEST_DOCS);
         const out = await promise;
-        expect(out).toEqual([{ type: 'insert', docs: [...TEST_DOCS] }]);
+        expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
         done();
       });
 
@@ -107,7 +107,9 @@ describe('Collection', () => {
         const watchPromise = watchN(col, 1, { z: 3 });
         await col.insert(TEST_DOCS);
         const out = await watchPromise;
-        expect(out).toEqual([{ type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) }]);
+        expect(out).toEqual([
+          { id: (jasmine.any(Number) as any) as number, type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) },
+        ]);
         done();
       });
 
@@ -330,7 +332,7 @@ describe('Collection', () => {
       const promise = watchN(col, 1);
       await col.insert(TEST_DOCS);
       const out = await promise;
-      expect(out).toEqual([{ type: 'insert', docs: [...TEST_DOCS] }]);
+      expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
       done();
     });
 
@@ -393,6 +395,7 @@ describe('Collection', () => {
       const out = await promise;
       expect(out).toEqual([
         {
+          id: (jasmine.any(Number) as any) as number,
           type: 'update',
           docs: [{ id: 'd113', x: 1, y: 1, z: 3, a: 1 }, { id: 'd123', x: 1, y: 2, z: 3, a: 1 }],
           modifier: { $set: { a: 1 } },
@@ -436,6 +439,7 @@ describe('Collection', () => {
       const out = await promise;
       expect(out).toEqual([
         {
+          id: (jasmine.any(Number) as any) as number,
           type: 'remove',
           docs: [{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd123', x: 1, y: 2, z: 3 }],
         },

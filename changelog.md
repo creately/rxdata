@@ -1,3 +1,7 @@
+# 2018-11-28 - v5.1.2
+
+- Fixed a bug with reading data before documents are cached.
+
 # 2018-11-27 - v5.1.1
 
 - Fixed a bug with dependencies list on package.json
