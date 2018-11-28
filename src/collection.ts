@@ -41,6 +41,7 @@ export const ErrCollectionClosed = new Error('collection is closed');
 // InsertDocumentChange describes an insert operation performed on the collection.
 // This includes an array of all inserted documents.
 export type InsertDocumentChange<T> = {
+  id: number;
   type: 'insert';
   docs: T[];
 };
@@ -49,6 +50,7 @@ export type InsertDocumentChange<T> = {
 // RemoveDocumentChange describes an remove operation performed on the collection.
 // This includes an array of all removed documents.
 export type RemoveDocumentChange<T> = {
+  id: number;
   type: 'remove';
   docs: T[];
 };
@@ -57,6 +59,7 @@ export type RemoveDocumentChange<T> = {
 // UpdateDocumentChange describes an update operation performed on the collection.
 // This includes the update modifier and an array of all updated documents.
 export type UpdateDocumentChange<T> = {
+  id: number;
   type: 'update';
   docs: T[];
   modifier?: Modifier;
@@ -92,6 +95,14 @@ export class Collection<T extends IDocument> {
   // loadPromise
   // loadPromise is the promise which loads all documents form indexed db.
   protected loadPromise: Promise<T[]> | null = null;
+
+  // lastChangeId
+  // lastChangeId is the id used to create the last collection change
+  protected lastChangeId: number = 0;
+
+  // changeResolve
+  // changeResolve a msp of change ids to their resolve functions.
+  protected changeResolve: { [changeId: string]: () => void } = {};
 
   // constructor
   constructor(public name: string) {
@@ -168,7 +179,7 @@ export class Collection<T extends IDocument> {
   public async insert(docOrDocs: T | T[]): Promise<void> {
     const docs: T[] = cloneDeep(Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs]);
     await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
-    this.changes.next({ type: 'insert', docs: docs });
+    await this.emitAndApply({ id: this.nextChangeId(), type: 'insert', docs: docs });
   }
 
   // update
@@ -180,7 +191,7 @@ export class Collection<T extends IDocument> {
     const docs: T[] = cloneDeep((await this.load()).filter(doc => filter(doc)));
     docs.forEach(doc => modify(doc, modifier));
     await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
-    this.changes.next({ type: 'update', docs: docs, modifier: modifier });
+    await this.emitAndApply({ id: this.nextChangeId(), type: 'update', docs: docs, modifier: modifier });
   }
 
   // remove
@@ -190,7 +201,7 @@ export class Collection<T extends IDocument> {
     const filter = this.createFilter(selector);
     const docs = (await this.load()).filter(doc => filter(doc));
     await Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
-    this.changes.next({ type: 'remove', docs: docs });
+    await this.emitAndApply({ id: this.nextChangeId(), type: 'remove', docs: docs });
   }
 
   // filter
@@ -268,5 +279,25 @@ export class Collection<T extends IDocument> {
       }
     }
     this.allDocs.next(this.cachedDocs);
+    const resolveFn = this.changeResolve[change.id];
+    if (resolveFn) {
+      resolveFn();
+      delete this.changeResolve[change.id];
+    }
+  }
+
+  // nextChangeId
+  // nextChangeId returns the next change id.
+  private nextChangeId(): number {
+    return ++this.lastChangeId;
+  }
+
+  // emitAndApply
+  // emitAndApply emits the change and waits until it is applied.
+  private async emitAndApply(change: DocumentChange<T>): Promise<void> {
+    await new Promise(resolve => {
+      this.changeResolve[change.id] = resolve;
+      this.changes.next(change);
+    });
   }
 }
