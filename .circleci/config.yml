@@ -10,7 +10,7 @@ jobs:
           keys:
           - node-dependencies-{{ checksum "package-lock.json" }}
           - node-dependencies-
-      - run: yarn install
+      - run: npm install
       - save_cache:
           paths:
             - node_modules
