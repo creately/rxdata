@@ -37,7 +37,7 @@
     "webpack": "^4.26.1"
   },
   "dependencies": {
-    "@creately/lschannel": "^2.0.2",
+    "@creately/lschannel": "^2.0.3",
     "@creately/mungo": "^1.2.1",
     "localforage": "^1.7.3",
     "localforage-setitems": "^1.4.0",
