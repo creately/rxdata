@@ -240,6 +240,16 @@ export class Collection<T extends IDocument> {
     return this.loadPromise.then(() => this.cachedDocs as T[]);
   }
 
+  // Reload
+  // Reload loads all document from storage, update
+  // the cachedDocs and emit the updated docs.
+  public async reload() {
+    return this.loadAll().then(docs => {
+      this.cachedDocs = docs;
+      this.allDocs.next(this.cachedDocs);
+    });
+  }
+
   // loadAll
   // loadAll loads all documents from storage without filtering.
   // Returns a promise which resolves to an array of documents.

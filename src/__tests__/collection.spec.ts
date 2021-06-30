@@ -449,4 +449,16 @@ describe('Collection', () => {
 
     it('should emit the removed document as a change (remote)');
   });
+
+  describe('reload', () => {
+    it('should load documents and emit alldocs', async () => {
+      const NEW_DOC = Object.freeze([Object.freeze({ id: 'e123', x: 1, y: 1, z: 1 })]);
+      const { col } = await prepare();
+      spyOn(col as any, 'loadAll').and.returnValue(Promise.resolve([NEW_DOC]));
+      (col as any).allDocs.subscribe((val: any) => {
+        expect(val).toEqual([NEW_DOC]);
+      });
+      await col.reload();
+    });
+  });
 });

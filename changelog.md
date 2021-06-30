@@ -1,3 +1,11 @@
+# 2021-06-30 - v5.1.4
+
+- Added a `reload` function, which loads all data from storage and update the cachedDocs.
+
+# 2019-08-19 - v5.1.3
+
+- Updated `ls-channel` version to `2.0.3`
+
 # 2018-11-28 - v5.1.2
 
 - Fixed a bug with reading data before documents are cached.
