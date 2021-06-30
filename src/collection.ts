@@ -243,8 +243,8 @@ export class Collection<T extends IDocument> {
   // Reload
   // Reload loads all document from storage, update
   // the cachedDocs and emit the updated docs.
-  public reload() {
-    this.loadAll().then(docs => {
+  public async reload() {
+    return this.loadAll().then(docs => {
       this.cachedDocs = docs;
       this.allDocs.next(this.cachedDocs);
     });
