@@ -202,6 +202,19 @@ export class MockCollection extends Collection<any> {
   }
 
   /**
+   * reload
+   */
+  public reload(...args: any[]) {
+    return this.$call('reload', ...args);
+  }
+  public $createSpyForReLoad() {
+    return this.$createSpyFor('reload');
+  }
+  public $getSpyForReLoad() {
+    return this.$getSpyFor('reload');
+  }
+
+  /**
    * loadAll
    */
   public loadAll(...args: any[]) {
