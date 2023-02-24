@@ -1,8 +1,5 @@
-/// <reference types="localforage" />
-
 import mingo from 'mingo';
-import * as LocalForage from 'localforage';
-import 'localforage-setitems';
+import * as Loki from 'lokijs';
 import * as isequal from 'lodash.isequal';
 import * as cloneDeep from 'lodash.clonedeep';
 import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
@@ -72,13 +69,14 @@ export type DocumentChange<T> = InsertDocumentChange<T> | RemoveDocumentChange<T
 // Collection
 // Collection ...?
 export class Collection<T extends IDocument> {
+  public static loki = new Loki('rxdatalokijs');
   // allDocs
   // allDocs emits all documents in the collection when they get modified.
   protected allDocs: Subject<T[]>;
 
   // storage
   // storage stores documents in a suitable storage backend.
-  protected storage: LocalForage;
+  protected storage: Loki.Collection;
 
   // cachedDocs
   // cachedDocs is an in memory cache of all documents in the database.
@@ -107,7 +105,7 @@ export class Collection<T extends IDocument> {
   // constructor
   constructor(public name: string) {
     this.allDocs = new Subject();
-    this.storage = LocalForage.createInstance({ name });
+    this.storage = Collection.loki.addCollection(name);
     this.changes = Channel.create(`rxdata.${name}.channel`);
     this.changesSub = this.changes.pipe(concatMap(change => from(this.apply(change)))).subscribe();
   }
@@ -178,7 +176,7 @@ export class Collection<T extends IDocument> {
   // with the id already exists in the collection, it will be replaced.
   public async insert(docOrDocs: T | T[]): Promise<void> {
     const docs: T[] = cloneDeep(Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs]);
-    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    this.storage.insert(docs);
     await this.emitAndApply({ id: this.nextChangeId(), type: 'insert', docs: docs });
   }
 
@@ -189,8 +187,10 @@ export class Collection<T extends IDocument> {
     const modifier = cloneDeep(_modifier);
     const filter = this.createFilter(selector);
     const docs: T[] = cloneDeep((await this.load()).filter(doc => filter(doc)));
-    docs.forEach(doc => modify(doc, modifier));
-    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    docs.forEach(doc => {
+      modify(doc, modifier);
+      this.storage.update(doc);
+    });
     await this.emitAndApply({ id: this.nextChangeId(), type: 'update', docs: docs, modifier: modifier });
   }
 
@@ -200,8 +200,13 @@ export class Collection<T extends IDocument> {
   public async remove(selector: Selector): Promise<void> {
     const filter = this.createFilter(selector);
     const docs = (await this.load()).filter(doc => filter(doc));
-    await Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
+    docs.map(doc => this.storage.remove(doc));
     await this.emitAndApply({ id: this.nextChangeId(), type: 'remove', docs: docs });
+  }
+
+  public async dropCollection() {
+    Collection.loki.removeCollection(this.name);
+    await this.reload();
   }
 
   // filter
@@ -254,14 +259,7 @@ export class Collection<T extends IDocument> {
   // loadAll loads all documents from storage without filtering.
   // Returns a promise which resolves to an array of documents.
   protected async loadAll(): Promise<T[]> {
-    const docs: T[] = [];
-    await this.storage.iterate((doc: T) => {
-      docs.push(doc);
-      // If a non-undefined value is returned,
-      // the localforage iterator will stop.
-      return undefined;
-    });
-    return docs;
+    return Promise.resolve(this.storage.data);
   }
 
   // refresh

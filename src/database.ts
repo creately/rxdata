@@ -53,10 +53,10 @@ export class Database {
   // drop clears all data in all collections in the database.
   // It also closes all active subscriptions in all collections.
   public async drop(): Promise<void> {
-    this.collections = new Map();
-    const collections = this.collectionsList;
     this.collectionsList = [];
-    await Promise.all(collections.map(name => new Collection<any>(name).remove({})));
+    this.collections.forEach(async c => await c.dropCollection());
+    this.collections = new Map();
+    await Promise.resolve();
   }
 
   // collectionsListKey

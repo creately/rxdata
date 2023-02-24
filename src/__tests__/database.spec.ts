@@ -92,10 +92,19 @@ describe('Database', () => {
 
     it('should remove all documents in all collections in the database', async done => {
       const { db } = prepare();
-      const c1 = db.collection('test');
+      const c1 = db.collection('test1');
       await c1.insert([{ id: 'd1' }]);
-      expect(await findN(c1, 1)).toEqual([[{ id: 'd1' }]]);
-      await db.drop();
+      const out = await findN(c1, 1);
+      console.log('out', out);
+      expect(out).toEqual([[{ id: 'd1' }]]);
+
+      try {
+        const d = await db.drop();
+        console.log('out d', d);
+      } catch (error) {
+        console.log('error', error);
+      }
+
       expect(await findN(c1, 1)).toEqual([[]]);
       done();
     });
