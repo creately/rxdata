@@ -10,6 +10,13 @@ describe('Database', () => {
     return { db };
   }
 
+  const prepareOut = (val: any[]) => {
+    val.forEach((d: any) => {
+      delete d.meta;
+      delete d.$loki;
+    });
+  };
+
   afterEach(() => {
     try {
       database.close();
@@ -77,6 +84,7 @@ describe('Database', () => {
       const c2 = d2.collection('test');
       await c1.insert({ id: 'd1' });
       const out = await findN(c2, 1);
+      prepareOut(out[0]);
       expect(out).toEqual([[{ id: 'd1' }]]);
       done();
     });
@@ -94,8 +102,8 @@ describe('Database', () => {
       const { db } = prepare();
       const c1 = db.collection('test1');
       await c1.insert([{ id: 'd1' }]);
-      const out = await findN(c1, 1);
-      console.log('out', out);
+      let out = await findN(c1, 1);
+      prepareOut(out[0]);
       expect(out).toEqual([[{ id: 'd1' }]]);
 
       try {
@@ -104,8 +112,9 @@ describe('Database', () => {
       } catch (error) {
         console.log('error', error);
       }
-
-      expect(await findN(c1, 1)).toEqual([[]]);
+      out = await findN(c1, 1);
+      prepareOut(out[0]);
+      expect(out).toEqual([[]]);
       done();
     });
   });

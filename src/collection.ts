@@ -78,10 +78,6 @@ export class Collection<T extends IDocument> {
   // storage stores documents in a suitable storage backend.
   protected storage: Loki.Collection;
 
-  // cachedDocs
-  // cachedDocs is an in memory cache of all documents in the database.
-  protected cachedDocs: T[] | null = null;
-
   // channel
   // channel sends/receives messages between browser tabs.
   protected changes: Channel<DocumentChange<T>>;
@@ -236,13 +232,7 @@ export class Collection<T extends IDocument> {
   // load
   // load loads all documents from the database to the in-memory cache.
   protected load(): Promise<T[]> {
-    if (this.cachedDocs) {
-      return Promise.resolve(this.cachedDocs);
-    }
-    if (!this.loadPromise) {
-      this.loadPromise = this.loadAll().then(docs => (this.cachedDocs = docs));
-    }
-    return this.loadPromise.then(() => this.cachedDocs as T[]);
+    return Promise.resolve(this.storage.data);
   }
 
   // Reload
@@ -250,8 +240,7 @@ export class Collection<T extends IDocument> {
   // the cachedDocs and emit the updated docs.
   public async reload() {
     return this.loadAll().then(docs => {
-      this.cachedDocs = docs;
-      this.allDocs.next(this.cachedDocs);
+      this.allDocs.next( docs );
     });
   }
 
@@ -266,27 +255,7 @@ export class Collection<T extends IDocument> {
   // refresh loads all documents from localForage storage and emits it
   // to all listening queries. Called when the collection gets changed.
   protected async apply(change: DocumentChange<T>) {
-    if (!this.cachedDocs) {
-      this.cachedDocs = await this.load();
-    }
-    if (change.type === 'insert' || change.type === 'update') {
-      for (const doc of change.docs) {
-        const index = this.cachedDocs.findIndex(d => d.id === doc.id);
-        if (index === -1) {
-          this.cachedDocs.push(doc);
-        } else {
-          this.cachedDocs[index] = doc;
-        }
-      }
-    } else if (change.type === 'remove') {
-      for (const doc of change.docs) {
-        const index = this.cachedDocs.findIndex(d => d.id === doc.id);
-        if (index !== -1) {
-          this.cachedDocs.splice(index, 1);
-        }
-      }
-    }
-    this.allDocs.next(this.cachedDocs);
+    this.allDocs.next(this.storage.data);
     const resolveFn = this.changeResolve[change.id];
     if (resolveFn) {
       resolveFn();
@@ -304,7 +273,7 @@ export class Collection<T extends IDocument> {
   // emitAndApply emits the change and waits until it is applied.
   private async emitAndApply(change: DocumentChange<T>): Promise<void> {
     await new Promise(resolve => {
-      this.changeResolve[change.id] = resolve;
+      this.changeResolve[change.id] = resolve as any;
       this.changes.next(change);
     });
   }
