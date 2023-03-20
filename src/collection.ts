@@ -2,6 +2,7 @@ import mingo from 'mingo';
 import * as Loki from 'lokijs';
 import * as isequal from 'lodash.isequal';
 import * as cloneDeep from 'lodash.clonedeep';
+import * as omit from 'lodash.omit';
 import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
 import { switchMap, concatMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
 import { modify } from '@creately/mungo';
@@ -124,12 +125,18 @@ export class Collection<T extends IDocument> {
   // made to documents which match the selector.
   public watch(selector?: Selector): Observable<DocumentChange<T>> {
     if (!selector) {
-      return this.changes.asObservable();
+      return this.changes.asObservable().pipe( map( change => {
+        change.docs = change.docs.map(doc => omit( doc, '$loki', 'meta' ));
+        return change;
+      }));
     }
     const mq = new mingo.Query(selector);
     return this.changes.pipe(
       switchMap(change => {
-        const docs = change.docs.filter(doc => mq.test(doc));
+        const docs = change.docs
+          .filter(doc => mq.test(doc))
+          .map(doc => omit( doc, '$loki', 'meta' ));
+        change.docs = docs;
         if (!docs.length) {
           return empty();
         }
@@ -219,7 +226,7 @@ export class Collection<T extends IDocument> {
     if (options.limit) {
       cursor = cursor.limit(options.limit);
     }
-    return cursor.all();
+    return cursor.all().map(( doc: any ) => omit( doc, '$loki', 'meta' ));
   }
 
   // createFilter

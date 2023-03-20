@@ -14,13 +14,6 @@ describe('Collection', () => {
     return { name, col };
   }
 
-  const prepareOut = (val: any[]) => {
-    val.forEach((d: any) => {
-      delete d.meta;
-      delete d.$loki;
-    });
-  };
-
   afterEach(() => {
     try {
       database.close();
@@ -105,7 +98,6 @@ describe('Collection', () => {
         const promise = watchN(col, 1);
         await col.insert(TEST_DOCS);
         const out = await promise;
-        prepareOut(out[0].docs);
         expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
         done();
       });
@@ -115,7 +107,6 @@ describe('Collection', () => {
         const watchPromise = watchN(col, 1, { z: 3 });
         await col.insert(TEST_DOCS);
         const out = await watchPromise;
-        prepareOut(out[0].docs);
         expect(out).toEqual([
           { id: (jasmine.any(Number) as any) as number, type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) },
         ]);
@@ -145,7 +136,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1);
-      prepareOut(out[0]);
       expect(out).toEqual([[...TEST_DOCS]]);
       done();
     });
@@ -154,7 +144,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { x: -1 });
-      prepareOut(out[0]);
       expect(out).toEqual([[]]);
       done();
     });
@@ -163,7 +152,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { id: 'd000' });
-      prepareOut(out[0]);
       expect(out).toEqual([[]]);
       done();
     });
@@ -172,7 +160,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { z: 3 });
-      prepareOut(out[0]);
       expect(out).toEqual([TEST_DOCS.filter(doc => doc.z === 3)]);
       done();
     });
@@ -181,7 +168,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { id: 'd111' });
-      prepareOut(out[0]);
       expect(out).toEqual([TEST_DOCS.filter(doc => doc.id === 'd111')]);
       done();
     });
@@ -190,7 +176,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { id: { $in: ['d111', 'd112'] } });
-      prepareOut(out[0]);
       expect(out).toEqual([TEST_DOCS.filter(doc => doc.id === 'd111' || doc.id === 'd112')]);
       done();
     });
@@ -199,7 +184,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { y: 2 }, { sort: { z: -1 } });
-      prepareOut(out[0]);
       expect(out).toEqual([TEST_DOCS.filter(doc => doc.y === 2).reverse()]);
       done();
     });
@@ -208,7 +192,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { y: 2 }, { sort: { z: -1 }, skip: 1 });
-      prepareOut(out[0]);
       expect(out).toEqual([
         TEST_DOCS.filter(doc => doc.y === 2)
           .reverse()
@@ -221,8 +204,7 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, { y: 2 }, { limit: 2 });
-      prepareOut(out[0]);
-      expect( out ).toEqual([TEST_DOCS.filter(doc => doc.y === 2).slice(0, 2)]);
+      expect(out).toEqual([TEST_DOCS.filter(doc => doc.y === 2).slice(0, 2)]);
       done();
     });
 
@@ -233,8 +215,6 @@ describe('Collection', () => {
       await col.update({ z: 2 }, { $set: { a: 1 } });
       await col.update({ z: 3 }, { $set: { a: 2 } });
       const out = await promise;
-      prepareOut(out[0]);
-      prepareOut(out[1]);
       expect(out).toEqual([
         [{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd123', x: 1, y: 2, z: 3 }],
         [{ id: 'd113', x: 1, y: 1, z: 3, a: 2 }, { id: 'd123', x: 1, y: 2, z: 3, a: 2 }],
@@ -289,7 +269,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await find1N(col, 1, { y: 2 }, { sort: { z: -1 } });
-      prepareOut(out);
       expect(out).toEqual([TEST_DOCS.filter(doc => doc.y === 2).reverse()[0]]);
       done();
     });
@@ -298,7 +277,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await find1N(col, 1, { y: 2 }, { sort: { z: -1 }, skip: 1 });
-      prepareOut(out);
       expect(out).toEqual([TEST_DOCS.filter(doc => doc.y === 2).reverse()[1]]);
       done();
     });
@@ -310,8 +288,7 @@ describe('Collection', () => {
       await col.update({ z: 2 }, { $set: { a: 1 } });
       await col.update({ z: 3 }, { $set: { a: 2 } });
       const out = await promise;
-      prepareOut(out);
-      expect( out ).toEqual([{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd113', x: 1, y: 1, z: 3, a: 2 }]);
+      expect(out).toEqual([{ id: 'd113', x: 1, y: 1, z: 3 }, { id: 'd113', x: 1, y: 1, z: 3, a: 2 }]);
       done();
     });
 
@@ -338,7 +315,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await Promise.all(TEST_DOCS.map(doc => col.insert(doc)));
       const out = await findN(col, 1, {});
-      prepareOut(out[0]);
       expect(out).toEqual([[...TEST_DOCS]]);
       done();
     });
@@ -347,7 +323,6 @@ describe('Collection', () => {
       const { col } = await prepare();
       await col.insert(TEST_DOCS);
       const out = await findN(col, 1, {});
-      prepareOut(out[0]);
       expect(out).toEqual([[...TEST_DOCS]]);
       done();
     });
@@ -357,7 +332,6 @@ describe('Collection', () => {
       const promise = watchN(col, 1);
       await col.insert(TEST_DOCS);
       const out = await promise;
-      prepareOut(out[0].docs);
       expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
       done();
     });
@@ -378,7 +352,6 @@ describe('Collection', () => {
       await col.insert(TEST_DOCS);
       await col.update({ z: 3 }, { $set: { a: 1 } });
       const out = await findN(col, 1, {});
-      prepareOut(out[0]);
       expect(out).toEqual([
         [
           { id: 'd111', x: 1, y: 1, z: 1 },
@@ -398,7 +371,6 @@ describe('Collection', () => {
         await col.insert(TEST_DOCS);
         await col.update({ z: 3 }, { $set: { 'a.b': 1 } });
         const out = await findN(col, 1, {});
-        prepareOut(out[0]);
         expect(out).toEqual([
           [
             { id: 'd111', x: 1, y: 1, z: 1 },
@@ -421,7 +393,6 @@ describe('Collection', () => {
       const promise = watchN(col, 1);
       await col.update({ z: 3 }, { $set: { a: 1 } });
       const out = await promise;
-      prepareOut(out[0].docs);
       expect(out).toEqual([
         {
           id: (jasmine.any(Number) as any) as number,
@@ -449,8 +420,7 @@ describe('Collection', () => {
       await col.insert(TEST_DOCS);
       await col.remove({ z: 3 });
       const out = await findN(col, 1, {});
-      prepareOut(out[0]);
-      expect( out ).toEqual([
+      expect(out).toEqual([
         [
           { id: 'd111', x: 1, y: 1, z: 1 },
           { id: 'd112', x: 1, y: 1, z: 2 },
@@ -467,7 +437,6 @@ describe('Collection', () => {
       const promise = watchN(col, 1);
       await col.remove({ z: 3 });
       const out = await promise;
-      prepareOut( out );
       expect(out).toEqual([
         {
           id: (jasmine.any(Number) as any) as number,
