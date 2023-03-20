@@ -125,17 +125,17 @@ export class Collection<T extends IDocument> {
   // made to documents which match the selector.
   public watch(selector?: Selector): Observable<DocumentChange<T>> {
     if (!selector) {
-      return this.changes.asObservable().pipe( map( change => {
-        change.docs = change.docs.map(doc => omit( doc, '$loki', 'meta' ));
-        return change;
-      }));
+      return this.changes.asObservable().pipe(
+        map(change => {
+          change.docs = change.docs.map(doc => omit(doc, '$loki', 'meta'));
+          return change;
+        })
+      );
     }
     const mq = new mingo.Query(selector);
     return this.changes.pipe(
       switchMap(change => {
-        const docs = change.docs
-          .filter(doc => mq.test(doc))
-          .map(doc => omit( doc, '$loki', 'meta' ));
+        const docs = change.docs.filter(doc => mq.test(doc)).map(doc => omit(doc, '$loki', 'meta'));
         change.docs = docs;
         if (!docs.length) {
           return empty();
@@ -226,7 +226,7 @@ export class Collection<T extends IDocument> {
     if (options.limit) {
       cursor = cursor.limit(options.limit);
     }
-    return cursor.all().map(( doc: any ) => omit( doc, '$loki', 'meta' ));
+    return cursor.all().map((doc: any) => omit(doc, '$loki', 'meta'));
   }
 
   // createFilter
@@ -247,7 +247,7 @@ export class Collection<T extends IDocument> {
   // the cachedDocs and emit the updated docs.
   public async reload() {
     return this.loadAll().then(docs => {
-      this.allDocs.next( docs );
+      this.allDocs.next(docs);
     });
   }
 

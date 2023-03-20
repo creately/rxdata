@@ -10,13 +10,6 @@ describe('Database', () => {
     return { db };
   }
 
-  const prepareOut = (val: any[]) => {
-    val.forEach((d: any) => {
-      delete d.meta;
-      delete d.$loki;
-    });
-  };
-
   afterEach(() => {
     try {
       database.close();
@@ -84,7 +77,6 @@ describe('Database', () => {
       const c2 = d2.collection('test');
       await c1.insert({ id: 'd1' });
       const out = await findN(c2, 1);
-      prepareOut(out[0]);
       expect(out).toEqual([[{ id: 'd1' }]]);
       done();
     });
@@ -100,21 +92,11 @@ describe('Database', () => {
 
     it('should remove all documents in all collections in the database', async done => {
       const { db } = prepare();
-      const c1 = db.collection('test1');
+      const c1 = db.collection('test');
       await c1.insert([{ id: 'd1' }]);
-      let out = await findN(c1, 1);
-      prepareOut(out[0]);
-      expect(out).toEqual([[{ id: 'd1' }]]);
-
-      try {
-        const d = await db.drop();
-        console.log('out d', d);
-      } catch (error) {
-        console.log('error', error);
-      }
-      out = await findN(c1, 1);
-      prepareOut(out[0]);
-      expect(out).toEqual([[]]);
+      expect(await findN(c1, 1)).toEqual([[{ id: 'd1' }]]);
+      await db.drop();
+      expect(await findN(c1, 1)).toEqual([[]]);
       done();
     });
   });
