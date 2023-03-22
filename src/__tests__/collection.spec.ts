@@ -105,10 +105,15 @@ describe('Collection', () => {
       it('should emit modified documents if they match the selector', async done => {
         const { col } = await prepare();
         const watchPromise = watchN(col, 1, { z: 3 });
+        const watchPromise2 = watchN(col, 1, { z: 2 });
         await col.insert(TEST_DOCS);
         const out = await watchPromise;
+        const out2 = await watchPromise2;
         expect(out).toEqual([
           { id: (jasmine.any(Number) as any) as number, type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) },
+        ]);
+        expect(out2).toEqual([
+          { id: (jasmine.any(Number) as any) as number, type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 2) },
         ]);
         done();
       });
