@@ -127,8 +127,8 @@ export class Collection<T extends IDocument> {
     if (!selector) {
       return this.changes.asObservable().pipe(
         map(change => {
-          change.docs = change.docs.map(doc => omit(doc, '$loki', 'meta'));
-          return change;
+          const docs = change.docs.map(doc => omit(doc, '$loki', 'meta'));
+          return Object.assign({}, change, { docs });
         })
       );
     }
@@ -136,7 +136,6 @@ export class Collection<T extends IDocument> {
     return this.changes.pipe(
       switchMap(change => {
         const docs = change.docs.filter(doc => mq.test(doc)).map(doc => omit(doc, '$loki', 'meta'));
-        change.docs = docs;
         if (!docs.length) {
           return empty();
         }
