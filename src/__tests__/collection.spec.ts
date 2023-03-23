@@ -105,10 +105,15 @@ describe('Collection', () => {
       it('should emit modified documents if they match the selector', async done => {
         const { col } = await prepare();
         const watchPromise = watchN(col, 1, { z: 3 });
+        const watchPromise2 = watchN(col, 1, { z: 2 });
         await col.insert(TEST_DOCS);
         const out = await watchPromise;
+        const out2 = await watchPromise2;
         expect(out).toEqual([
           { id: (jasmine.any(Number) as any) as number, type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 3) },
+        ]);
+        expect(out2).toEqual([
+          { id: (jasmine.any(Number) as any) as number, type: 'insert', docs: TEST_DOCS.filter(doc => doc.z === 2) },
         ]);
         done();
       });
@@ -333,6 +338,25 @@ describe('Collection', () => {
       await col.insert(TEST_DOCS);
       const out = await promise;
       expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
+      done();
+    });
+
+    it('should update the exsiting query / upsert', async done => {
+      const { col } = await prepare();
+      const promise1 = watchN(col, 1);
+      await col.insert(TEST_DOCS);
+      let out = await promise1;
+      expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
+
+      const promise2 = watchN(col, 1);
+      await col.insert(Object.freeze({ id: 'd111', x: 2, y: 2, z: 2 }));
+      out = await promise2;
+      expect((col as any).storage.data.length).toEqual(TEST_DOCS.length);
+      expect((col as any).storage.data.filter((doc: any) => doc.id === 'd111').length).toEqual(1);
+      const updated = (col as any).storage.data.find((doc: any) => doc.id === 'd111');
+      expect(updated.x).toEqual(2);
+      expect(updated.y).toEqual(2);
+      expect(updated.z).toEqual(2);
       done();
     });
 
