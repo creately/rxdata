@@ -178,7 +178,19 @@ export class Collection<T extends IDocument> {
   // with the id already exists in the collection, it will be replaced.
   public async insert(docOrDocs: T | T[]): Promise<void> {
     const docs: T[] = cloneDeep(Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs]);
-    this.storage.insert(docs);
+    docs.forEach( doc => {
+      var existingDoc = this.storage.findOne({ id: doc.id });
+      if (existingDoc) {
+        // If a matching document exists, update it
+        Object.assign( existingDoc, doc );
+        this.storage.update(existingDoc);
+        return existingDoc;
+      } else {
+        // If no matching document exists, insert the new document
+        this.storage.insert( doc );
+      }
+      this.storage.findAndUpdate({ id: doc.id }, d => Object.assign( d, doc ))
+    });
     await this.emitAndApply({ id: this.nextChangeId(), type: 'insert', docs: docs });
   }
 

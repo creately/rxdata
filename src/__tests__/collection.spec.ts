@@ -341,6 +341,25 @@ describe('Collection', () => {
       done();
     });
 
+    it('should update the exsiting query / upsert', async done => {
+      const { col } = await prepare();
+      const promise1 = watchN(col, 1);
+      await col.insert(TEST_DOCS);
+      let out = await promise1;
+      expect(out).toEqual([{ id: (jasmine.any(Number) as any) as number, type: 'insert', docs: [...TEST_DOCS] }]);
+
+      const promise2 = watchN(col, 1);
+      await col.insert(Object.freeze({ id: 'd111', x: 2, y: 2, z: 2 }));
+      out = await promise2;
+      expect(( col as any ).storage.data.length ).toEqual( TEST_DOCS.length );
+      expect(( col as any ).storage.data.filter(( doc: any ) => doc.id === 'd111' ).length ).toEqual( 1 );
+      const updated = ( col as any ).storage.data.find(( doc: any ) => doc.id === 'd111' )
+      expect( updated.x ).toEqual( 2 );
+      expect( updated.y ).toEqual( 2 );
+      expect( updated.z ).toEqual( 2 );
+      done();
+    });
+
     it('should emit the inserted document as a change (remote)');
   });
 
