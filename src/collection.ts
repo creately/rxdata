@@ -184,7 +184,6 @@ export class Collection<T extends IDocument> {
         // If a matching document exists, update it
         Object.assign(existingDoc, doc);
         this.storage.update(existingDoc);
-        return existingDoc;
       } else {
         // If no matching document exists, insert the new document
         this.storage.insert(doc);
