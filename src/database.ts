@@ -27,8 +27,8 @@ export class Database {
   // close stops all database activities and disables all public methods.
   // This also closes all collection instances created by this database.
   public close() {
-    this.collections.forEach(col => col.close());
-    ['close', 'drop', 'collection'].forEach(name => {
+    this.collections.forEach((col) => col.close());
+    ['close', 'drop', 'collection'].forEach((name) => {
       (this as any)[name] = () => {
         throw ErrDatabaseClosed;
       };
@@ -56,7 +56,7 @@ export class Database {
     this.collections = new Map();
     const collections = this.collectionsList;
     this.collectionsList = [];
-    await Promise.all(collections.map(name => new Collection<any>(name).remove({})));
+    await Promise.all(collections.map((name) => new Collection<any>(name).remove({})));
   }
 
   // collectionsListKey

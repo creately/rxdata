@@ -28,10 +28,10 @@ describe('Database', () => {
   });
 
   describe('close', () => {
-    it('should disable all public methods', async done => {
+    it('should disable all public methods', async (done) => {
       const { db } = await prepare();
       db.close();
-      [() => db.close(), () => db.collection('c1'), () => db.drop()].forEach(fn => {
+      [() => db.close(), () => db.collection('c1'), () => db.drop()].forEach((fn) => {
         try {
           fn();
           fail();
@@ -42,7 +42,7 @@ describe('Database', () => {
       done();
     });
 
-    it('should close all collections', async done => {
+    it('should close all collections', async (done) => {
       const { db } = await prepare();
       const col = db.collection('test');
       db.close();
@@ -70,7 +70,7 @@ describe('Database', () => {
       expect(c1).toBe(c2);
     });
 
-    it('should sync collection documents in different database instances', async done => {
+    it('should sync collection documents in different database instances', async (done) => {
       const { db: d1 } = prepare();
       const d2 = new Database(d1.name);
       const c1 = d1.collection('test');
@@ -83,14 +83,14 @@ describe('Database', () => {
   });
 
   describe('drop', () => {
-    it('should return a promise which resolves to undefined', async done => {
+    it('should return a promise which resolves to undefined', async (done) => {
       const { db } = prepare();
       const out = await db.drop();
       expect(out).toBe(undefined);
       done();
     });
 
-    it('should remove all documents in all collections in the database', async done => {
+    it('should remove all documents in all collections in the database', async (done) => {
       const { db } = prepare();
       const c1 = db.collection('test');
       await c1.insert([{ id: 'd1' }]);

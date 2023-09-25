@@ -4,3 +4,4 @@ test/*.js
 test/*.js.map
 test/*.d.ts
 node_modules/*
+.DS_Store

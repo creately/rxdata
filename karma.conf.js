@@ -28,14 +28,14 @@ module.exports = function(config) {
         rules: [
           {
             test: /\.ts$/,
-            loader: 'ts-loader',
+            loader: '@ephesoft/webpack.istanbul.loader',
+            exclude: /node_modules|\.spec\.ts$|\.mock\.ts$|__tests\.ts$/,
+            enforce: 'post',
           },
           {
             test: /\.ts$/,
-            loader: 'istanbul-instrumenter-loader',
-            exclude: /node_modules|\.spec\.ts$|\.mock\.ts$|__tests\.ts$/,
-            enforce: 'post',
-          }
+            loader: 'ts-loader',
+          },
         ],
       },
     },

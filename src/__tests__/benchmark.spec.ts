@@ -9,7 +9,7 @@ interface IBenchmark<T> {
 }
 
 async function bench<T>(desc: string, params: IBenchmark<T>) {
-  it(desc, async done => {
+  it(desc, async (done) => {
     const data = await params.prepare();
     const startTime = Date.now();
     await params.execute(data);
@@ -32,7 +32,7 @@ describe('Benchmarks', () => {
 
   afterEach(() => {
     try {
-      subscriptions.forEach(s => s.unsubscribe());
+      subscriptions.forEach((s) => s.unsubscribe());
       subscriptions = [];
       database.close();
     } catch (err) {
@@ -46,7 +46,11 @@ describe('Benchmarks', () => {
   });
 
   describe('inserting documents', () => {
-    [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
+    [
+      [100, 0, 0],
+      [100, 1, 10],
+      [100, 10, 1],
+    ].forEach(([x, y, z]) => {
       bench(`insert ${x} docs with ${y}x${z} queries`, {
         async prepare() {
           const { col } = await prepare();
@@ -80,7 +84,11 @@ describe('Benchmarks', () => {
   });
 
   describe('updating documents', () => {
-    [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
+    [
+      [100, 0, 0],
+      [100, 1, 10],
+      [100, 10, 1],
+    ].forEach(([x, y, z]) => {
       bench(`update ${x} docs with ${y}x${z} queries`, {
         async prepare() {
           const { col } = await prepare();
@@ -115,7 +123,11 @@ describe('Benchmarks', () => {
   });
 
   describe('removing documents', () => {
-    [[100, 0, 0], [100, 1, 10], [100, 10, 1]].forEach(([x, y, z]) => {
+    [
+      [100, 0, 0],
+      [100, 1, 10],
+      [100, 10, 1],
+    ].forEach(([x, y, z]) => {
       bench(`remove ${x} docs with ${y}x${z} queries`, {
         async prepare() {
           const { col } = await prepare();

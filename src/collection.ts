@@ -102,14 +102,14 @@ export class Collection<T extends IDocument> {
 
   // changeResolve
   // changeResolve a msp of change ids to their resolve functions.
-  protected changeResolve: { [changeId: string]: () => void } = {};
+  protected changeResolve: { [changeId: string]: (value?: unknown) => any } = {};
 
   // constructor
   constructor(public name: string) {
     this.allDocs = new Subject();
     this.storage = LocalForage.createInstance({ name });
     this.changes = Channel.create(`rxdata.${name}.channel`);
-    this.changesSub = this.changes.pipe(concatMap(change => from(this.apply(change)))).subscribe();
+    this.changesSub = this.changes.pipe(concatMap((change: DocumentChange<T>) => from(this.apply(change)))).subscribe();
   }
 
   // close
@@ -117,7 +117,7 @@ export class Collection<T extends IDocument> {
   public close() {
     this.allDocs.error(ErrCollectionClosed);
     this.changesSub.unsubscribe();
-    ['close', 'watch', 'find', 'findOne', 'insert', 'update', 'remove'].forEach(name => {
+    ['close', 'watch', 'find', 'findOne', 'insert', 'update', 'remove'].forEach((name) => {
       (this as any)[name] = () => {
         throw ErrCollectionClosed;
       };
@@ -134,8 +134,8 @@ export class Collection<T extends IDocument> {
     }
     const mq = new mingo.Query(selector);
     return this.changes.pipe(
-      switchMap(change => {
-        const docs = change.docs.filter(doc => mq.test(doc));
+      switchMap((change: DocumentChange<T>) => {
+        const docs = change.docs.filter((doc) => mq.test(doc));
         if (!docs.length) {
           return empty();
         }
@@ -152,7 +152,7 @@ export class Collection<T extends IDocument> {
     return defer(() =>
       from(this.load()).pipe(
         concat(this.allDocs),
-        map(docs => this.filter(docs, selector, options)),
+        map((docs) => this.filter(docs, selector, options)),
         distinctUntilChanged(isequal)
       )
     );
@@ -167,7 +167,7 @@ export class Collection<T extends IDocument> {
     return defer(() =>
       from(this.load()).pipe(
         concat(this.allDocs),
-        map(docs => this.filter(docs, selector, options)[0] || null),
+        map((docs) => this.filter(docs, selector, options)[0] || null),
         distinctUntilChanged(isequal)
       )
     );
@@ -178,7 +178,7 @@ export class Collection<T extends IDocument> {
   // with the id already exists in the collection, it will be replaced.
   public async insert(docOrDocs: T | T[]): Promise<void> {
     const docs: T[] = cloneDeep(Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs]);
-    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    await this.storage.setItems(docs.map((doc) => ({ key: (doc as any).id, value: doc })));
     await this.emitAndApply({ id: this.nextChangeId(), type: 'insert', docs: docs });
   }
 
@@ -188,9 +188,9 @@ export class Collection<T extends IDocument> {
   public async update(selector: Selector, _modifier: Modifier): Promise<void> {
     const modifier = cloneDeep(_modifier);
     const filter = this.createFilter(selector);
-    const docs: T[] = cloneDeep((await this.load()).filter(doc => filter(doc)));
-    docs.forEach(doc => modify(doc, modifier));
-    await this.storage.setItems(docs.map(doc => ({ key: (doc as any).id, value: doc })));
+    const docs: T[] = cloneDeep((await this.load()).filter((doc) => filter(doc)));
+    docs.forEach((doc) => modify(doc, modifier));
+    await this.storage.setItems(docs.map((doc) => ({ key: (doc as any).id, value: doc })));
     await this.emitAndApply({ id: this.nextChangeId(), type: 'update', docs: docs, modifier: modifier });
   }
 
@@ -199,8 +199,8 @@ export class Collection<T extends IDocument> {
   // the given selector.
   public async remove(selector: Selector): Promise<void> {
     const filter = this.createFilter(selector);
-    const docs = (await this.load()).filter(doc => filter(doc));
-    await Promise.all(docs.map(doc => this.storage.removeItem((doc as any).id)));
+    const docs = (await this.load()).filter((doc) => filter(doc));
+    await Promise.all(docs.map((doc) => this.storage.removeItem((doc as any).id)));
     await this.emitAndApply({ id: this.nextChangeId(), type: 'remove', docs: docs });
   }
 
@@ -235,7 +235,7 @@ export class Collection<T extends IDocument> {
       return Promise.resolve(this.cachedDocs);
     }
     if (!this.loadPromise) {
-      this.loadPromise = this.loadAll().then(docs => (this.cachedDocs = docs));
+      this.loadPromise = this.loadAll().then((docs) => (this.cachedDocs = docs));
     }
     return this.loadPromise.then(() => this.cachedDocs as T[]);
   }
@@ -244,7 +244,7 @@ export class Collection<T extends IDocument> {
   // Reload loads all document from storage, update
   // the cachedDocs and emit the updated docs.
   public async reload() {
-    return this.loadAll().then(docs => {
+    return this.loadAll().then((docs) => {
       this.cachedDocs = docs;
       this.allDocs.next(this.cachedDocs);
     });
@@ -273,7 +273,7 @@ export class Collection<T extends IDocument> {
     }
     if (change.type === 'insert' || change.type === 'update') {
       for (const doc of change.docs) {
-        const index = this.cachedDocs.findIndex(d => d.id === doc.id);
+        const index = this.cachedDocs.findIndex((d) => d.id === doc.id);
         if (index === -1) {
           this.cachedDocs.push(doc);
         } else {
@@ -282,7 +282,7 @@ export class Collection<T extends IDocument> {
       }
     } else if (change.type === 'remove') {
       for (const doc of change.docs) {
-        const index = this.cachedDocs.findIndex(d => d.id === doc.id);
+        const index = this.cachedDocs.findIndex((d) => d.id === doc.id);
         if (index !== -1) {
           this.cachedDocs.splice(index, 1);
         }
@@ -305,7 +305,7 @@ export class Collection<T extends IDocument> {
   // emitAndApply
   // emitAndApply emits the change and waits until it is applied.
   private async emitAndApply(change: DocumentChange<T>): Promise<void> {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       this.changeResolve[change.id] = resolve;
       this.changes.next(change);
     });
