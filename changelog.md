@@ -1,3 +1,8 @@
+# 2021-06-30 - v6.0.0
+
+- Breaking: Needs Webpack 5
+- Updated to Webpack 5
+- Dropped CommonJS and uses ES Module
 # 2021-06-30 - v5.1.4
 
 - Added a `reload` function, which loads all data from storage and update the cachedDocs.

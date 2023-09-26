@@ -3,6 +3,7 @@ module.exports = function(config) {
     browsers: ['ChromeHeadless'],
     frameworks: [
       'jasmine',
+      'webpack'
     ],
     files: [
       { pattern: 'src/__tests.ts' },
@@ -12,9 +13,9 @@ module.exports = function(config) {
     },
     plugins : [
       'karma-webpack',
+      'karma-coverage',
       'karma-jasmine',
       'karma-chrome-launcher',
-      'karma-coverage-istanbul-reporter',
     ],
     preprocessors: {
       'src/**/*.ts': ['webpack'],
@@ -22,16 +23,13 @@ module.exports = function(config) {
     webpack: {
       mode: 'development',
       resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.ts', '.js'],
+        fallback: {
+          "crypto": require.resolve("crypto-browserify"),
+        }
       },
       module: {
         rules: [
-          {
-            test: /\.ts$/,
-            loader: '@ephesoft/webpack.istanbul.loader',
-            exclude: /node_modules|\.spec\.ts$|\.mock\.ts$|__tests\.ts$/,
-            enforce: 'post',
-          },
           {
             test: /\.ts$/,
             loader: 'ts-loader',
@@ -39,11 +37,10 @@ module.exports = function(config) {
         ],
       },
     },
-    reporters: ['dots', 'coverage-istanbul'],
-    coverageIstanbulReporter: {
-      dir: 'coverage/',
-      reports: [ 'text-summary', 'html', 'lcovonly' ],
-      fixWebpackSourcePaths: true
+    reporters: ['dots', 'coverage'],
+    coverageReporter: {
+      type : 'html',
+      dir : 'coverage/'
     },
   });
 };

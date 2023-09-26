@@ -3,7 +3,7 @@ __tests__
 dist/__tests.*
 coverage
 
-karma.conf.js
+karma.conf.cjs
 tsconfig.json
 tsconfig.spec.json
 test/*.ts
