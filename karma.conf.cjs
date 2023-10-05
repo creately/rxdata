@@ -6,7 +6,7 @@ module.exports = function(config) {
       'webpack'
     ],
     files: [
-      { pattern: 'src/__tests.ts' },
+      { pattern: './src/__tests.ts' },
     ],
     mime: {
       'text/x-typescript': ['ts'],
@@ -18,7 +18,7 @@ module.exports = function(config) {
       'karma-chrome-launcher',
     ],
     preprocessors: {
-      'src/**/*.ts': ['webpack'],
+      './src/**/*.ts': ['webpack'],
     },
     webpack: {
       mode: 'development',

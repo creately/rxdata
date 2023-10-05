@@ -4,11 +4,8 @@
         "declaration": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "lib": [
-            "dom",
-            "es2015"
-        ],
-        "module": "commonjs",
+        "lib": [ "dom", "ES2018" ],
+        "module": "ES6",
         "moduleResolution": "node",
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
@@ -21,7 +18,7 @@
         "sourceMap": true,
         "strict": true,
         "strictNullChecks": true,
-        "target": "es6",
+        "target": "ES6",
         "typeRoots": [
             "node_modules/@types"
         ]

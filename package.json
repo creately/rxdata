@@ -9,7 +9,7 @@
     "clean": "rimraf coverage dist",
     "build": "tsc && npm run build:mock",
     "build:mock": "tsc --p tsconfig.spec.json",
-    "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\"",
+    "lint": "prettier --print-width 120 --single-quote --trailing-comma es6 --write \"src/**/*.ts\"",
     "test": "karma start karma.conf.cjs --single-run",
     "test:watch": "karma start karma.conf.cjs",
     "test:cover": "npm run test && open coverage/index.html",
