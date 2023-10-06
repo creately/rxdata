@@ -1,6 +1,6 @@
 {
   "name": "@creately/rxdata",
-  "version": "6.0.0-dev",
+  "version": "7.0.0-dev",
   "description": "",
   "exports": "./dist/index.js",
   "type": "module",
@@ -9,7 +9,7 @@
     "clean": "rimraf coverage dist",
     "build": "tsc && npm run build:mock",
     "build:mock": "tsc --p tsconfig.spec.json",
-    "lint": "prettier --print-width 120 --single-quote --trailing-comma es6 --write \"src/**/*.ts\"",
+    "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\"",
     "test": "karma start karma.conf.cjs --single-run",
     "test:watch": "karma start karma.conf.cjs",
     "test:cover": "npm run test && open coverage/index.html",
@@ -47,10 +47,11 @@
   "dependencies": {
     "@creately/lschannel": "^2.0.3",
     "@creately/mungo": "^1.2.1",
-    "localforage": "^1.10.0",
-    "localforage-setitems": "^1.4.0",
+    "@types/lokijs": "^1.5.7",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
+    "lodash.omit": "^4.5.0",
+    "lokijs": "^1.5.12",
     "mingo": "^2.2.6",
     "rxjs": "^6.5.3"
   }
