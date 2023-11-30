@@ -45,7 +45,7 @@
     "webpack": "^5.88.2"
   },
   "dependencies": {
-    "@creately/lschannel": "^2.0.3",
+    "@creately/lschannel-es6": "^2.0.3",
     "@creately/mungo": "^1.2.1",
     "@types/lokijs": "^1.5.7",
     "lodash.clonedeep": "^4.5.0",

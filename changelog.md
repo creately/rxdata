@@ -70,7 +70,7 @@
 # 2017-08-24 - v4.0.0
 
 - Change package name to `@creately/rxdata`.
-- Add support for multiple tabs/windows using `@creately/lschannel` module.
+- Add support for multiple tabs/windows using `@creately/lschannel-es6` module.
 - Add a `watch` method on collection to subscribe to document changes.
 - Combine DatabasePersistor class and Database class.
 - Combine CollectionPersistor class and Collection class.

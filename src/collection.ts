@@ -6,7 +6,7 @@ import * as omit from 'lodash.omit';
 import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
 import { switchMap, concatMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
 import { modify } from '@creately/mungo';
-import { Channel } from '@creately/lschannel';
+import { Channel } from '@creately/lschannel-es6';
 
 // Selector
 // Selector is a mongo like selector used to filter documents.
