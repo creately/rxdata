@@ -10,7 +10,7 @@
     "build": "tsc && npm run build:mock",
     "build:mock": "tsc --p tsconfig.spec.json",
     "lint": "prettier --print-width 120 --single-quote --trailing-comma es5 --write \"src/**/*.ts\"",
-    "test": "karma start karma.conf.cjs --single-run",
+    "test": "npm run build && jasmine",
     "test:watch": "karma start karma.conf.cjs",
     "test:cover": "npm run test && open coverage/index.html",
     "prepublish": "npm run clean && npm run lint && npm run build"
@@ -23,25 +23,18 @@
   "author": "Muhammed Thanish <mnmtanish@gmail.com> (http://thanish.me/)",
   "license": "MIT",
   "devDependencies": {
-    "@ephesoft/webpack.istanbul.loader": "^2.2.0",
     "@types/jasmine": "^4.3.6",
     "@types/node": "^20.6.5",
     "@types/webpack-env": "^1.18.1",
     "browserify-fs": "^1.0.0",
     "crypto-browserify": "^3.12.0",
     "jasmine-core": "^5.1.1",
-    "karma": "^6.4.2",
-    "karma-chrome-launcher": "^3.2.0",
-    "karma-coverage": "^2.2.1",
-    "karma-coverage-istanbul-reporter": "^3.0.3",
-    "karma-jasmine": "^5.1.0",
-    "karma-typescript": "^5.5.4",
-    "karma-webpack": "^5.0.0",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.1",
     "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5",
+    "jasmine": "^5.1.0",
     "webpack": "^5.89.0"
   },
   "dependencies": {
@@ -51,7 +44,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "lodash.omit": "^4.5.0",
-    "mingo": "^2.2.6",
+    "mingo": "^6.4.9",
     "rxjs": "^6.5.3"
   }
 }
