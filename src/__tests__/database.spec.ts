@@ -94,7 +94,7 @@ describe('Database', () => {
       const { db } = prepare();
       const c1 = db.collection('test');
       await c1.insert([{ id: 'd1' }]);
-      expect(Collection.loki.getCollection(`rxdata.test-db.test`).data[0].id).toEqual('d1');
+      expect((Collection.loki.getCollection(`rxdata.test-db.test`)._data[0] as any).id).toEqual('d1');
       expect(await findN(c1, 1)).toEqual([[{ id: 'd1' }]]);
       await db.drop();
       expect(await findN(c1, 1)).toEqual([[]]);

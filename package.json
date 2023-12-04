@@ -25,7 +25,6 @@
   "devDependencies": {
     "@ephesoft/webpack.istanbul.loader": "^2.2.0",
     "@types/jasmine": "^4.3.6",
-    "@types/lokijs": "^1.5.14",
     "@types/node": "^20.6.5",
     "@types/webpack-env": "^1.18.1",
     "browserify-fs": "^1.0.0",
@@ -48,10 +47,10 @@
   "dependencies": {
     "@creately/lschannel-es6": "^2.0.3",
     "@creately/mungo": "^1.2.1",
+    "@lokidb/loki": "^2.1.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "lodash.omit": "^4.5.0",
-    "lokijs": "^1.5.12",
     "mingo": "^2.2.6",
     "rxjs": "^6.5.3"
   }

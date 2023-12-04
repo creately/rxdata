@@ -1,5 +1,5 @@
-import mingo from 'mingo';
-import * as Loki from 'lokijs';
+import { mingo } from 'mingo';
+import { Loki, Collection as LokiCollection } from "@lokidb/loki";
 import * as isequal from 'lodash.isequal';
 import * as cloneDeep from 'lodash.clonedeep';
 import * as omit from 'lodash.omit';
@@ -77,7 +77,7 @@ export class Collection<T extends IDocument> {
 
   // storage
   // storage stores documents in a suitable storage backend.
-  protected storage: Loki.Collection;
+  protected storage: LokiCollection<any>;
 
   // channel
   // channel sends/receives messages between browser tabs.
@@ -248,7 +248,7 @@ export class Collection<T extends IDocument> {
   // load
   // load loads all documents from the database to the in-memory cache.
   protected load(): Promise<T[]> {
-    return Promise.resolve(this.storage.data);
+    return Promise.resolve(this.storage._data);
   }
 
   // Reload
@@ -264,14 +264,14 @@ export class Collection<T extends IDocument> {
   // loadAll loads all documents from storage without filtering.
   // Returns a promise which resolves to an array of documents.
   protected async loadAll(): Promise<T[]> {
-    return Promise.resolve(this.storage.data);
+    return Promise.resolve(this.storage._data);
   }
 
   // refresh
   // refresh loads all documents from localForage storage and emits it
   // to all listening queries. Called when the collection gets changed.
   protected async apply(change: DocumentChange<T>) {
-    this.allDocs.next(this.storage.data);
+    this.allDocs.next(this.storage._data);
     const resolveFn = this.changeResolve[change.id];
     if (resolveFn) {
       resolveFn();
