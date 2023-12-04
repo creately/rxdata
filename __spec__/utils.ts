@@ -1,5 +1,5 @@
 import { take, toArray } from 'rxjs/operators';
-import { Collection, DocumentChange, IDocument } from '../collection';
+import { Collection, DocumentChange, IDocument } from '../src/collection';
 
 export function findN<T extends IDocument>(c: Collection<T>, n: number, ...args: any[]): Promise<T[][]> {
   return c

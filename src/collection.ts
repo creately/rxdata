@@ -1,5 +1,5 @@
 import mingo from 'mingo';
-import { Loki, Collection as LokiCollection } from "@lokidb/loki";
+import { Loki, Collection as LokiCollection } from '@lokidb/loki';
 import * as isequal from 'lodash.isequal';
 import * as cloneDeep from 'lodash.clonedeep';
 import * as omit from 'lodash.omit';

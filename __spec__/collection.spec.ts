@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { Collection, ErrCollectionClosed } from '../collection';
+import { Collection, ErrCollectionClosed } from '../src/collection';
 import { watchN, findN, find1N } from './utils';
-import { Database } from '../database';
+import { Database } from '../src/database';
 
 describe('Collection', () => {
   let database: Database;

@@ -1,5 +1,5 @@
-import { Database } from '../database';
-import { Collection } from '../collection';
+import { Database } from '../src/database';
+import { Collection } from '../src/collection';
 import { catchError } from 'rxjs/operators';
 import { empty, Subscription } from 'rxjs';
 

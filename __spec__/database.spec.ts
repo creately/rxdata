@@ -1,5 +1,5 @@
-import { Database, ErrDatabaseClosed } from '../database';
-import { Collection, ErrCollectionClosed } from '../collection';
+import { Database, ErrDatabaseClosed } from '../src/database';
+import { Collection, ErrCollectionClosed } from '../src/collection';
 import { findN } from './utils';
 
 describe('Database', () => {
