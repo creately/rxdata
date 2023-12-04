@@ -1,8 +1,6 @@
 import mingo from 'mingo';
 import { Loki, Collection as LokiCollection } from '@lokidb/loki';
-import * as isequal from 'lodash.isequal';
-import * as cloneDeep from 'lodash.clonedeep';
-import * as omit from 'lodash.omit';
+import { isEqual, cloneDeep, omit } from 'lodash';
 import { Observable, Subject, empty, of, defer, from, Subscription } from 'rxjs';
 import { switchMap, concatMap, concat, map, distinctUntilChanged } from 'rxjs/operators';
 import { modify } from '@creately/mungo';
@@ -153,7 +151,7 @@ export class Collection<T extends IDocument> {
       from(this.load()).pipe(
         concat(this.allDocs),
         map((docs) => this.filter(docs, selector, options)),
-        distinctUntilChanged(isequal)
+        distinctUntilChanged(isEqual)
       )
     );
   }
@@ -168,7 +166,7 @@ export class Collection<T extends IDocument> {
       from(this.load()).pipe(
         concat(this.allDocs),
         map((docs) => this.filter(docs, selector, options)[0] || null),
-        distinctUntilChanged(isequal)
+        distinctUntilChanged(isEqual)
       )
     );
   }
