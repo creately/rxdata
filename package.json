@@ -1,6 +1,6 @@
 {
   "name": "@creately/rxdata",
-  "version": "7.0.3-beta",
+  "version": "7.0.4-beta",
   "description": "",
   "exports": "./dist/index.js",
   "type": "module",
